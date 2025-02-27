@@ -214,6 +214,24 @@ class PlaydatePhoto(db.Model):
     def __repr__(self):
         return f'<PlaydatePhoto {self.id}: {self.filename}>'
 
+class GalleryPhoto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    pet_id = db.Column(db.Integer, db.ForeignKey('pet.id'), nullable=True)  # Optional link to a specific pet
+    filename = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(100), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    likes = db.Column(db.Integer, default=0)
+    is_public = db.Column(db.Boolean, default=True)
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    uploader = db.relationship('User', backref='gallery_photos')
+    pet = db.relationship('Pet', backref='gallery_photos')
+    
+    def __repr__(self):
+        return f'<GalleryPhoto {self.id}: {self.title or "Untitled"}>'
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -1097,6 +1115,157 @@ def delete_playdate_photo(photo_id):
     
     flash('Photo deleted successfully!')
     return redirect(url_for('playdate_photos', playdate_id=photo.playdate_id))
+
+@app.route('/gallery')
+def public_gallery():
+    # Get all public photos, newest first
+    photos = GalleryPhoto.query.filter_by(is_public=True).order_by(GalleryPhoto.uploaded_at.desc()).all()
+    
+    # Get current user if logged in
+    current_user = None
+    if 'username' in session:
+        current_user = User.query.filter_by(username=session['username']).first()
+    
+    return render_template('public_gallery.html', photos=photos, current_user=current_user)
+
+@app.route('/gallery/upload', methods=['GET', 'POST'])
+def upload_gallery_photo():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+    
+    # Get user's pets for the dropdown
+    user_pets = Pet.query.filter_by(owner_id=current_user.id).all()
+    
+    if request.method == 'POST':
+        # Check if the post request has the file part
+        if 'photo' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        
+        photo = request.files['photo']
+        title = request.form.get('title', '')
+        description = request.form.get('description', '')
+        pet_id = request.form.get('pet_id')
+        is_public = 'is_public' in request.form
+        
+        # If user does not select file, browser also
+        # submit an empty part without filename
+        if photo.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        
+        if photo and allowed_file(photo.filename, {'png', 'jpg', 'jpeg', 'gif'}):
+            # Generate a secure filename
+            filename = secure_filename(photo.filename)
+            # Add timestamp to ensure uniqueness
+            timestamp = int(time.time())
+            filename = f"{timestamp}_{filename}"
+            
+            # Create directory if it doesn't exist
+            gallery_photos_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'gallery_photos')
+            if not os.path.exists(gallery_photos_dir):
+                os.makedirs(gallery_photos_dir)
+            
+            # Save the file
+            photo.save(os.path.join(gallery_photos_dir, filename))
+            
+            # Create a new GalleryPhoto record
+            new_photo = GalleryPhoto(
+                user_id=current_user.id,
+                pet_id=pet_id if pet_id else None,
+                filename=filename,
+                title=title,
+                description=description,
+                is_public=is_public
+            )
+            
+            db.session.add(new_photo)
+            db.session.commit()
+            
+            flash('Photo uploaded successfully!')
+            return redirect(url_for('public_gallery'))
+        else:
+            flash('Invalid file type. Please upload a PNG, JPG, JPEG, or GIF file.')
+    
+    return render_template('upload_gallery_photo.html', pets=user_pets)
+
+@app.route('/gallery/my-photos')
+def my_gallery_photos():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+    
+    # Get all photos uploaded by the current user
+    photos = GalleryPhoto.query.filter_by(user_id=current_user.id).order_by(GalleryPhoto.uploaded_at.desc()).all()
+    
+    return render_template('my_gallery_photos.html', photos=photos)
+
+@app.route('/gallery/photo/<int:photo_id>')
+def view_gallery_photo(photo_id):
+    photo = GalleryPhoto.query.get_or_404(photo_id)
+    
+    # Check if the photo is public or belongs to the current user
+    if not photo.is_public and ('username' not in session or 
+                               User.query.filter_by(username=session['username']).first().id != photo.user_id):
+        flash('You do not have permission to view this photo.')
+        return redirect(url_for('public_gallery'))
+    
+    # Get current user if logged in
+    current_user = None
+    if 'username' in session:
+        current_user = User.query.filter_by(username=session['username']).first()
+    
+    return render_template('view_gallery_photo.html', photo=photo, current_user=current_user)
+
+@app.route('/gallery/photo/<int:photo_id>/delete', methods=['POST'])
+def delete_gallery_photo(photo_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+    photo = GalleryPhoto.query.get_or_404(photo_id)
+    
+    # Check if user is authorized to delete this photo
+    if current_user.id != photo.user_id:
+        flash('You are not authorized to delete this photo.')
+        return redirect(url_for('public_gallery'))
+    
+    # Delete the file from the filesystem
+    try:
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], 'gallery_photos', photo.filename))
+    except Exception as e:
+        # Log the error but continue with database deletion
+        print(f"Error deleting file: {e}")
+    
+    # Delete the database record
+    db.session.delete(photo)
+    db.session.commit()
+    
+    flash('Photo deleted successfully!')
+    return redirect(url_for('my_gallery_photos'))
+
+@app.route('/gallery/photo/<int:photo_id>/toggle-visibility', methods=['POST'])
+def toggle_gallery_photo_visibility(photo_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+    photo = GalleryPhoto.query.get_or_404(photo_id)
+    
+    # Check if user is authorized to modify this photo
+    if current_user.id != photo.user_id:
+        flash('You are not authorized to modify this photo.')
+        return redirect(url_for('public_gallery'))
+    
+    # Toggle visibility
+    photo.is_public = not photo.is_public
+    db.session.commit()
+    
+    flash(f'Photo is now {"public" if photo.is_public else "private"}.')
+    return redirect(url_for('my_gallery_photos'))
 
 # Helper function to check allowed file extensions
 def allowed_file(filename, allowed_extensions):

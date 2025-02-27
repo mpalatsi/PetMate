@@ -4949,6 +4949,3950 @@ button:active {
     }
 }
 
+.no-playdates {
+    text-align: center;
+    color: #666;
+    margin: 3rem 0;
+}
+
+.no-playdates a {
+    color: var(--sage-green);
+    text-decoration: none;
+}
+
+.no-playdates a:hover {
+    text-decoration: underline;
+}
+
+/* Google Places Autocomplete styles */
+.location-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+/* Style the Google Places Autocomplete dropdown */
+.pac-container {
+    border-radius: 3px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-top: 2px;
+}
+
+.pac-item {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.pac-item:hover {
+    background-color: #f5f5f5;
+}
+
+.pac-item-selected {
+    background-color: #f0f0f0;
+}
+
+/* Calendar Styles */
+.calendar {
+    max-width: 1000px;
+    margin: 2rem auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+}
+
+.calendar-header button {
+    background-color: var(--sage-green);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.calendar-header button:hover {
+    background-color: var(--deep-forest);
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    background-color: #f5f5f5;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #eee;
+    padding: 1px;
+    border-radius: 4px;
+}
+
+.calendar-day {
+    background: white;
+    min-height: 100px;
+    padding: 0.5rem;
+    position: relative;
+    cursor: pointer;
+}
+
+.calendar-day:hover {
+    background-color: #f9f9f9;
+}
+
+.has-playdates {
+    background-color: #e8f5e9;
+}
+
+.playdate-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: var(--sage-green);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+/* Popup Styles */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.popup-content {
+    position: relative;
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 8px;
+}
+
+.close-popup {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-popup:hover {
+    color: #333;
+}
+
+.popup-playdate {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+}
+
+.popup-playdate:last-child {
+    border-bottom: none;
+}
+
+.popup-playdate h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.site-title {
+    color: white;
+    text-decoration: none;
+}
+
+.site-title:hover {
+    color: #e0e0e0;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: var(--cream);
+}
+
+/* Section headings */
+.features h2, .how-it-works h2 {
+    font-size: 2.2rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.feature-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.feature-link:hover {
+    color: inherit;
+}
+
+/* Keep login and register forms narrow */
+form[action*="login"],
+form[action*="register"] {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Pet management styles */
+.pets-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.add-pet-button {
+    background-color: var(--sage-green);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.add-pet-button:hover {
+    background-color: var(--deep-forest);
+    transform: translateY(-2px);
+}
+
+.pets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.pet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.pet-card {
+    background-color: white;
+    border-radius: 12px;
+    overflow: visible;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 1px solid rgba(139, 115, 85, 0.1);
+    margin-bottom: 1.5rem;
+    padding-top: 75px;
+}
+
+.pet-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.pet-card .pet-image-container {
+    position: absolute;
+    top: -75px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.pet-info {
+    padding: 1.5rem;
+    padding-top: 85px;
+    flex-grow: 1;
+    background-color: white;
+    border-radius: 12px;
+}
+
+.pet-name {
+    color: var(--deep-forest);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    border-bottom: 2px solid rgba(124, 144, 130, 0.2);
+    padding-bottom: 0.5rem;
+}
+
+.pet-info p {
+    margin: 0.5rem 0;
+    color: var(--text-dark);
+}
+
+.pet-info p strong {
+    color: var(--deep-forest);
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.delete-form {
+    padding: 1rem 1.5rem;
+    background-color: rgba(124, 144, 130, 0.05);
+    border-top: 1px solid rgba(139, 115, 85, 0.1);
+    text-align: right;
+}
+
+.delete-button {
+    background-color: var(--error);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.delete-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+.no-pets {
+    text-align: center;
+    padding: 2rem;
+    background-color: rgba(124, 144, 130, 0.1);
+    border-radius: 8px;
+    margin-top: 2rem;
+}
+
+.no-pets a {
+    color: var(--sage-green);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.no-pets a:hover {
+    text-decoration: underline;
+    color: var(--deep-forest);
+}
+
+/* Pet form specific styles */
+.pet-form {
+    max-width: 800px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);  /* Two columns */
+    gap: 2rem;
+}
+
+/* Make certain fields take full width */
+.pet-form .form-group:nth-child(1),  /* Name */
+.pet-form .form-group:last-child,    /* Submit button */
+.pet-form .form-group:has(textarea)  /* Temperament */
+{
+    grid-column: 1 / -1;  /* Span both columns */
+}
+
+/* Style form fields */
+.pet-form input,
+.pet-form select,
+.pet-form textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid var(--sage-green);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+/* Adjust textarea height */
+.pet-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Image upload styles */
+.image-upload {
+    position: relative;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.file-input {
+    position: absolute;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.file-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--cream);
+    border: 2px dashed var(--sage-green);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-label:hover {
+    background-color: #f0f0f0;
+    border-color: var(--deep-forest);
+}
+
+.upload-icon {
+    font-size: 1.5rem;
+}
+
+.upload-text {
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.image-preview {
+    margin-top: 1rem;
+    max-width: 300px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.image-preview img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.image-preview img:hover {
+    transform: scale(1.02);
+}
+
+/* Update pet card to show image */
+.pet-card {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
+
+.pet-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 1.5rem auto 0;
+    border: 4px solid white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: block;
+}
+
+.pet-image:hover {
+    transform: scale(1.02);
+}
+
+.pet-image-placeholder {
+    width: 100%;
+    height: 200px;
+    background-color: var(--cream);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.upload-help {
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: var(--cream);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.upload-help ul {
+    margin: 0.5rem 0 0 1.2rem;
+    color: var(--text-dark);
+}
+
+.upload-help li {
+    margin: 0.3rem 0;
+}
+
+.cropper-container {
+    margin: 1rem 0;
+}
+
+.image-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.image-container img {
+    max-width: 100%;
+    display: block;
+}
+
+.cropper-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.crop-button, .cancel-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.crop-button {
+    background-color: var(--sage-green);
+    color: white;
+}
+
+.cancel-button {
+    background-color: var(--terracotta);
+    color: white;
+}
+
+.crop-button:hover, .cancel-button:hover {
+    filter: brightness(90%);
+}
+
+/* Override Cropper.js styles to match our theme */
+.cropper-view-box {
+    outline: 2px solid var(--sage-green);
+    outline-color: var(--sage-green);
+}
+
+.cropper-line {
+    background-color: var(--sage-green);
+}
+
+.cropper-point {
+    background-color: var(--sage-green);
+}
+
+/* Logo styles */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    background-color: var(--terracotta);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.logo-icon::before {
+    content: '♥';
+    color: white;
+    font-size: 18px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.logo-icon::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 14px;
+    height: 14px;
+    background-color: var(--sage-green);
+    border-radius: 50%;
+    border: 2px solid var(--deep-forest);
+    transition: all 0.3s ease;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: white;
+    letter-spacing: 0.5px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.logo-text .highlight {
+    color: var(--terracotta);
+    position: relative;
+}
+
+.site-title:hover .logo-icon {
+    transform: rotate(15deg) scale(1.1);
+}
+
+.site-title:hover .logo-icon::after {
+    transform: scale(1.2);
+}
+
+.site-title:hover .logo-text {
+    letter-spacing: 1px;
+}
+
+/* Paw print after the logo text */
+.logo-text::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: var(--terracotta);
+    border-radius: 50%;
+    right: -18px;
+    bottom: 5px;
+    box-shadow: -5px -5px 0 -3px var(--terracotta), 
+                5px -5px 0 -3px var(--terracotta), 
+                0 -9px 0 -2px var(--terracotta);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s ease;
+}
+
+.site-title:hover .logo-text::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* New paw logo */
+.paw-logo {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+
+.paw-logo .pad {
+    position: absolute;
+    background-color: var(--terracotta);
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.paw-logo .pad.main {
+    width: 20px;
+    height: 20px;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.paw-logo .pad.top-left {
+    width: 12px;
+    height: 12px;
+    top: 4px;
+    left: 6px;
+}
+
+.paw-logo .pad.top-right {
+    width: 12px;
+    height: 12px;
+    top: 4px;
+    right: 6px;
+}
+
+.paw-logo .pad.bottom-left {
+    width: 12px;
+    height: 12px;
+    bottom: 12px;
+    left: 2px;
+}
+
+.paw-logo .pad.bottom-right {
+    width: 12px;
+    height: 12px;
+    bottom: 12px;
+    right: 2px;
+}
+
+.site-title:hover .paw-logo .pad.top-left {
+    transform: translate(-2px, -2px);
+}
+
+.site-title:hover .paw-logo .pad.top-right {
+    transform: translate(2px, -2px);
+}
+
+.site-title:hover .paw-logo .pad.bottom-left {
+    transform: translate(-2px, 2px);
+}
+
+.site-title:hover .paw-logo .pad.bottom-right {
+    transform: translate(2px, 2px);
+}
+
+.site-title:hover .paw-logo .pad.main {
+    transform: translateX(-50%) scale(1.1);
+}
+
+/* Slider Menu Styles */
+.menu-toggle {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle:hover {
+    color: var(--sage-green);
+    transform: scale(1.1);
+}
+
+.slider-menu {
+    position: fixed;
+    top: 0;
+    right: -300px; /* Hidden by default */
+    width: 300px;
+    height: 100vh;
+    background: linear-gradient(135deg, var(--deep-forest) 0%, #1a2f25 100%);
+    padding: 2rem 1.5rem;
+    transition: all 0.3s ease;
+    z-index: -1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    visibility: hidden;
+    opacity: 0;
+}
+
+.slider-menu.active {
+    right: 0; /* Show the menu */
+    z-index: 1000;
+    visibility: visible;
+    opacity: 1;
+}
+
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu-header span {
+    color: var(--text-light);
+    font-size: 1.4rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.close-menu {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.close-menu:hover {
+    color: var(--sage-green);
+    transform: rotate(90deg);
+}
+
+.slider-menu a {
+    color: var(--text-light);
+    text-decoration: none;
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s ease;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.slider-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(-5px);
+}
+
+.slider-menu a i {
+    width: 24px;
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--sage-green);
+}
+
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s linear;
+    z-index: 999; /* Ensure it's above other content */
+}
+
+.menu-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Adjust user menu */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-menu span {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.user-menu a {
+    color: var(--text-light);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.user-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .user-menu span {
+        display: none;
+    }
+}
+
+/* Enhanced button styling */
+.submit-button, .cta-button, button {
+    background: linear-gradient(135deg, var(--sage-green) 0%, #5a7361 100%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.submit-button:hover, .cta-button:hover, button:hover {
+    background: linear-gradient(135deg, #5a7361 0%, var(--sage-green) 100%);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Enhanced form inputs */
+input:focus, select:focus, textarea:focus {
+    border-color: var(--sage-green);
+    box-shadow: 0 0 0 3px rgba(124, 144, 130, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Enhanced container styling */
+.container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 
+        0 4px 6px rgba(0, 0, 0, 0.05),
+        0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced image styling */
+.pet-image, .image-preview img {
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.pet-image:hover, .image-preview img:hover {
+    transform: scale(1.02);
+}
+
+/* Add animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.pet-card, .playdate-card, .feature-card {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Enhanced headings */
+h1, h2, h3 {
+    color: var(--deep-forest);
+    position: relative;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+/* Override for site title */
+.site-title {
+    color: var(--text-light);
+    text-decoration: none;
+}
+
+.site-title:hover {
+    color: var(--cream);
+}
+
+/* Loading animation */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        transparent 100%
+    );
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+}
+
+/* Button press effect */
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+
+.button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: var(--sage-green);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-bottom: 1rem; /* Add some space below the button */
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: var(--deep-forest);
+}
+
+.profile-card {
+    background-color: var(--bg-white);
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    padding: 2rem;
+    text-align: center;
+    margin: 2rem 0;
+    border: 1px solid var(--border-light);
+}
+
+.profile-info {
+    margin-top: 1rem; /* Space above the info */
+}
+
+.profile-info p {
+    font-size: 1.1rem; /* Slightly larger font size */
+    color: var(--text-dark); /* Use dark text color */
+}
+
+.profile-picture {
+    width: 150px; /* Set a width for the profile picture */
+    height: 150px; /* Set a height for the profile picture */
+    border-radius: 50%; /* Make it circular */
+    object-fit: cover; /* Ensure the image covers the area */
+    margin-bottom: 1rem; /* Add some space below the image */
+}
+
+/* Additional styles for the container */
+.container {
+    background-color: var(--bg-white); /* Override the cream background */
+    padding: 2rem; /* Padding around the container */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Enhanced Container for Pet Cards */
+.container.pet-container {
+    background-color: var(--bg-white);
+    border: 1px solid var(--border-light);
+    padding: 2.5rem;
+}
+
+/* Enhance the pet grid spacing */
+.pet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 5rem;
+    padding-top: 2rem;
+}
+
+/* Make the pet cards stand out more */
+.pet-card {
+    background-color: white;
+    border-radius: 12px;
+    overflow: visible;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 1px solid rgba(139, 115, 85, 0.1);
+    margin-bottom: 1.5rem;
+    padding-top: 75px;
+}
+
+.pet-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Add a gradient top border to pet cards */
+.pet-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--sage-green), var(--warm-brown));
+    z-index: 1;
+}
+
+/* Add subtle accent borders to different container types */
+.container.pet-container {
+    border-top: 4px solid var(--warm-brown);
+}
+
+.schedule-container {
+    border-top: 4px solid var(--sage-green);
+}
+
+.container.profile-container {
+    border-top: 4px solid var(--deep-forest);
+}
+
+/* Add subtle background patterns to containers */
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(124, 144, 130, 0.03) 0%, transparent 8%),
+        radial-gradient(circle at 90% 80%, rgba(124, 144, 130, 0.03) 0%, transparent 8%);
+    background-position: 0 0, 50px 50px;
+    background-size: 100px 100px;
+    opacity: 0.5;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+/* Search page styling */
+.search-container {
+    background-color: var(--bg-white);
+    border-top: 4px solid var(--info);
+    padding: 2.5rem;
+}
+
+.search-intro {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+}
+
+.search-form {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(124, 144, 130, 0.15);
+}
+
+.search-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.search-form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+/* Search results styling */
+.search-results-container {
+    background-color: var(--bg-white);
+    border-top: 4px solid var(--info);
+    padding: 2.5rem;
+}
+
+.search-summary {
+    background-color: var(--bg-sage-light);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.search-summary h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--deep-forest);
+}
+
+.search-params {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    justify-content: center;
+}
+
+.search-tag {
+    background-color: var(--bg-white);
+    color: var(--text-dark);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.search-tag i {
+    color: var(--info);
+}
+
+.results-count {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    color: var(--text-dark);
+}
+
+.search-results {
+    margin-top: 2rem;
+}
+
+.search-results-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(124, 144, 130, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-results-count {
+    font-size: 1.1rem;
+    color: var(--deep-forest);
+    font-weight: 600;
+}
+
+.search-results-sort {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.search-results-sort label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.search-results-sort select {
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid rgba(124, 144, 130, 0.3);
+    background-color: white;
+    color: var(--text-dark);
+}
+
+.search-result-card {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(124, 144, 130, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-result-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.search-result-header {
+    background: linear-gradient(135deg, var(--sage-green) 0%, var(--deep-forest) 100%);
+    color: white;
+    padding: 1rem;
+}
+
+.search-result-header-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    align-items: center;
+}
+
+.search-result-date-time {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.search-result-date {
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.search-result-time {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+}
+
+.search-result-location {
+    margin-left: auto;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    max-width: 40%;
+    text-align: right;
+}
+
+.search-result-header i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+.search-result-content {
+    padding: 1.2rem;
+}
+
+.search-result-info {
+    margin-bottom: 1rem;
+}
+
+.search-result-host-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.host-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.host-name {
+    font-weight: 600;
+    color: var(--deep-forest);
+}
+
+.search-result-description {
+    color: var(--text-dark);
+    font-style: italic;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.search-result-pets {
+    margin-top: 1rem;
+}
+
+.search-result-pets h5 {
+    margin-top: 0;
+    color: var(--deep-forest);
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.search-result-pets h5 i {
+    margin-right: 0.5rem;
+    color: var(--sage-green);
+}
+
+.search-result-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(124, 144, 130, 0.1);
+    flex-wrap: wrap;
+}
+
+.no-results {
+    text-align: center;
+    padding: 3rem;
+    background-color: rgba(124, 144, 130, 0.05);
+    border-radius: 12px;
+    margin-top: 2rem;
+}
+
+.no-results p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+/* Distance badge */
+.distance-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin-left: 1rem;
+}
+
+.distance-badge i {
+    margin-right: 0.4rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .search-form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-results-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .search-result-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+    }
+    
+    .search-result-location {
+        margin-left: 0;
+        max-width: 100%;
+        text-align: left;
+    }
+    
+    .search-result-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-result-actions .button {
+        width: 100%;
+    }
+}
+
+/* Make the Find Playmates menu item more visible */
+.slider-menu a[href*="search"] {
+    background-color: rgba(124, 144, 130, 0.2);
+    font-weight: bold;
+    border-left: 3px solid var(--info);
+}
+
+/* Enhanced Pet Card Styling */
+.pet-container {
+    background-color: var(--bg-white);
+    padding: 2.5rem;
+    margin-top: 2rem;
+    text-align: center;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: none; /* Ensure no border is applied */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); /* Add shadow for depth instead of border */
+}
+
+/* Remove the pseudo-element that's creating the line */
+.pet-container::before {
+    display: none; /* Hide the pseudo-element completely */
+}
+
+/* Add a different visual element to distinguish the container */
+.pet-container {
+    background: linear-gradient(to bottom, rgba(124, 144, 130, 0.08), var(--bg-white) 15%);
+}
+
+.pet-container h2 {
+    color: var(--deep-forest);
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    position: relative;
+    display: inline-block;
+    text-align: center; /* Ensure the title is centered */
+}
+
+.pet-container h2:after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%; /* Center the underline */
+    transform: translateX(-50%); /* Center the underline */
+    width: 60px;
+    height: 3px;
+    background-color: var(--warm-brown);
+}
+
+/* Move the Add New Pet button to the bottom */
+.pet-container .button-container {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.pet-container .button {
+    display: inline-block;
+    background-color: var(--sage-green);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 1.5rem; /* Add space above the button */
+}
+
+.pet-grid {
+    margin-top: 2rem; /* Add more space between title and grid */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pet-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .pet-image {
+        height: 160px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pet-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .pet-container {
+        padding: 1.5rem;
+    }
+    
+    .pet-image {
+        height: 200px;
+    }
+}
+
+/* Pet action buttons styling */
+.pet-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background-color: rgba(124, 144, 130, 0.05);
+    border-top: 1px solid rgba(139, 115, 85, 0.1);
+}
+
+.edit-button {
+    background-color: var(--info);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.edit-button i, .delete-button i {
+    margin-right: 0.5rem;
+}
+
+.edit-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+.delete-button {
+    background-color: var(--error);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.delete-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+.delete-form {
+    margin: 0;
+    padding: 0;
+}
+
+/* Playdate list in search results */
+.upcoming-playdates {
+    margin-top: 1rem;
+    background-color: rgba(124, 144, 130, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.upcoming-playdates h5 {
+    color: var(--deep-forest);
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.playdate-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.playdate-item {
+    background-color: white;
+    border-radius: 6px;
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid rgba(124, 144, 130, 0.1);
+    font-size: 0.9rem;
+}
+
+.playdate-date, .playdate-time, .playdate-location {
+    margin-bottom: 0.3rem;
+}
+
+.playdate-item i {
+    width: 16px;
+    color: var(--sage-green);
+    margin-right: 0.5rem;
+}
+
+.view-playdate-button {
+    display: inline-block;
+    background-color: var(--sage-green);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.view-playdate-button:hover {
+    background-color: var(--deep-forest);
+}
+
+/* Pet selection in schedule form */
+.pet-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.pet-checkbox {
+    position: relative;
+}
+
+.pet-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.pet-checkbox label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pet-checkbox label img, 
+.pet-checkbox .pet-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+}
+
+.pet-checkbox .pet-placeholder {
+    background-color: var(--bg-sage-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pet-checkbox input[type="checkbox"]:checked + label {
+    background-color: rgba(124, 144, 130, 0.1);
+    border-color: var(--sage-green);
+}
+
+/* Playdate card in search results */
+.playdate-card {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(124, 144, 130, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.playdate-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Card header with date/time/location */
+.playdate-header {
+    background: linear-gradient(135deg, var(--sage-green) 0%, var(--deep-forest) 100%);
+    color: white;
+    padding: 1rem;
+}
+
+.playdate-header-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    align-items: center;
+}
+
+.playdate-date-time {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.playdate-date {
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.playdate-time {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+}
+
+.playdate-location {
+    margin-left: auto;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    max-width: 40%;
+    text-align: right;
+}
+
+.playdate-header i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+/* Card body */
+.playdate-content {
+    padding: 1.2rem;
+}
+
+.playdate-info {
+    margin-bottom: 1.2rem;
+}
+
+.playdate-host-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+
+.host-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-right: 0.5rem;
+}
+
+.host-name {
+    font-weight: 600;
+    color: var(--deep-forest);
+}
+
+.your-playdate-badge {
+    background-color: var(--sage-green);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+}
+
+.playdate-description {
+    color: var(--text-dark);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(124, 144, 130, 0.1);
+}
+
+/* Pets section */
+.playdate-pets {
+    margin-bottom: 1.2rem;
+}
+
+.playdate-pets h5 {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+}
+
+.playdate-pets h5 i {
+    margin-right: 0.4rem;
+}
+
+.pet-avatars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.pet-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 65px;
+    margin-bottom: 0.5rem;
+}
+
+.pet-avatar img, 
+.pet-avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 0.4rem;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.pet-avatar-placeholder {
+    background-color: var(--bg-sage-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sage-green);
+    font-size: 1.2rem;
+}
+
+.pet-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    text-align: center;
+    max-width: 65px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Card actions */
+.playdate-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(124, 144, 130, 0.1);
+}
+
+.attendance-status {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-badge i {
+    margin-right: 0.3rem;
+}
+
+.status-confirmed {
+    background-color: rgba(124, 144, 130, 0.15);
+    color: var(--sage-green);
+}
+
+.status-maybe {
+    background-color: rgba(139, 115, 85, 0.15);
+    color: var(--warm-brown);
+}
+
+.status-declined {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: var(--error);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.6rem;
+}
+
+/* Button styling */
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    border: none;
+}
+
+.button.primary {
+    background-color: var(--sage-green);
+    color: white;
+}
+
+.button.primary:hover {
+    background-color: var(--deep-forest);
+}
+
+.button.secondary {
+    background-color: white;
+    color: var(--deep-forest);
+    border: 1px solid rgba(124, 144, 130, 0.3);
+}
+
+.button.secondary:hover {
+    background-color: rgba(124, 144, 130, 0.05);
+    border-color: var(--sage-green);
+}
+
+.button.small {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.75rem;
+}
+
+.button i {
+    margin-right: 0.4rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .playdate-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+    }
+    
+    .playdate-location {
+        margin-left: 0;
+        max-width: 100%;
+        text-align: left;
+    }
+    
+    .playdate-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .attendance-status {
+        justify-content: space-between;
+        width: 100%;
+    }
+    
+    .action-buttons {
+        width: 100%;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .button {
+        width: 100%;
+    }
+}
+
+.no-playdates {
+    text-align: center;
+    color: #666;
+    margin: 3rem 0;
+}
+
+.no-playdates a {
+    color: var(--sage-green);
+    text-decoration: none;
+}
+
+.no-playdates a:hover {
+    text-decoration: underline;
+}
+
+/* Google Places Autocomplete styles */
+.location-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+/* Style the Google Places Autocomplete dropdown */
+.pac-container {
+    border-radius: 3px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-top: 2px;
+}
+
+.pac-item {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.pac-item:hover {
+    background-color: #f5f5f5;
+}
+
+.pac-item-selected {
+    background-color: #f0f0f0;
+}
+
+/* Calendar Styles */
+.calendar {
+    max-width: 1000px;
+    margin: 2rem auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+}
+
+.calendar-header button {
+    background-color: var(--sage-green);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.calendar-header button:hover {
+    background-color: var(--deep-forest);
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    background-color: #f5f5f5;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #eee;
+    padding: 1px;
+    border-radius: 4px;
+}
+
+.calendar-day {
+    background: white;
+    min-height: 100px;
+    padding: 0.5rem;
+    position: relative;
+    cursor: pointer;
+}
+
+.calendar-day:hover {
+    background-color: #f9f9f9;
+}
+
+.has-playdates {
+    background-color: #e8f5e9;
+}
+
+.playdate-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: var(--sage-green);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+/* Popup Styles */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.popup-content {
+    position: relative;
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 8px;
+}
+
+.close-popup {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-popup:hover {
+    color: #333;
+}
+
+.popup-playdate {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+}
+
+.popup-playdate:last-child {
+    border-bottom: none;
+}
+
+.popup-playdate h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.site-title {
+    color: white;
+    text-decoration: none;
+}
+
+.site-title:hover {
+    color: #e0e0e0;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: var(--cream);
+}
+
+/* Section headings */
+.features h2, .how-it-works h2 {
+    font-size: 2.2rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.feature-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.feature-link:hover {
+    color: inherit;
+}
+
+/* Keep login and register forms narrow */
+form[action*="login"],
+form[action*="register"] {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Pet management styles */
+.pets-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.add-pet-button {
+    background-color: var(--sage-green);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.add-pet-button:hover {
+    background-color: var(--deep-forest);
+    transform: translateY(-2px);
+}
+
+.pets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.pet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.pet-card {
+    background-color: white;
+    border-radius: 12px;
+    overflow: visible;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 1px solid rgba(139, 115, 85, 0.1);
+    margin-bottom: 1.5rem;
+    padding-top: 75px;
+}
+
+.pet-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.pet-card .pet-image-container {
+    position: absolute;
+    top: -75px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.pet-info {
+    padding: 1.5rem;
+    padding-top: 85px;
+    flex-grow: 1;
+    background-color: white;
+    border-radius: 12px;
+}
+
+.pet-name {
+    color: var(--deep-forest);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    border-bottom: 2px solid rgba(124, 144, 130, 0.2);
+    padding-bottom: 0.5rem;
+}
+
+.pet-info p {
+    margin: 0.5rem 0;
+    color: var(--text-dark);
+}
+
+.pet-info p strong {
+    color: var(--deep-forest);
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.delete-form {
+    padding: 1rem 1.5rem;
+    background-color: rgba(124, 144, 130, 0.05);
+    border-top: 1px solid rgba(139, 115, 85, 0.1);
+    text-align: right;
+}
+
+.delete-button {
+    background-color: var(--error);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.delete-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+.no-pets {
+    text-align: center;
+    padding: 2rem;
+    background-color: rgba(124, 144, 130, 0.1);
+    border-radius: 8px;
+    margin-top: 2rem;
+}
+
+.no-pets a {
+    color: var(--sage-green);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.no-pets a:hover {
+    text-decoration: underline;
+    color: var(--deep-forest);
+}
+
+/* Pet form specific styles */
+.pet-form {
+    max-width: 800px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);  /* Two columns */
+    gap: 2rem;
+}
+
+/* Make certain fields take full width */
+.pet-form .form-group:nth-child(1),  /* Name */
+.pet-form .form-group:last-child,    /* Submit button */
+.pet-form .form-group:has(textarea)  /* Temperament */
+{
+    grid-column: 1 / -1;  /* Span both columns */
+}
+
+/* Style form fields */
+.pet-form input,
+.pet-form select,
+.pet-form textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid var(--sage-green);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+/* Adjust textarea height */
+.pet-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Image upload styles */
+.image-upload {
+    position: relative;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.file-input {
+    position: absolute;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.file-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--cream);
+    border: 2px dashed var(--sage-green);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-label:hover {
+    background-color: #f0f0f0;
+    border-color: var(--deep-forest);
+}
+
+.upload-icon {
+    font-size: 1.5rem;
+}
+
+.upload-text {
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.image-preview {
+    margin-top: 1rem;
+    max-width: 300px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.image-preview img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.image-preview img:hover {
+    transform: scale(1.02);
+}
+
+/* Update pet card to show image */
+.pet-card {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
+
+.pet-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 1.5rem auto 0;
+    border: 4px solid white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: block;
+}
+
+.pet-image:hover {
+    transform: scale(1.02);
+}
+
+.pet-image-placeholder {
+    width: 100%;
+    height: 200px;
+    background-color: var(--cream);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.upload-help {
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: var(--cream);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.upload-help ul {
+    margin: 0.5rem 0 0 1.2rem;
+    color: var(--text-dark);
+}
+
+.upload-help li {
+    margin: 0.3rem 0;
+}
+
+.cropper-container {
+    margin: 1rem 0;
+}
+
+.image-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.image-container img {
+    max-width: 100%;
+    display: block;
+}
+
+.cropper-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.crop-button, .cancel-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.crop-button {
+    background-color: var(--sage-green);
+    color: white;
+}
+
+.cancel-button {
+    background-color: var(--terracotta);
+    color: white;
+}
+
+.crop-button:hover, .cancel-button:hover {
+    filter: brightness(90%);
+}
+
+/* Override Cropper.js styles to match our theme */
+.cropper-view-box {
+    outline: 2px solid var(--sage-green);
+    outline-color: var(--sage-green);
+}
+
+.cropper-line {
+    background-color: var(--sage-green);
+}
+
+.cropper-point {
+    background-color: var(--sage-green);
+}
+
+/* Logo styles */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    background-color: var(--terracotta);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.logo-icon::before {
+    content: '♥';
+    color: white;
+    font-size: 18px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.logo-icon::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 14px;
+    height: 14px;
+    background-color: var(--sage-green);
+    border-radius: 50%;
+    border: 2px solid var(--deep-forest);
+    transition: all 0.3s ease;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: white;
+    letter-spacing: 0.5px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.logo-text .highlight {
+    color: var(--terracotta);
+    position: relative;
+}
+
+.site-title:hover .logo-icon {
+    transform: rotate(15deg) scale(1.1);
+}
+
+.site-title:hover .logo-icon::after {
+    transform: scale(1.2);
+}
+
+.site-title:hover .logo-text {
+    letter-spacing: 1px;
+}
+
+/* Paw print after the logo text */
+.logo-text::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: var(--terracotta);
+    border-radius: 50%;
+    right: -18px;
+    bottom: 5px;
+    box-shadow: -5px -5px 0 -3px var(--terracotta), 
+                5px -5px 0 -3px var(--terracotta), 
+                0 -9px 0 -2px var(--terracotta);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s ease;
+}
+
+.site-title:hover .logo-text::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* New paw logo */
+.paw-logo {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+
+.paw-logo .pad {
+    position: absolute;
+    background-color: var(--terracotta);
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.paw-logo .pad.main {
+    width: 20px;
+    height: 20px;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.paw-logo .pad.top-left {
+    width: 12px;
+    height: 12px;
+    top: 4px;
+    left: 6px;
+}
+
+.paw-logo .pad.top-right {
+    width: 12px;
+    height: 12px;
+    top: 4px;
+    right: 6px;
+}
+
+.paw-logo .pad.bottom-left {
+    width: 12px;
+    height: 12px;
+    bottom: 12px;
+    left: 2px;
+}
+
+.paw-logo .pad.bottom-right {
+    width: 12px;
+    height: 12px;
+    bottom: 12px;
+    right: 2px;
+}
+
+.site-title:hover .paw-logo .pad.top-left {
+    transform: translate(-2px, -2px);
+}
+
+.site-title:hover .paw-logo .pad.top-right {
+    transform: translate(2px, -2px);
+}
+
+.site-title:hover .paw-logo .pad.bottom-left {
+    transform: translate(-2px, 2px);
+}
+
+.site-title:hover .paw-logo .pad.bottom-right {
+    transform: translate(2px, 2px);
+}
+
+.site-title:hover .paw-logo .pad.main {
+    transform: translateX(-50%) scale(1.1);
+}
+
+/* Slider Menu Styles */
+.menu-toggle {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle:hover {
+    color: var(--sage-green);
+    transform: scale(1.1);
+}
+
+.slider-menu {
+    position: fixed;
+    top: 0;
+    right: -300px; /* Hidden by default */
+    width: 300px;
+    height: 100vh;
+    background: linear-gradient(135deg, var(--deep-forest) 0%, #1a2f25 100%);
+    padding: 2rem 1.5rem;
+    transition: all 0.3s ease;
+    z-index: -1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    visibility: hidden;
+    opacity: 0;
+}
+
+.slider-menu.active {
+    right: 0; /* Show the menu */
+    z-index: 1000;
+    visibility: visible;
+    opacity: 1;
+}
+
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu-header span {
+    color: var(--text-light);
+    font-size: 1.4rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.close-menu {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.close-menu:hover {
+    color: var(--sage-green);
+    transform: rotate(90deg);
+}
+
+.slider-menu a {
+    color: var(--text-light);
+    text-decoration: none;
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s ease;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.slider-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(-5px);
+}
+
+.slider-menu a i {
+    width: 24px;
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--sage-green);
+}
+
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s linear;
+    z-index: 999; /* Ensure it's above other content */
+}
+
+.menu-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Adjust user menu */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-menu span {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.user-menu a {
+    color: var(--text-light);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.user-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .user-menu span {
+        display: none;
+    }
+}
+
+/* Enhanced button styling */
+.submit-button, .cta-button, button {
+    background: linear-gradient(135deg, var(--sage-green) 0%, #5a7361 100%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.submit-button:hover, .cta-button:hover, button:hover {
+    background: linear-gradient(135deg, #5a7361 0%, var(--sage-green) 100%);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Enhanced form inputs */
+input:focus, select:focus, textarea:focus {
+    border-color: var(--sage-green);
+    box-shadow: 0 0 0 3px rgba(124, 144, 130, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Enhanced container styling */
+.container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 
+        0 4px 6px rgba(0, 0, 0, 0.05),
+        0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced image styling */
+.pet-image, .image-preview img {
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.pet-image:hover, .image-preview img:hover {
+    transform: scale(1.02);
+}
+
+/* Add animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.pet-card, .playdate-card, .feature-card {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Enhanced headings */
+h1, h2, h3 {
+    color: var(--deep-forest);
+    position: relative;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+/* Override for site title */
+.site-title {
+    color: var(--text-light);
+    text-decoration: none;
+}
+
+.site-title:hover {
+    color: var(--cream);
+}
+
+/* Loading animation */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        transparent 100%
+    );
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+}
+
+/* Button press effect */
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+
+.button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: var(--sage-green);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-bottom: 1rem; /* Add some space below the button */
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: var(--deep-forest);
+}
+
+.profile-card {
+    background-color: var(--bg-white);
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    padding: 2rem;
+    text-align: center;
+    margin: 2rem 0;
+    border: 1px solid var(--border-light);
+}
+
+.profile-info {
+    margin-top: 1rem; /* Space above the info */
+}
+
+.profile-info p {
+    font-size: 1.1rem; /* Slightly larger font size */
+    color: var(--text-dark); /* Use dark text color */
+}
+
+.profile-picture {
+    width: 150px; /* Set a width for the profile picture */
+    height: 150px; /* Set a height for the profile picture */
+    border-radius: 50%; /* Make it circular */
+    object-fit: cover; /* Ensure the image covers the area */
+    margin-bottom: 1rem; /* Add some space below the image */
+}
+
+/* Additional styles for the container */
+.container {
+    background-color: var(--bg-white); /* Override the cream background */
+    padding: 2rem; /* Padding around the container */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Enhanced Container for Pet Cards */
+.container.pet-container {
+    background-color: var(--bg-white);
+    border: 1px solid var(--border-light);
+    padding: 2.5rem;
+}
+
+/* Enhance the pet grid spacing */
+.pet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 5rem;
+    padding-top: 2rem;
+}
+
+/* Make the pet cards stand out more */
+.pet-card {
+    background-color: white;
+    border-radius: 12px;
+    overflow: visible;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 1px solid rgba(139, 115, 85, 0.1);
+    margin-bottom: 1.5rem;
+    padding-top: 75px;
+}
+
+.pet-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Add a gradient top border to pet cards */
+.pet-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--sage-green), var(--warm-brown));
+    z-index: 1;
+}
+
+/* Add subtle accent borders to different container types */
+.container.pet-container {
+    border-top: 4px solid var(--warm-brown);
+}
+
+.schedule-container {
+    border-top: 4px solid var(--sage-green);
+}
+
+.container.profile-container {
+    border-top: 4px solid var(--deep-forest);
+}
+
+/* Add subtle background patterns to containers */
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(124, 144, 130, 0.03) 0%, transparent 8%),
+        radial-gradient(circle at 90% 80%, rgba(124, 144, 130, 0.03) 0%, transparent 8%);
+    background-position: 0 0, 50px 50px;
+    background-size: 100px 100px;
+    opacity: 0.5;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+/* Search page styling */
+.search-container {
+    background-color: var(--bg-white);
+    border-top: 4px solid var(--info);
+    padding: 2.5rem;
+}
+
+.search-intro {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+}
+
+.search-form {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(124, 144, 130, 0.15);
+}
+
+.search-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.search-form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+/* Search results styling */
+.search-results-container {
+    background-color: var(--bg-white);
+    border-top: 4px solid var(--info);
+    padding: 2.5rem;
+}
+
+.search-summary {
+    background-color: var(--bg-sage-light);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.search-summary h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--deep-forest);
+}
+
+.search-params {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    justify-content: center;
+}
+
+.search-tag {
+    background-color: var(--bg-white);
+    color: var(--text-dark);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.search-tag i {
+    color: var(--info);
+}
+
+.results-count {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    color: var(--text-dark);
+}
+
+.search-results {
+    margin-top: 2rem;
+}
+
+.search-results-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(124, 144, 130, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-results-count {
+    font-size: 1.1rem;
+    color: var(--deep-forest);
+    font-weight: 600;
+}
+
+.search-results-sort {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.search-results-sort label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.search-results-sort select {
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid rgba(124, 144, 130, 0.3);
+    background-color: white;
+    color: var(--text-dark);
+}
+
+.search-result-card {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(124, 144, 130, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-result-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.search-result-header {
+    background: linear-gradient(135deg, var(--sage-green) 0%, var(--deep-forest) 100%);
+    color: white;
+    padding: 1rem;
+}
+
+.search-result-header-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    align-items: center;
+}
+
+.search-result-date-time {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.search-result-date {
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.search-result-time {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+}
+
+.search-result-location {
+    margin-left: auto;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    max-width: 40%;
+    text-align: right;
+}
+
+.search-result-header i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+.search-result-content {
+    padding: 1.2rem;
+}
+
+.search-result-info {
+    margin-bottom: 1rem;
+}
+
+.search-result-host-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.host-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.host-name {
+    font-weight: 600;
+    color: var(--deep-forest);
+}
+
+.search-result-description {
+    color: var(--text-dark);
+    font-style: italic;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.search-result-pets {
+    margin-top: 1rem;
+}
+
+.search-result-pets h5 {
+    margin-top: 0;
+    color: var(--deep-forest);
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.search-result-pets h5 i {
+    margin-right: 0.5rem;
+    color: var(--sage-green);
+}
+
+.search-result-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(124, 144, 130, 0.1);
+    flex-wrap: wrap;
+}
+
+.no-results {
+    text-align: center;
+    padding: 3rem;
+    background-color: rgba(124, 144, 130, 0.05);
+    border-radius: 12px;
+    margin-top: 2rem;
+}
+
+.no-results p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+/* Distance badge */
+.distance-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin-left: 1rem;
+}
+
+.distance-badge i {
+    margin-right: 0.4rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .search-form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-results-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .search-result-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+    }
+    
+    .search-result-location {
+        margin-left: 0;
+        max-width: 100%;
+        text-align: left;
+    }
+    
+    .search-result-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-result-actions .button {
+        width: 100%;
+    }
+}
+
+/* Make the Find Playmates menu item more visible */
+.slider-menu a[href*="search"] {
+    background-color: rgba(124, 144, 130, 0.2);
+    font-weight: bold;
+    border-left: 3px solid var(--info);
+}
+
+/* Enhanced Pet Card Styling */
+.pet-container {
+    background-color: var(--bg-white);
+    padding: 2.5rem;
+    margin-top: 2rem;
+    text-align: center;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: none; /* Ensure no border is applied */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); /* Add shadow for depth instead of border */
+}
+
+/* Remove the pseudo-element that's creating the line */
+.pet-container::before {
+    display: none; /* Hide the pseudo-element completely */
+}
+
+/* Add a different visual element to distinguish the container */
+.pet-container {
+    background: linear-gradient(to bottom, rgba(124, 144, 130, 0.08), var(--bg-white) 15%);
+}
+
+.pet-container h2 {
+    color: var(--deep-forest);
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    position: relative;
+    display: inline-block;
+    text-align: center; /* Ensure the title is centered */
+}
+
+.pet-container h2:after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%; /* Center the underline */
+    transform: translateX(-50%); /* Center the underline */
+    width: 60px;
+    height: 3px;
+    background-color: var(--warm-brown);
+}
+
+/* Move the Add New Pet button to the bottom */
+.pet-container .button-container {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.pet-container .button {
+    display: inline-block;
+    background-color: var(--sage-green);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 1.5rem; /* Add space above the button */
+}
+
+.pet-grid {
+    margin-top: 2rem; /* Add more space between title and grid */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pet-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .pet-image {
+        height: 160px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pet-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .pet-container {
+        padding: 1.5rem;
+    }
+    
+    .pet-image {
+        height: 200px;
+    }
+}
+
+/* Pet action buttons styling */
+.pet-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background-color: rgba(124, 144, 130, 0.05);
+    border-top: 1px solid rgba(139, 115, 85, 0.1);
+}
+
+.edit-button {
+    background-color: var(--info);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.edit-button i, .delete-button i {
+    margin-right: 0.5rem;
+}
+
+.edit-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+.delete-button {
+    background-color: var(--error);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.delete-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+.delete-form {
+    margin: 0;
+    padding: 0;
+}
+
+/* Playdate list in search results */
+.upcoming-playdates {
+    margin-top: 1rem;
+    background-color: rgba(124, 144, 130, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.upcoming-playdates h5 {
+    color: var(--deep-forest);
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.playdate-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.playdate-item {
+    background-color: white;
+    border-radius: 6px;
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid rgba(124, 144, 130, 0.1);
+    font-size: 0.9rem;
+}
+
+.playdate-date, .playdate-time, .playdate-location {
+    margin-bottom: 0.3rem;
+}
+
+.playdate-item i {
+    width: 16px;
+    color: var(--sage-green);
+    margin-right: 0.5rem;
+}
+
+.view-playdate-button {
+    display: inline-block;
+    background-color: var(--sage-green);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.view-playdate-button:hover {
+    background-color: var(--deep-forest);
+}
+
+/* Pet selection in schedule form */
+.pet-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.pet-checkbox {
+    position: relative;
+}
+
+.pet-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.pet-checkbox label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pet-checkbox label img, 
+.pet-checkbox .pet-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+}
+
+.pet-checkbox .pet-placeholder {
+    background-color: var(--bg-sage-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pet-checkbox input[type="checkbox"]:checked + label {
+    background-color: rgba(124, 144, 130, 0.1);
+    border-color: var(--sage-green);
+}
+
+/* Playdate card in search results */
+.playdate-card {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(124, 144, 130, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.playdate-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Card header with date/time/location */
+.playdate-header {
+    background: linear-gradient(135deg, var(--sage-green) 0%, var(--deep-forest) 100%);
+    color: white;
+    padding: 1rem;
+}
+
+.playdate-header-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    align-items: center;
+}
+
+.playdate-date-time {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.playdate-date {
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.playdate-time {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+}
+
+.playdate-location {
+    margin-left: auto;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    max-width: 40%;
+    text-align: right;
+}
+
+.playdate-header i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+/* Card body */
+.playdate-content {
+    padding: 1.2rem;
+}
+
+.playdate-info {
+    margin-bottom: 1.2rem;
+}
+
+.playdate-host-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+
+.host-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-right: 0.5rem;
+}
+
+.host-name {
+    font-weight: 600;
+    color: var(--deep-forest);
+}
+
+.your-playdate-badge {
+    background-color: var(--sage-green);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+}
+
+.playdate-description {
+    color: var(--text-dark);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(124, 144, 130, 0.1);
+}
+
+/* Pets section */
+.playdate-pets {
+    margin-bottom: 1.2rem;
+}
+
+.playdate-pets h5 {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+}
+
+.playdate-pets h5 i {
+    margin-right: 0.4rem;
+}
+
+.pet-avatars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.pet-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 65px;
+    margin-bottom: 0.5rem;
+}
+
+.pet-avatar img, 
+.pet-avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 0.4rem;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.pet-avatar-placeholder {
+    background-color: var(--bg-sage-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sage-green);
+    font-size: 1.2rem;
+}
+
+.pet-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    text-align: center;
+    max-width: 65px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Card actions */
+.playdate-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(124, 144, 130, 0.1);
+}
+
+.attendance-status {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-badge i {
+    margin-right: 0.3rem;
+}
+
+.status-confirmed {
+    background-color: rgba(124, 144, 130, 0.15);
+    color: var(--sage-green);
+}
+
+.status-maybe {
+    background-color: rgba(139, 115, 85, 0.15);
+    color: var(--warm-brown);
+}
+
+.status-declined {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: var(--error);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.6rem;
+}
+
+/* Button styling */
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    border: none;
+}
+
+.button.primary {
+    background-color: var(--sage-green);
+    color: white;
+}
+
+.button.primary:hover {
+    background-color: var(--deep-forest);
+}
+
+.button.secondary {
+    background-color: white;
+    color: var(--deep-forest);
+    border: 1px solid rgba(124, 144, 130, 0.3);
+}
+
+.button.secondary:hover {
+    background-color: rgba(124, 144, 130, 0.05);
+    border-color: var(--sage-green);
+}
+
+.button.small {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.75rem;
+}
+
+.button i {
+    margin-right: 0.4rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .playdate-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+    }
+    
+    .playdate-location {
+        margin-left: 0;
+        max-width: 100%;
+        text-align: left;
+    }
+    
+    .playdate-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .attendance-status {
+        justify-content: space-between;
+        width: 100%;
+    }
+    
+    .action-buttons {
+        width: 100%;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .button {
+        width: 100%;
+    }
+}
+
 /* Playdate details page styling */
 .playdate-details-card {
     background-color: white;
@@ -6967,4 +10911,175 @@ button:active {
     font-size: 40px;
     font-weight: bold;
     cursor: pointer;
+}
+
+/* Public Gallery Styling */
+.masonry-gallery {
+    position: relative;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.masonry-gallery .gallery-item {
+    position: absolute;
+    width: 300px;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+.gallery-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.private-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.single-photo-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.photo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.photo-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.inline-form {
+    display: inline;
+}
+
+.single-photo-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.single-photo-image {
+    width: 100%;
+    max-height: 70vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f9fa;
+}
+
+.single-photo-image img {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+}
+
+.single-photo-info {
+    padding: 2rem;
+}
+
+.photo-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.photo-uploader h4,
+.photo-pet h4,
+.photo-date h4,
+.photo-description h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.user-link,
+.pet-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--deep-forest);
+}
+
+.user-avatar,
+.pet-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.pet-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--bg-sage-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.photo-description p {
+    line-height: 1.6;
+    color: var(--text-dark);
+}
+
+@media (min-width: 768px) {
+    .single-photo-content {
+        flex-direction: row;
+    }
+    
+    .single-photo-image {
+        width: 60%;
+        max-height: none;
+        min-height: 500px;
+    }
+    
+    .single-photo-info {
+        width: 40%;
+        border-left: 1px solid var(--border-light);
+    }
+}
+
+/* Gallery item actions */
+.gallery-actions {
+    padding: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin: 0;
 }
