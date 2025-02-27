@@ -37,16 +37,139 @@ body {
     background-color: var(--cream);
 }
 
+/* Enhanced header styling */
 nav {
-    background-color: var(--deep-forest);
+    background: linear-gradient(135deg, var(--deep-forest) 0%, #1a2f25 100%);
     color: var(--text-light);
-    padding: 1rem;
+    padding: 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* Add subtle pattern overlay */
+.nav-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Enhanced logo styling */
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--terracotta) 0%, #a05e3f 100%);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logo-text {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.logo-text .highlight {
+    position: relative;
+    display: inline-block;
+}
+
+.logo-text .highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--terracotta), transparent);
+    opacity: 0.7;
+    border-radius: 3px;
+}
+
+/* Enhanced nav links */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 .nav-links a {
-    color: white;
+    color: var(--text-light);
     text-decoration: none;
-    margin-left: 1rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.nav-links a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--sage-green) 0%, #5a7361 100%);
+    border-radius: 50px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    z-index: -1;
+}
+
+.nav-links a:hover {
+    color: white;
+    transform: translateY(-2px);
+}
+
+.nav-links a:hover::before {
+    transform: translateY(0);
+}
+
+/* User welcome message styling */
+.user-menu span {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Menu toggle button enhancement */
+.menu-toggle {
+    background-color: rgba(255, 255, 255, 0.1);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.menu-toggle:hover {
+    background-color: var(--sage-green);
+    transform: translateY(-2px);
 }
 
 .container {
@@ -1437,92 +1560,162 @@ form[action*="register"] {
 .logo {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 12px;
 }
 
-.paw-heart {
+.logo-icon {
     position: relative;
-    width: 40px;
-    height: 30px;
-}
-
-.paw {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background-color: var(--cream);
+    width: 36px;
+    height: 36px;
+    background-color: var(--terracotta);
     border-radius: 50%;
-    transition: all 0.3s ease;
-}
-
-.paw::before,
-.paw::after {
-    content: '';
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background-color: var(--cream);
-    border-radius: 50%;
-    transition: all 0.3s ease;
-}
-
-.paw.left {
-    left: 0;
-    transform: rotate(-45deg);
-}
-
-.paw.right {
-    right: 0;
-    transform: rotate(45deg);
-}
-
-.paw.left::before {
-    top: -6px;
-    left: 2px;
-}
-
-.paw.left::after {
-    top: -6px;
-    right: 2px;
-}
-
-.paw.right::before {
-    top: -6px;
-    left: 2px;
-}
-
-.paw.right::after {
-    top: -6px;
-    right: 2px;
-}
-
-/* Adjust site title for logo */
-.site-title {
     display: flex;
     align-items: center;
-    color: var(--text-light);
-    text-decoration: none;
-    font-size: 1.8rem;
-    font-weight: bold;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
 }
 
-.site-title:hover .paw {
+.logo-icon::before {
+    content: '♥';
+    color: white;
+    font-size: 18px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.logo-icon::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 14px;
+    height: 14px;
     background-color: var(--sage-green);
-    transform: rotate(-45deg) scale(1.1);
+    border-radius: 50%;
+    border: 2px solid var(--deep-forest);
+    transition: all 0.3s ease;
 }
 
-.site-title:hover .paw.right {
-    transform: rotate(45deg) scale(1.1);
+.logo-text {
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: white;
+    letter-spacing: 0.5px;
+    position: relative;
+    transition: all 0.3s ease;
 }
 
-.site-title:hover .paw::before,
-.site-title:hover .paw::after {
-    background-color: var(--sage-green);
+.logo-text .highlight {
+    color: var(--terracotta);
+    position: relative;
 }
 
-/* Add some spacing between logo and text */
-.logo span {
-    margin-left: 0.5rem;
+.site-title:hover .logo-icon {
+    transform: rotate(15deg) scale(1.1);
+}
+
+.site-title:hover .logo-icon::after {
+    transform: scale(1.2);
+}
+
+.site-title:hover .logo-text {
+    letter-spacing: 1px;
+}
+
+/* Paw print after the logo text */
+.logo-text::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: var(--terracotta);
+    border-radius: 50%;
+    right: -18px;
+    bottom: 5px;
+    box-shadow: -5px -5px 0 -3px var(--terracotta), 
+                5px -5px 0 -3px var(--terracotta), 
+                0 -9px 0 -2px var(--terracotta);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s ease;
+}
+
+.site-title:hover .logo-text::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* New paw logo */
+.paw-logo {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+
+.paw-logo .pad {
+    position: absolute;
+    background-color: var(--terracotta);
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.paw-logo .pad.main {
+    width: 20px;
+    height: 20px;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.paw-logo .pad.top-left {
+    width: 12px;
+    height: 12px;
+    top: 4px;
+    left: 6px;
+}
+
+.paw-logo .pad.top-right {
+    width: 12px;
+    height: 12px;
+    top: 4px;
+    right: 6px;
+}
+
+.paw-logo .pad.bottom-left {
+    width: 12px;
+    height: 12px;
+    bottom: 12px;
+    left: 2px;
+}
+
+.paw-logo .pad.bottom-right {
+    width: 12px;
+    height: 12px;
+    bottom: 12px;
+    right: 2px;
+}
+
+.site-title:hover .paw-logo .pad.top-left {
+    transform: translate(-2px, -2px);
+}
+
+.site-title:hover .paw-logo .pad.top-right {
+    transform: translate(2px, -2px);
+}
+
+.site-title:hover .paw-logo .pad.bottom-left {
+    transform: translate(-2px, 2px);
+}
+
+.site-title:hover .paw-logo .pad.bottom-right {
+    transform: translate(2px, 2px);
+}
+
+.site-title:hover .paw-logo .pad.main {
+    transform: translateX(-50%) scale(1.1);
 }
 
 /* Slider Menu Styles */
