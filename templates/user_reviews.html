@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Reviews for {{ user.username }} - PetMate{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="reviews-container">
+        <div class="reviews-header">
+            <h2>Reviews for {{ user.username }}</h2>
+            <div class="user-rating">
+                <div class="rating-stars">
+                    {% set avg_rating = user.get_average_rating() %}
+                    {% for i in range(5) %}
+                        {% if i < avg_rating|int %}
+                            <i class="fas fa-star"></i>
+                        {% elif i < avg_rating and i == avg_rating|int %}
+                            <i class="fas fa-star-half-alt"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <span class="rating-value">{{ avg_rating }} out of 5</span>
+                <span class="reviews-count">({{ user.get_reviews_count() }} reviews)</span>
+            </div>
+            
+            <a href="{{ url_for('view_profile', user_id=user.id) }}" class="button">
+                <i class="fas fa-user"></i> View Profile
+            </a>
+        </div>
+        
+        {% if reviews %}
+            <div class="reviews-list">
+                {% for review in reviews %}
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <a href="{{ url_for('view_profile', user_id=review.reviewer.id) }}" class="reviewer-name">
+                                    {{ review.reviewer.username }}
+                                </a>
+                                <span class="review-date">{{ review.created_at.strftime('%B %d, %Y') }}</span>
+                            </div>
+                            <div class="review-rating">
+                                {% for i in range(5) %}
+                                    {% if i < review.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        {% if review.playdate %}
+                            <div class="review-playdate">
+                                <i class="fas fa-calendar-day"></i>
+                                Playdate: {{ review.playdate.date.strftime('%B %d, %Y') }} at {{ review.playdate.location }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="review-content">
+                            {% if review.comment %}
+                                <p>{{ review.comment }}</p>
+                            {% else %}
+                                <p class="no-comment">No additional comments.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-reviews">
+                <p>{{ user.username }} doesn't have any reviews yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

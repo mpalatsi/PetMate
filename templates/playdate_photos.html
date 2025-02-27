@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Photos from {{ playdate.location }} - PetMate{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="gallery-header">
+        <h2>Photos from Playdate</h2>
+        <div class="gallery-meta">
+            <div class="playdate-info">
+                <p><i class="fas fa-calendar-day"></i> {{ playdate.date.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                <p><i class="fas fa-map-marker-alt"></i> {{ playdate.location }}</p>
+            </div>
+            <div class="gallery-actions">
+                <a href="{{ url_for('view_playdate', playdate_id=playdate.id) }}" class="button">
+                    <i class="fas fa-arrow-left"></i> Back to Playdate
+                </a>
+                {% if playdate.date <= now() %}
+                <a href="{{ url_for('upload_playdate_photo', playdate_id=playdate.id) }}" class="button primary">
+                    <i class="fas fa-upload"></i> Upload Photo
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {% if photos %}
+        <div class="photo-gallery">
+            {% for photo in photos %}
+                <div class="gallery-item">
+                    <div class="gallery-image">
+                        <img src="{{ url_for('static', filename='pet_images/playdate_photos/' + photo.filename) }}" alt="Playdate photo">
+                    </div>
+                    <div class="gallery-caption">
+                        {% if photo.caption %}
+                            <p>{{ photo.caption }}</p>
+                        {% endif %}
+                        <div class="photo-meta">
+                            <span class="photo-uploader">
+                                <i class="fas fa-user"></i> {{ photo.uploader.username }}
+                            </span>
+                            <span class="photo-date">
+                                {{ photo.uploaded_at.strftime('%b %d, %Y') }}
+                            </span>
+                        </div>
+                        {% if current_user.id == photo.user_id or current_user.id == playdate.host_id %}
+                            <form method="POST" action="{{ url_for('delete_playdate_photo', photo_id=photo.id) }}" class="delete-photo-form">
+                                <button type="submit" class="button small danger" onclick="return confirm('Are you sure you want to delete this photo?')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-photos">
+            <div class="no-photos-message">
+                <i class="fas fa-images"></i>
+                <h3>No photos yet</h3>
+                <p>Be the first to upload photos from this playdate!</p>
+                {% if playdate.date <= now() %}
+                    <a href="{{ url_for('upload_playdate_photo', playdate_id=playdate.id) }}" class="button primary">
+                        <i class="fas fa-upload"></i> Upload Photo
+                    </a>
+                {% else %}
+                    <p class="future-playdate-note">You can upload photos after the playdate has occurred.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Add lightbox functionality for gallery images
+    document.querySelectorAll('.gallery-image img').forEach(image => {
+        image.addEventListener('click', function() {
+            const lightbox = document.createElement('div');
+            lightbox.className = 'lightbox';
+            
+            const img = document.createElement('img');
+            img.src = this.src;
+            
+            const close = document.createElement('span');
+            close.className = 'lightbox-close';
+            close.innerHTML = '&times;';
+            close.addEventListener('click', () => {
+                document.body.removeChild(lightbox);
+            });
+            
+            lightbox.appendChild(close);
+            lightbox.appendChild(img);
+            
+            document.body.appendChild(lightbox);
+            
+            // Close lightbox when clicking outside the image
+            lightbox.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    document.body.removeChild(lightbox);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

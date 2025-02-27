@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Write a Review for {{ user.username }} - PetMate{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="review-form-container">
+        <h2>Write a Review for {{ user.username }}</h2>
+        
+        <form method="POST" action="{{ url_for('write_review', user_id=user.id) }}" class="review-form">
+            <div class="form-group">
+                <label for="playdate_id">Select Playdate:</label>
+                <select id="playdate_id" name="playdate_id" required>
+                    {% for playdate in playdates %}
+                        <option value="{{ playdate.id }}">
+                            {{ playdate.date.strftime('%B %d, %Y at %I:%M %p') }} at {{ playdate.location }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Rating:</label>
+                <div class="star-rating">
+                    <input type="radio" id="star5" name="rating" value="5" required>
+                    <label for="star5" title="5 stars"><i class="fas fa-star"></i></label>
+                    
+                    <input type="radio" id="star4" name="rating" value="4">
+                    <label for="star4" title="4 stars"><i class="fas fa-star"></i></label>
+                    
+                    <input type="radio" id="star3" name="rating" value="3">
+                    <label for="star3" title="3 stars"><i class="fas fa-star"></i></label>
+                    
+                    <input type="radio" id="star2" name="rating" value="2">
+                    <label for="star2" title="2 stars"><i class="fas fa-star"></i></label>
+                    
+                    <input type="radio" id="star1" name="rating" value="1">
+                    <label for="star1" title="1 star"><i class="fas fa-star"></i></label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="comment">Your Review:</label>
+                <textarea id="comment" name="comment" rows="5" placeholder="Share your experience with this pet parent..."></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="button primary">Submit Review</button>
+                <a href="{{ url_for('view_profile', user_id=user.id) }}" class="button">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Simple script to show the selected rating
+    document.querySelectorAll('.star-rating input').forEach(input => {
+        input.addEventListener('change', function() {
+            const rating = this.value;
+            const stars = document.querySelectorAll('.star-rating label');
+            
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('selected');
+                } else {
+                    star.classList.remove('selected');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

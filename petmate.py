@@ -98,6 +98,44 @@ class User(db.Model):
         conversations.sort(key=lambda x: x['latest_message'].timestamp, reverse=True)
         return conversations
 
+    def get_average_rating(self):
+        reviews = Review.query.filter_by(reviewed_user_id=self.id).all()
+        if not reviews:
+            return 0
+        total = sum(review.rating for review in reviews)
+        return round(total / len(reviews), 1)
+
+    def get_reviews_count(self):
+        return Review.query.filter_by(reviewed_user_id=self.id).count()
+
+    def can_review_user(self, user_id):
+        # Check if users have had a playdate together
+        # and the current user hasn't already reviewed this user for this playdate
+        shared_playdates = Playdate.query.join(playdate_attendees, Playdate.id == playdate_attendees.c.playdate_id)\
+            .filter(playdate_attendees.c.user_id == self.id)\
+            .filter(Playdate.id.in_(
+                db.session.query(playdate_attendees.c.playdate_id)
+                .filter(playdate_attendees.c.user_id == user_id)
+            ))\
+            .filter(Playdate.date < datetime.utcnow())\
+            .all()
+        
+        if not shared_playdates:
+            return False
+        
+        # Check if already reviewed for these playdates
+        for playdate in shared_playdates:
+            existing_review = Review.query.filter_by(
+                reviewer_id=self.id,
+                reviewed_user_id=user_id,
+                playdate_id=playdate.id
+            ).first()
+            
+            if not existing_review:
+                return True
+        
+        return False
+
 class Playdate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     host_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -117,6 +155,9 @@ class Playdate(db.Model):
         primaryjoin=(id == playdate_attendees.c.playdate_id),
         secondaryjoin=(User.id == playdate_attendees.c.user_id)
     )
+
+    # Add this to the Playdate class
+    photos = db.relationship('PlaydatePhoto', backref='playdate', lazy=True, cascade="all, delete-orphan")
 
 class Pet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -141,6 +182,37 @@ class Message(db.Model):
     # Define relationships
     sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_messages')
     recipient = db.relationship('User', foreign_keys=[recipient_id], backref='received_messages')
+
+class Review(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    reviewer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    reviewed_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    playdate_id = db.Column(db.Integer, db.ForeignKey('playdate.id'), nullable=True)
+    rating = db.Column(db.Integer, nullable=False)  # 1-5 stars
+    comment = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    reviewer = db.relationship('User', foreign_keys=[reviewer_id], backref='reviews_given')
+    reviewed_user = db.relationship('User', foreign_keys=[reviewed_user_id], backref='reviews_received')
+    playdate = db.relationship('Playdate', backref='reviews')
+    
+    def __repr__(self):
+        return f'<Review {self.id}: {self.rating} stars>'
+
+class PlaydatePhoto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    playdate_id = db.Column(db.Integer, db.ForeignKey('playdate.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+    caption = db.Column(db.String(255), nullable=True)
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    uploader = db.relationship('User', backref='uploaded_photos')
+    
+    def __repr__(self):
+        return f'<PlaydatePhoto {self.id}: {self.filename}>'
 
 @app.route('/')
 def index():
@@ -843,6 +915,194 @@ def playdate_group_chat(playdate_id):
     # In a real app, you might implement a true group chat feature
     return redirect(url_for('conversation', user_id=playdate.host_id))
 
+@app.route('/write_review/<int:user_id>', methods=['GET', 'POST'])
+def write_review(user_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+    user_to_review = User.query.get_or_404(user_id)
+    
+    # Check if the current user can review this user
+    if not current_user.can_review_user(user_id):
+        flash('You can only review users you have had playdates with.')
+        return redirect(url_for('view_profile', user_id=user_id))
+    
+    # Get shared playdates that haven't been reviewed yet
+    shared_playdates = Playdate.query.join(playdate_attendees, Playdate.id == playdate_attendees.c.playdate_id)\
+        .filter(playdate_attendees.c.user_id == current_user.id)\
+        .filter(Playdate.id.in_(
+            db.session.query(playdate_attendees.c.playdate_id)
+            .filter(playdate_attendees.c.user_id == user_id)
+        ))\
+        .filter(Playdate.date < datetime.utcnow())\
+        .all()
+    
+    eligible_playdates = []
+    for playdate in shared_playdates:
+        existing_review = Review.query.filter_by(
+            reviewer_id=current_user.id,
+            reviewed_user_id=user_id,
+            playdate_id=playdate.id
+        ).first()
+        
+        if not existing_review:
+            eligible_playdates.append(playdate)
+    
+    if request.method == 'POST':
+        rating = int(request.form.get('rating'))
+        comment = request.form.get('comment')
+        playdate_id = request.form.get('playdate_id')
+        
+        if rating < 1 or rating > 5:
+            flash('Rating must be between 1 and 5 stars.')
+            return redirect(url_for('write_review', user_id=user_id))
+        
+        # Create the review
+        review = Review(
+            reviewer_id=current_user.id,
+            reviewed_user_id=user_id,
+            playdate_id=playdate_id,
+            rating=rating,
+            comment=comment
+        )
+        
+        db.session.add(review)
+        db.session.commit()
+        
+        flash('Your review has been submitted!')
+        return redirect(url_for('view_profile', user_id=user_id))
+    
+    return render_template('write_review.html', 
+                          user=user_to_review, 
+                          playdates=eligible_playdates)
+
+@app.route('/reviews/<int:user_id>')
+def user_reviews(user_id):
+    user = User.query.get_or_404(user_id)
+    reviews = Review.query.filter_by(reviewed_user_id=user_id).order_by(Review.created_at.desc()).all()
+    
+    return render_template('user_reviews.html', user=user, reviews=reviews)
+
+@app.route('/playdate/<int:playdate_id>/photos')
+def playdate_photos(playdate_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+    playdate = Playdate.query.get_or_404(playdate_id)
+    
+    # Check if user is authorized to view this playdate
+    if current_user.id != playdate.host_id and current_user not in playdate.attendees:
+        flash('You are not authorized to view this playdate.')
+        return redirect(url_for('view_playdates'))
+    
+    # Get all photos for this playdate
+    photos = PlaydatePhoto.query.filter_by(playdate_id=playdate_id).order_by(PlaydatePhoto.uploaded_at.desc()).all()
+    
+    return render_template('playdate_photos.html', 
+                          playdate=playdate, 
+                          photos=photos, 
+                          current_user=current_user)
+
+@app.route('/playdate/<int:playdate_id>/upload_photo', methods=['GET', 'POST'])
+def upload_playdate_photo(playdate_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+    playdate = Playdate.query.get_or_404(playdate_id)
+    
+    # Check if user is authorized to upload photos to this playdate
+    if current_user.id != playdate.host_id and current_user not in playdate.attendees:
+        flash('You are not authorized to upload photos to this playdate.')
+        return redirect(url_for('view_playdates'))
+    
+    # Check if the playdate has already happened
+    if playdate.date > datetime.utcnow():
+        flash('You can only upload photos after the playdate has occurred.')
+        return redirect(url_for('view_playdate', playdate_id=playdate_id))
+    
+    if request.method == 'POST':
+        # Check if the post request has the file part
+        if 'photo' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        
+        photo = request.files['photo']
+        caption = request.form.get('caption', '')
+        
+        # If user does not select file, browser also
+        # submit an empty part without filename
+        if photo.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        
+        if photo and allowed_file(photo.filename, {'png', 'jpg', 'jpeg', 'gif'}):
+            # Generate a secure filename
+            filename = secure_filename(photo.filename)
+            # Add timestamp to ensure uniqueness
+            timestamp = int(time.time())
+            filename = f"{timestamp}_{filename}"
+            
+            # Create directory if it doesn't exist
+            playdate_photos_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'playdate_photos')
+            if not os.path.exists(playdate_photos_dir):
+                os.makedirs(playdate_photos_dir)
+            
+            # Save the file
+            photo.save(os.path.join(playdate_photos_dir, filename))
+            
+            # Create a new PlaydatePhoto record
+            new_photo = PlaydatePhoto(
+                playdate_id=playdate_id,
+                user_id=current_user.id,
+                filename=filename,
+                caption=caption
+            )
+            
+            db.session.add(new_photo)
+            db.session.commit()
+            
+            flash('Photo uploaded successfully!')
+            return redirect(url_for('playdate_photos', playdate_id=playdate_id))
+        else:
+            flash('Invalid file type. Please upload a PNG, JPG, JPEG, or GIF file.')
+    
+    return render_template('upload_playdate_photo.html', playdate=playdate)
+
+@app.route('/playdate/photo/<int:photo_id>/delete', methods=['POST'])
+def delete_playdate_photo(photo_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+    photo = PlaydatePhoto.query.get_or_404(photo_id)
+    
+    # Check if user is authorized to delete this photo
+    if current_user.id != photo.user_id and current_user.id != photo.playdate.host_id:
+        flash('You are not authorized to delete this photo.')
+        return redirect(url_for('playdate_photos', playdate_id=photo.playdate_id))
+    
+    # Delete the file from the filesystem
+    try:
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], 'playdate_photos', photo.filename))
+    except Exception as e:
+        # Log the error but continue with database deletion
+        print(f"Error deleting file: {e}")
+    
+    # Delete the database record
+    db.session.delete(photo)
+    db.session.commit()
+    
+    flash('Photo deleted successfully!')
+    return redirect(url_for('playdate_photos', playdate_id=photo.playdate_id))
+
+# Helper function to check allowed file extensions
+def allowed_file(filename, allowed_extensions):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
 # Create tables if they don't exist
 with app.app_context():
     try:
@@ -850,6 +1110,21 @@ with app.app_context():
     except Exception as e:
         # Just log the error and continue
         print(f"Note: {e}")
+
+@app.context_processor
+def utility_processor():
+    def get_current_user():
+        if 'username' in session:
+            return User.query.filter_by(username=session['username']).first()
+        return None
+    
+    def now():
+        return datetime.utcnow()
+    
+    return {
+        'get_current_user': get_current_user,
+        'now': now
+    }
 
 if __name__ == '__main__':
     app.run(debug=True)
