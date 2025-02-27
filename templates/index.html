@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}PetMate - Find Playmates for Your Pets{% endblock %}
+
+{% block content %}
+<div class="hero" style="background-image: url('{{ url_for('static', filename='playing_dogs.jpg') }}');">
+    <div class="hero-content">
+        <h1>Find Playmates for Your Furry Friends</h1>
+        <p>Connect with local pet parents and schedule fun playdates for your pets!</p>
+        <a href="{{ url_for('schedule') }}" class="cta-button">Schedule a Playdate</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="how-it-works">
+        <h2>How PetMate Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Create a Profile</h3>
+                <p>Sign up and add your pets to your profile with their photos and details.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Find Playmates</h3>
+                <p>Search for compatible pets in your area based on size, breed, and temperament.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Schedule Playdates</h3>
+                <p>Arrange meetups at parks, beaches, or pet-friendly venues near you.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="features">
+        <h2>Why Pet Parents Love PetMate</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Local Connections</h3>
+                <p>Find pet playmates right in your neighborhood.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-calendar-alt"></i>
+                <h3>Easy Scheduling</h3>
+                <p>Organize playdates with just a few clicks.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-paw"></i>
+                <h3>Pet Socialization</h3>
+                <p>Help your pets make friends and develop social skills.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-users"></i>
+                <h3>Community</h3>
+                <p>Connect with other pet parents who share your interests.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

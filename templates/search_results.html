@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - PetMate{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Search Results</h2>
+    
+    <div class="search-results">
+        <div class="search-results-header">
+            <div class="search-results-count">
+                {% if results|length == 0 %}
+                    No playdates found
+                {% elif results|length == 1 %}
+                    1 playdate found
+                {% else %}
+                    {{ results|length }} playdates found
+                {% endif %}
+            </div>
+            <div class="search-results-sort">
+                <label for="sort-by">Sort by:</label>
+                <select id="sort-by" onchange="sortResults(this.value)">
+                    <option value="date">Date (Soonest first)</option>
+                    <option value="distance" {% if sort_by == 'distance' %}selected{% endif %}>Distance (Closest first)</option>
+                </select>
+            </div>
+        </div>
+        
+        {% if results %}
+            <div class="search-results-list">
+                {% for result in results %}
+                    <div class="search-result-card">
+                        <div class="search-result-header">
+                            <div class="search-result-header-content">
+                                <div class="search-result-date-time">
+                                    <div class="search-result-date">
+                                        <i class="fas fa-calendar"></i> {{ result.playdate.date.strftime('%B %d, %Y') }}
+                                    </div>
+                                    <div class="search-result-time">
+                                        <i class="fas fa-clock"></i> {{ result.playdate.date.strftime('%I:%M %p') }}
+                                    </div>
+                                </div>
+                                <div class="search-result-location">
+                                    <i class="fas fa-map-marker-alt"></i> {{ result.playdate.location }}
+                                    {% if result.distance %}
+                                        <span class="distance-badge">
+                                            <i class="fas fa-route"></i> {{ result.distance|round(1) }} miles
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="search-result-content">
+                            <div class="search-result-info">
+                                <div class="search-result-host-info">
+                                    <span class="host-label">Host:</span>
+                                    <span class="host-name">{{ result.playdate.host.username }}</span>
+                                </div>
+                                
+                                {% if result.playdate.description %}
+                                    <div class="search-result-description">
+                                        {{ result.playdate.description }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="search-result-pets">
+                                <h5><i class="fas fa-paw"></i> Pets attending:</h5>
+                                <div class="pet-avatars">
+                                    {% for pet in result.playdate.pets %}
+                                        <div class="pet-avatar">
+                                            {% if pet.image_filename %}
+                                                <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                            {% else %}
+                                                <div class="pet-avatar-placeholder">
+                                                    <i class="fas fa-paw"></i>
+                                                </div>
+                                            {% endif %}
+                                            <span class="pet-name">{{ pet.name }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="search-result-actions">
+                                <a href="{{ url_for('view_playdate', playdate_id=result.playdate.id) }}" class="button secondary small">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
+                                <a href="{{ url_for('join_playdate', playdate_id=result.playdate.id) }}" class="button primary small">
+                                    <i class="fas fa-plus-circle"></i> Join Playdate
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-results">
+                <p>No playdates found matching your search criteria.</p>
+                <p>Try adjusting your search parameters or create your own playdate!</p>
+                <a href="{{ url_for('schedule') }}" class="button primary">
+                    <i class="fas fa-plus"></i> Schedule New Playdate
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="action-bar">
+        <a href="{{ url_for('search') }}" class="button secondary">
+            <i class="fas fa-search"></i> New Search
+        </a>
+        <a href="{{ url_for('view_playdates') }}" class="button">
+            <i class="fas fa-calendar-alt"></i> View My Playdates
+        </a>
+    </div>
+</div>
+
+<script>
+    function sortResults(sortBy) {
+        // Add the sort parameter to the current URL and reload
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort', sortBy);
+        window.location.href = url.toString();
+    }
+</script>
+{% endblock %} 

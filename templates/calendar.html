@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}PetMate - Calendar{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Playdate Calendar</h2>
+    <div class="calendar">
+        <div class="calendar-header">
+            <button id="prevMonth" onclick="changeMonth(-1)">Previous</button>
+            <h3 id="currentMonth"></h3>
+            <button id="nextMonth" onclick="changeMonth(1)">Next</button>
+        </div>
+        
+        <div class="calendar-weekdays">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+        </div>
+        
+        <div id="calendar-days" class="calendar-days"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Store playdates data from Flask
+    const playdates = {{ playdates|tojson|safe }};
+    let currentDate = new Date();
+    
+    function renderCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        // Update header
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+                          "July", "August", "September", "October", "November", "December"];
+        document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
+        
+        // Get first day of month and total days
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        
+        const calendarDays = document.getElementById('calendar-days');
+        calendarDays.innerHTML = '';
+        
+        // Add empty cells for days before first of month
+        for (let i = 0; i < firstDay.getDay(); i++) {
+            calendarDays.appendChild(createDayElement(''));
+        }
+        
+        // Add days of month
+        for (let day = 1; day <= lastDay.getDate(); day++) {
+            const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dayElement = createDayElement(day, playdates[dateString]);
+            calendarDays.appendChild(dayElement);
+        }
+    }
+    
+    function createDayElement(day, dayPlaydates) {
+        const div = document.createElement('div');
+        div.className = 'calendar-day';
+        
+        if (day !== '') {
+            div.textContent = day;
+            
+            if (dayPlaydates && dayPlaydates.length > 0) {
+                div.classList.add('has-playdates');
+                const badge = document.createElement('span');
+                badge.className = 'playdate-badge';
+                badge.textContent = dayPlaydates.length;
+                div.appendChild(badge);
+                
+                div.onclick = () => showPlaydates(dayPlaydates);
+            }
+        }
+        
+        return div;
+    }
+    
+    function showPlaydates(dayPlaydates) {
+        const popup = document.getElementById('playdate-popup');
+        const content = document.getElementById('popup-playdates');
+        content.innerHTML = dayPlaydates.map(playdate => `
+            <div class="popup-playdate">
+                <h4>${playdate.date.split(' ')[1]}</h4>
+                <p>📍 ${playdate.location}</p>
+                <p>Host: ${playdate.host.username}</p>
+                <p>${playdate.description || 'No description provided'}</p>
+            </div>
+        `).join('');
+        popup.style.display = 'block';
+    }
+    
+    function changeMonth(delta) {
+        currentDate.setMonth(currentDate.getMonth() + delta);
+        renderCalendar();
+    }
+    
+    // Close popup when clicking the X or outside
+    document.querySelector('.close-popup').onclick = () => {
+        document.getElementById('playdate-popup').style.display = 'none';
+    }
+    
+    window.onclick = (event) => {
+        const popup = document.getElementById('playdate-popup');
+        if (event.target == popup) {
+            popup.style.display = 'none';
+        }
+    }
+    
+    // Initial render
+    renderCalendar();
+</script>
+{% endblock %} 

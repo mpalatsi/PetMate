@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Schedule Playdate - PetMate</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1><a href="{{ url_for('index') }}" class="site-title">PetMate</a></h1>
+            <div class="nav-links">
+                {% if 'username' in session %}
+                    <div class="user-menu">
+                        <span>Welcome, {{ session['username'] }}!</span>
+                        <a href="{{ url_for('logout') }}">Logout</a>
+                    </div>
+                    <button class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% if 'username' in session %}
+    <div class="slider-menu">
+        <div class="menu-header">
+            <span>Menu</span>
+            <button class="close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <a href="{{ url_for('index') }}">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('my_pets') }}">
+            <i class="fas fa-paw"></i> My Pets
+        </a>
+        <a href="{{ url_for('dashboard') }}">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="{{ url_for('schedule') }}">
+            <i class="fas fa-calendar-plus"></i> Schedule Playdate
+        </a>
+        <a href="{{ url_for('view_playdates') }}">
+            <i class="fas fa-calendar-alt"></i> View Playdates
+        </a>
+        <a href="{{ url_for('search') }}">
+            <i class="fas fa-search"></i> Find Playmates
+        </a>
+    </div>
+    <div class="menu-overlay"></div>
+    {% endif %}
+
+    <main>
+        <div class="container schedule-container">
+            <h2>Schedule a Playdate</h2>
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+            
+            <form method="POST" action="{{ url_for('schedule') }}" class="playdate-form">
+                <div class="form-group">
+                    <label for="date">Date and Time:</label>
+                    <input type="datetime-local" id="date" name="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location" name="location" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description" rows="4"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Pets for this Playdate:</label>
+                    <div class="pet-selection">
+                        {% for pet in user_pets %}
+                            <div class="pet-checkbox">
+                                <input type="checkbox" id="pet-{{ pet.id }}" name="selected_pets" value="{{ pet.id }}">
+                                <label for="pet-{{ pet.id }}">
+                                    {% if pet.image_filename %}
+                                        <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                    {% else %}
+                                        <div class="pet-placeholder"></div>
+                                    {% endif %}
+                                    <span>{{ pet.name }}</span>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <button type="submit" class="button">Schedule Playdate</button>
+            </form>
+        </div>
+    </main>
+
+    {% if 'username' in session %}
+    <script>
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            const sliderMenu = document.querySelector('.slider-menu');
+            sliderMenu.classList.toggle('active');
+            document.querySelector('.menu-overlay').classList.toggle('active');
+        });
+
+        document.querySelector('.close-menu').addEventListener('click', closeMenu);
+        document.querySelector('.menu-overlay').addEventListener('click', closeMenu);
+
+        function closeMenu() {
+            document.querySelector('.slider-menu').classList.remove('active');
+            document.querySelector('.menu-overlay').classList.remove('active');
+        }
+    </script>
+    {% endif %}
+</body>
+</html> 

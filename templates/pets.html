@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}PetMate - My Pets{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="pets-header">
+        <h2>My Pets</h2>
+        <a href="{{ url_for('add_pet') }}" class="add-pet-button">Add New Pet</a>
+    </div>
+    
+    {% if pets %}
+        <div class="pets-grid">
+            {% for pet in pets %}
+                <div class="pet-card">
+                    {% if pet.image_filename %}
+                        <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" 
+                             alt="{{ pet.name }}" class="pet-image">
+                    {% else %}
+                        <div class="pet-image-placeholder">
+                            <span>🐾</span>
+                        </div>
+                    {% endif %}
+                    <h3>{{ pet.name }}</h3>
+                    <div class="pet-info">
+                        <p><strong>Species:</strong> {{ pet.species }}</p>
+                        <p><strong>Breed:</strong> {{ pet.breed }}</p>
+                        <p><strong>Age:</strong> {{ pet.age }} years</p>
+                        <p><strong>Size:</strong> {{ pet.size }}</p>
+                        <p><strong>Temperament:</strong> {{ pet.temperament }}</p>
+                    </div>
+                    <div class="pet-actions">
+                        <a href="{{ url_for('edit_pet', pet_id=pet.id) }}" class="edit-button">Edit</a>
+                        <a href="{{ url_for('delete_pet', pet_id=pet.id) }}" 
+                           class="delete-button"
+                           onclick="return confirm('Are you sure you want to remove {{ pet.name }}?')">
+                            Remove
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-pets">You haven't added any pets yet. 
+           <a href="{{ url_for('add_pet') }}">Add your first pet!</a>
+        </p>
+    {% endif %}
+</div>
+{% endblock %} 

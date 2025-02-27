@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page Title - PetMate</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1><a href="{{ url_for('index') }}" class="site-title">PetMate</a></h1>
+            <div class="nav-links">
+                {% if 'username' in session %}
+                    <div class="user-menu">
+                        <span>Welcome, {{ session['username'] }}!</span>
+                        <a href="{{ url_for('logout') }}">Logout</a>
+                    </div>
+                    <button class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% if 'username' in session %}
+    <div class="slider-menu">
+        <div class="menu-header">
+            <span>Menu</span>
+            <button class="close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <a href="{{ url_for('index') }}">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('my_pets') }}">
+            <i class="fas fa-paw"></i> My Pets
+        </a>
+        <a href="{{ url_for('dashboard') }}">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="{{ url_for('schedule') }}">
+            <i class="fas fa-calendar-plus"></i> Schedule Playdate
+        </a>
+        <a href="{{ url_for('view_playdates') }}">
+            <i class="fas fa-calendar-alt"></i> View Playdates
+        </a>
+        <a href="{{ url_for('search') }}">
+            <i class="fas fa-search"></i> Find Playmates
+        </a>
+    </div>
+    <div class="menu-overlay"></div>
+    {% endif %}
+
+    <main>
+        <div class="container">
+            <!-- Your page content goes here -->
+        </div>
+    </main>
+
+    {% if 'username' in session %}
+    <script>
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            const sliderMenu = document.querySelector('.slider-menu');
+            sliderMenu.classList.toggle('active');
+            document.querySelector('.menu-overlay').classList.toggle('active');
+        });
+
+        document.querySelector('.close-menu').addEventListener('click', closeMenu);
+        document.querySelector('.menu-overlay').addEventListener('click', closeMenu);
+
+        function closeMenu() {
+            document.querySelector('.slider-menu').classList.remove('active');
+            document.querySelector('.menu-overlay').classList.remove('active');
+        }
+    </script>
+    {% endif %}
+</body>
+</html> 

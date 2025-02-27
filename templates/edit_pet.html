@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}PetMate - Edit Pet{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Edit {{ pet.name }}</h2>
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+    
+    <form method="POST" class="pet-form" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="name">Pet's Name:</label>
+            <input type="text" id="name" name="name" value="{{ pet.name }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="pet_image">Pet's Photo:</label>
+            <div class="image-upload">
+                <input type="file" id="pet_image" name="pet_image" accept="image/*" class="file-input">
+                <label for="pet_image" class="file-label">
+                    <span class="upload-icon">📷</span>
+                    <span class="upload-text">Choose a new photo</span>
+                </label>
+                <div class="upload-help">
+                    <p>Image will be cropped to a square format. For best results:</p>
+                    <ul>
+                        <li>Use a clear photo of your pet</li>
+                        <li>You can adjust the crop area after uploading</li>
+                        <li>Maximum file size: 2MB</li>
+                    </ul>
+                </div>
+                <div class="cropper-container" style="display: none;">
+                    <div class="image-container">
+                        <img id="crop-image" src="" alt="Upload an image to crop">
+                    </div>
+                    <div class="cropper-controls">
+                        <button type="button" class="crop-button">Crop Image</button>
+                        <button type="button" class="cancel-button">Cancel</button>
+                    </div>
+                </div>
+                <div id="image-preview" class="image-preview">
+                    {% if pet.image_filename %}
+                        <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" 
+                             alt="{{ pet.name }}">
+                    {% endif %}
+                </div>
+                <input type="hidden" name="cropped_image" id="cropped-image-data">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="species">Species:</label>
+            <select id="species" name="species" required>
+                <option value="">Select species</option>
+                <option value="Dog" {% if pet.species == 'Dog' %}selected{% endif %}>Dog</option>
+                <option value="Cat" {% if pet.species == 'Cat' %}selected{% endif %}>Cat</option>
+                <option value="Other" {% if pet.species == 'Other' %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="breed">Breed:</label>
+            <input type="text" id="breed" name="breed" value="{{ pet.breed }}" placeholder="Optional">
+        </div>
+        
+        <div class="form-group">
+            <label for="age">Age (years):</label>
+            <input type="number" id="age" name="age" value="{{ pet.age }}" min="0" max="30" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="size">Size:</label>
+            <select id="size" name="size" required>
+                <option value="">Select size</option>
+                <option value="Small" {% if pet.size == 'Small' %}selected{% endif %}>Small</option>
+                <option value="Medium" {% if pet.size == 'Medium' %}selected{% endif %}>Medium</option>
+                <option value="Large" {% if pet.size == 'Large' %}selected{% endif %}>Large</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="temperament">Temperament:</label>
+            <textarea id="temperament" name="temperament" 
+                      placeholder="Describe your pet's personality..."
+                      required>{{ pet.temperament }}</textarea>
+        </div>
+        
+        <button type="submit" class="submit-button">Save Changes</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let cropper = null;
+
+document.getElementById('pet_image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Show cropper container
+            const cropperContainer = document.querySelector('.cropper-container');
+            cropperContainer.style.display = 'block';
+            
+            // Hide preview
+            document.getElementById('image-preview').style.display = 'none';
+            
+            // Set image source
+            const image = document.getElementById('crop-image');
+            image.src = e.target.result;
+            
+            // Initialize cropper
+            if (cropper) {
+                cropper.destroy();
+            }
+            cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 0.8,
+                background: false,
+                responsive: true,
+                minContainerWidth: 300,
+                minContainerHeight: 300
+            });
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+document.querySelector('.crop-button').addEventListener('click', function() {
+    if (cropper) {
+        // Get cropped canvas
+        const canvas = cropper.getCroppedCanvas({
+            width: 300,
+            height: 300,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high'
+        });
+        
+        // Show preview
+        const preview = document.getElementById('image-preview');
+        preview.innerHTML = `<img src="${canvas.toDataURL('image/jpeg', 0.85)}" alt="Preview">`;
+        preview.style.display = 'block';
+        
+        // Store cropped data
+        document.getElementById('cropped-image-data').value = canvas.toDataURL('image/jpeg', 0.85);
+        
+        // Hide cropper
+        document.querySelector('.cropper-container').style.display = 'none';
+        
+        // Destroy cropper
+        cropper.destroy();
+        cropper = null;
+    }
+});
+
+document.querySelector('.cancel-button').addEventListener('click', function() {
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    document.querySelector('.cropper-container').style.display = 'none';
+    document.getElementById('image-preview').style.display = 'block';
+    document.getElementById('pet_image').value = '';
+});
+</script>
+{% endblock %} 

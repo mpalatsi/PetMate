@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Join Playdate - PetMate{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Join Playdate</h2>
+    
+    <div class="join-playdate-card">
+        <div class="playdate-summary">
+            <div class="playdate-date-time">
+                <div class="playdate-date">
+                    <i class="fas fa-calendar"></i> {{ playdate.date.strftime('%B %d, %Y') }}
+                </div>
+                <div class="playdate-time">
+                    <i class="fas fa-clock"></i> {{ playdate.date.strftime('%I:%M %p') }}
+                </div>
+            </div>
+            <div class="playdate-location">
+                <i class="fas fa-map-marker-alt"></i> {{ playdate.location }}
+            </div>
+            <div class="playdate-host">
+                <i class="fas fa-user"></i> Hosted by: {{ playdate.host.username }}
+            </div>
+        </div>
+        
+        <form method="POST" class="join-playdate-form">
+            <div class="form-section">
+                <h3 class="form-section-title">Your Attendance</h3>
+                <div class="attendance-options">
+                    <div class="radio-option">
+                        <input type="radio" id="status-confirmed" name="status" value="confirmed" 
+                               {% if current_status == 'confirmed' %}checked{% endif %} required>
+                        <label for="status-confirmed">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Confirmed</span>
+                            <small>I'll definitely be there</small>
+                        </label>
+                    </div>
+                    
+                    <div class="radio-option">
+                        <input type="radio" id="status-maybe" name="status" value="maybe"
+                               {% if current_status == 'maybe' %}checked{% endif %}>
+                        <label for="status-maybe">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Maybe</span>
+                            <small>I might be able to make it</small>
+                        </label>
+                    </div>
+                    
+                    <div class="radio-option">
+                        <input type="radio" id="status-declined" name="status" value="declined"
+                               {% if current_status == 'declined' %}checked{% endif %}>
+                        <label for="status-declined">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Declined</span>
+                            <small>I can't make it</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3 class="form-section-title">Select Pets to Bring</h3>
+                {% if user_pets %}
+                    <div class="pet-selection">
+                        {% for pet in user_pets %}
+                            <div class="pet-checkbox">
+                                <input type="checkbox" id="pet-{{ pet.id }}" name="selected_pets" value="{{ pet.id }}"
+                                       {% if pet.id in selected_pet_ids %}checked{% endif %}>
+                                <label for="pet-{{ pet.id }}">
+                                    <div class="pet-avatar-small">
+                                        {% if pet.image_filename %}
+                                            <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                        {% else %}
+                                            <div class="pet-avatar-placeholder-small">
+                                                <i class="fas fa-paw"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="pet-info-small">
+                                        <span class="pet-name-small">{{ pet.name }}</span>
+                                        <span class="pet-details-small">{{ pet.breed }} • {{ pet.size }}</span>
+                                    </div>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="no-pets-message">You don't have any pets registered. <a href="{{ url_for('add_pet') }}">Add a pet</a> first!</p>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="button primary">
+                    <i class="fas fa-check"></i> Save Attendance
+                </button>
+                <a href="{{ url_for('view_playdate', playdate_id=playdate.id) }}" class="button secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

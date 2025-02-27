@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Upcoming Playdates - PetMate{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Upcoming Playdates</h2>
+    
+    <div class="action-bar">
+        <a href="{{ url_for('schedule') }}" class="button primary">
+            <i class="fas fa-plus"></i> Schedule New Playdate
+        </a>
+        <a href="{{ url_for('search') }}" class="button">
+            <i class="fas fa-search"></i> Find Playdates
+        </a>
+    </div>
+    
+    <div class="playdates-list">
+        {% if playdates %}
+            {% for playdate_data in playdates %}
+                {% set playdate = playdate_data.playdate %}
+                <div class="playdate-card">
+                    <div class="playdate-header">
+                        <div class="playdate-header-content">
+                            <div class="playdate-date-time">
+                                <div class="playdate-date">
+                                    <i class="fas fa-calendar"></i> {{ playdate.date.strftime('%B %d, %Y') }}
+                                </div>
+                                <div class="playdate-time">
+                                    <i class="fas fa-clock"></i> {{ playdate.date.strftime('%I:%M %p') }}
+                                </div>
+                            </div>
+                            <div class="playdate-location">
+                                <i class="fas fa-map-marker-alt"></i> {{ playdate.location }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="playdate-content">
+                        <div class="playdate-info">
+                            <div class="playdate-host-info">
+                                {% if playdate_data.is_host %}
+                                    <span class="host-label">Host:</span>
+                                    <span class="host-name">{{ playdate.host.username }}</span>
+                                    <span class="your-playdate-badge">Your Playdate</span>
+                                {% else %}
+                                    <span class="host-label">Host:</span>
+                                    <span class="host-name">{{ playdate.host.username }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if playdate.description %}
+                                <div class="playdate-description">
+                                    {{ playdate.description }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="playdate-pets">
+                            <h5><i class="fas fa-paw"></i> Pets attending:</h5>
+                            <div class="pet-avatars">
+                                {% for pet in playdate_data.pets %}
+                                    <div class="pet-avatar">
+                                        {% if pet.image_filename %}
+                                            <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                        {% else %}
+                                            <div class="pet-avatar-placeholder">
+                                                <i class="fas fa-paw"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="pet-name">{{ pet.name }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="playdate-actions">
+                            {% if not playdate_data.is_host %}
+                                {% if playdate_data.attendance_status %}
+                                    <div class="attendance-status">
+                                        <span class="status-badge status-{{ playdate_data.attendance_status }}">
+                                            {% if playdate_data.attendance_status == 'confirmed' %}
+                                                <i class="fas fa-check-circle"></i> Confirmed
+                                            {% elif playdate_data.attendance_status == 'maybe' %}
+                                                <i class="fas fa-question-circle"></i> Maybe
+                                            {% elif playdate_data.attendance_status == 'declined' %}
+                                                <i class="fas fa-times-circle"></i> Declined
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <a href="{{ url_for('join_playdate', playdate_id=playdate.id) }}" class="button secondary small">
+                                            <i class="fas fa-exchange-alt"></i> Change Status
+                                        </a>
+                                        <a href="{{ url_for('view_playdate', playdate_id=playdate.id) }}" class="button primary small">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    </div>
+                                {% else %}
+                                    <div class="attendance-status">
+                                        <span class="status-badge">Not attending</span>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <a href="{{ url_for('join_playdate', playdate_id=playdate.id) }}" class="button primary small">
+                                            <i class="fas fa-plus-circle"></i> Join Playdate
+                                        </a>
+                                        <a href="{{ url_for('view_playdate', playdate_id=playdate.id) }}" class="button secondary small">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="action-buttons">
+                                    <a href="{{ url_for('edit_playdate', playdate_id=playdate.id) }}" class="button secondary small">
+                                        <i class="fas fa-edit"></i> Edit Playdate
+                                    </a>
+                                    <a href="{{ url_for('view_playdate', playdate_id=playdate.id) }}" class="button primary small">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-playdates">
+                <p>No upcoming playdates found.</p>
+                <p>Schedule a playdate or search for playdates in your area!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="slider-menu">
+    <div class="menu-header">
+        <span>Menu</span>
+        <button class="close-menu">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <a href="{{ url_for('index') }}">
+        <i class="fas fa-home"></i> Home
+    </a>
+    <a href="{{ url_for('my_pets') }}">
+        <i class="fas fa-paw"></i> My Pets
+    </a>
+    <a href="{{ url_for('dashboard') }}">
+        <i class="fas fa-user"></i> Profile
+    </a>
+    <a href="{{ url_for('schedule') }}">
+        <i class="fas fa-calendar-plus"></i> Schedule Playdate
+    </a>
+    <a href="{{ url_for('view_playdates') }}">
+        <i class="fas fa-calendar-alt"></i> View Playdates
+    </a>
+    <a href="{{ url_for('search') }}">
+        <i class="fas fa-search"></i> Find Playmates
+    </a>
+</div>
+{% endblock %} 

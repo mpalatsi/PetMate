@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Playdate - PetMate{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Edit Playdate</h2>
+    
+    <form method="POST" class="playdate-form">
+        <div class="form-group">
+            <label for="date">Date and Time:</label>
+            <input type="datetime-local" id="date" name="date" required value="{{ formatted_date }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required value="{{ playdate.location }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4">{{ playdate.description }}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>Select Pets for this Playdate:</label>
+            <div class="pet-selection">
+                {% for pet in user_pets %}
+                    <div class="pet-checkbox">
+                        <input type="checkbox" id="pet-{{ pet.id }}" name="selected_pets" value="{{ pet.id }}" 
+                               {% if pet.id in selected_pet_ids %}checked{% endif %}>
+                        <label for="pet-{{ pet.id }}">
+                            {% if pet.image_filename %}
+                                <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                            {% else %}
+                                <div class="pet-placeholder"></div>
+                            {% endif %}
+                            <span>{{ pet.name }}</span>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="button primary">Update Playdate</button>
+            <a href="{{ url_for('view_playdate', playdate_id=playdate.id) }}" class="button">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %} 

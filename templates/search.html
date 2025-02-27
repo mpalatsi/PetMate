@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Find Playdates - PetMate{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Find Playdates</h2>
+    
+    <div class="search-form">
+        <form action="{{ url_for('search') }}" method="GET">
+            <div class="search-form-grid">
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" placeholder="Enter city, zip code, or address" value="{{ request.args.get('location', '') }}" required>
+                    <div class="form-helper">Search for playdates near a specific location</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="distance">Distance (miles)</label>
+                    <select id="distance" name="distance">
+                        <option value="5" {% if request.args.get('distance') == '5' %}selected{% endif %}>5 miles</option>
+                        <option value="10" {% if request.args.get('distance') == '10' %}selected{% endif %}>10 miles</option>
+                        <option value="25" {% if request.args.get('distance', '25') == '25' %}selected{% endif %}>25 miles</option>
+                        <option value="50" {% if request.args.get('distance') == '50' %}selected{% endif %}>50 miles</option>
+                        <option value="100" {% if request.args.get('distance') == '100' %}selected{% endif %}>100 miles</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">Date (optional)</label>
+                    <input type="date" id="date" name="date" value="{{ request.args.get('date', '') }}">
+                    <div class="form-helper">Leave blank to see all upcoming playdates</div>
+                </div>
+                
+                <div class="search-form-actions">
+                    <button type="submit" class="button primary">
+                        <i class="fas fa-search"></i> Search Playdates
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="action-bar">
+        <a href="{{ url_for('schedule') }}" class="button">
+            <i class="fas fa-plus"></i> Schedule New Playdate
+        </a>
+        <a href="{{ url_for('view_playdates') }}" class="button">
+            <i class="fas fa-calendar-alt"></i> View My Playdates
+        </a>
+    </div>
+</div>
+{% endblock %} 
