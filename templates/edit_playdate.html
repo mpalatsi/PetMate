@@ -2,6 +2,10 @@
 
 {% block title %}Edit Playdate - PetMate{% endblock %}
 
+{% block extra_head %}
+<meta id="google-maps-api" data-key="{{ google_maps_api_key }}">
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <h2>Edit Playdate</h2>
@@ -48,4 +52,8 @@
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
 {% endblock %} 

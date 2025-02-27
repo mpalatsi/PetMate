@@ -62,21 +62,121 @@
             {% if error %}
                 <p class="error">{{ error }}</p>
             {% endif %}
-            <form method="POST" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="bio">Bio:</label>
-                    <textarea id="bio" name="bio" rows="4">{{ user.bio }}</textarea>
+            
+            <form method="POST" enctype="multipart/form-data" class="profile-form">
+                <div class="form-section">
+                    <h3>Basic Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="profile_picture">Profile Picture:</label>
+                        <div class="profile-picture-upload">
+                            <div class="current-picture">
+                                {% if user.profile_picture %}
+                                    <img src="{{ url_for('static', filename='profile_pictures/' + user.profile_picture) }}" alt="Current Profile Picture">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='profile_pictures/default_user.png') }}" alt="Default Profile Picture">
+                                {% endif %}
+                            </div>
+                            <div class="upload-controls">
+                                <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+                                <p class="form-helper">Upload a square image for best results. Maximum size: 2MB.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio">About Me:</label>
+                        <textarea id="bio" name="bio" rows="4" placeholder="Tell others about yourself and your pets...">{{ user.bio }}</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location">Location:</label>
+                        <input type="text" id="location" name="location" value="{{ user.location }}" placeholder="City, neighborhood, or general area">
+                        <p class="form-helper">This helps other pet owners find playdates near you</p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="profile_picture">Profile Picture:</label>
-                    <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+                
+                <div class="form-section">
+                    <h3>Pet Parent Profile</h3>
+                    
+                    <div class="form-group">
+                        <label for="pet_owner_since">Pet Owner Since (Year):</label>
+                        <input type="number" id="pet_owner_since" name="pet_owner_since" value="{{ user.pet_owner_since }}" min="1950" max="{{ current_year }}" placeholder="e.g., 2015">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pet_experience_level">Experience Level:</label>
+                        <select id="pet_experience_level" name="pet_experience_level">
+                            <option value="">Select your experience level</option>
+                            <option value="Beginner" {% if user.pet_experience_level == 'Beginner' %}selected{% endif %}>Beginner - New to pet ownership</option>
+                            <option value="Intermediate" {% if user.pet_experience_level == 'Intermediate' %}selected{% endif %}>Intermediate - Some experience with pets</option>
+                            <option value="Expert" {% if user.pet_experience_level == 'Expert' %}selected{% endif %}>Expert - Very experienced pet owner</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Preferred Meetup Locations:</label>
+                        <div class="checkbox-group">
+                            {% set preferred_types = user.preferred_meetup_types.split(',') if user.preferred_meetup_types else [] %}
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="meetup_parks" name="preferred_meetup_types" value="Parks" {% if 'Parks' in preferred_types %}checked{% endif %}>
+                                <label for="meetup_parks">Parks</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="meetup_beaches" name="preferred_meetup_types" value="Beaches" {% if 'Beaches' in preferred_types %}checked{% endif %}>
+                                <label for="meetup_beaches">Beaches</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="meetup_dog_runs" name="preferred_meetup_types" value="Dog Runs" {% if 'Dog Runs' in preferred_types %}checked{% endif %}>
+                                <label for="meetup_dog_runs">Dog Runs</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="meetup_trails" name="preferred_meetup_types" value="Hiking Trails" {% if 'Hiking Trails' in preferred_types %}checked{% endif %}>
+                                <label for="meetup_trails">Hiking Trails</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="meetup_cafes" name="preferred_meetup_types" value="Pet-Friendly Cafes" {% if 'Pet-Friendly Cafes' in preferred_types %}checked{% endif %}>
+                                <label for="meetup_cafes">Pet-Friendly Cafes</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Typically Available:</label>
+                        <div class="checkbox-group">
+                            {% set availability_times = user.availability.split(',') if user.availability else [] %}
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="avail_weekday_mornings" name="availability" value="Weekday Mornings" {% if 'Weekday Mornings' in availability_times %}checked{% endif %}>
+                                <label for="avail_weekday_mornings">Weekday Mornings</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="avail_weekday_afternoons" name="availability" value="Weekday Afternoons" {% if 'Weekday Afternoons' in availability_times %}checked{% endif %}>
+                                <label for="avail_weekday_afternoons">Weekday Afternoons</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="avail_weekday_evenings" name="availability" value="Weekday Evenings" {% if 'Weekday Evenings' in availability_times %}checked{% endif %}>
+                                <label for="avail_weekday_evenings">Weekday Evenings</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="avail_weekend_mornings" name="availability" value="Weekend Mornings" {% if 'Weekend Mornings' in availability_times %}checked{% endif %}>
+                                <label for="avail_weekend_mornings">Weekend Mornings</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="avail_weekend_afternoons" name="availability" value="Weekend Afternoons" {% if 'Weekend Afternoons' in availability_times %}checked{% endif %}>
+                                <label for="avail_weekend_afternoons">Weekend Afternoons</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="avail_weekend_evenings" name="availability" value="Weekend Evenings" {% if 'Weekend Evenings' in availability_times %}checked{% endif %}>
+                                <label for="avail_weekend_evenings">Weekend Evenings</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="location">Location:</label>
-                    <input type="text" id="location" name="location" value="{{ user.location }}">
-                    <p class="form-helper">Enter your city, neighborhood, or general area</p>
+                
+                <div class="form-actions">
+                    <button type="submit" class="button primary">Save Profile</button>
+                    <a href="{{ url_for('dashboard') }}" class="button secondary">Cancel</a>
                 </div>
-                <button type="submit" class="submit-button">Update Profile</button>
             </form>
         </div>
     </main>

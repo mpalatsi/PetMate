@@ -66,6 +66,12 @@
         <a href="{{ url_for('search') }}">
             <i class="fas fa-search"></i> Find Playmates
         </a>
+        <a href="{{ url_for('messages') }}">
+            <i class="fas fa-envelope"></i> Messages
+            {% if current_user and current_user.get_unread_message_count() > 0 %}
+                <span class="badge">{{ current_user.get_unread_message_count() }}</span>
+            {% endif %}
+        </a>
     </div>
     <div class="menu-overlay"></div>
     {% endif %}

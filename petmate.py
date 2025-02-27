@@ -7,11 +7,23 @@ from werkzeug.utils import secure_filename
 import base64
 import time
 import random
+from alembic import op
+
+# Load environment variables from .env file if present
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv not installed, using environment variables directly
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///petmate.db'
 app.config['SECRET_KEY'] = 'your_secret_key_here'  # Required for session management
-app.config['GOOGLE_MAPS_API_KEY'] = os.environ.get('GOOGLE_MAPS_API_KEY', 'YOUR_DEFAULT_API_KEY')
+
+# Get Google Maps API key from environment variable with a fallback to a placeholder
+# This ensures we don't expose API keys in the code
+app.config['GOOGLE_MAPS_API_KEY'] = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+
 app.config['UPLOAD_FOLDER'] = 'static/pet_images'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)  # Initialize Flask-Migrate
@@ -35,12 +47,56 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    profile_picture = db.Column(db.String(255))  # New field for profile picture
-    bio = db.Column(db.Text)  # New field for user bio
-    location = db.Column(db.String(200))  # Add this line for location
-
+    profile_picture = db.Column(db.String(255))  # Existing field for profile picture
+    bio = db.Column(db.Text)  # Existing field for user bio
+    location = db.Column(db.String(200))  # Existing field for location
+    
+    # New fields relevant to pet owners
+    preferred_meetup_types = db.Column(db.String(255))  # e.g., "parks,beaches,dog runs"
+    availability = db.Column(db.String(255))  # e.g., "weekends,evenings"
+    pet_owner_since = db.Column(db.Integer)  # Year they became a pet owner
+    pet_experience_level = db.Column(db.String(50))  # e.g., "beginner", "intermediate", "expert"
+    
     # Define the relationship to the Pet model
     pets = db.relationship('Pet', backref='owner', lazy=True)
+
+    def get_unread_message_count(self):
+        return Message.query.filter_by(recipient_id=self.id, is_read=False).count()
+
+    def get_conversations(self):
+        # Get all users this user has exchanged messages with
+        sent_to = db.session.query(Message.recipient_id).filter_by(sender_id=self.id).distinct()
+        received_from = db.session.query(Message.sender_id).filter_by(recipient_id=self.id).distinct()
+        
+        # Combine and get unique user IDs
+        user_ids = [user_id for (user_id,) in sent_to.union(received_from)]
+        
+        # Get the actual users
+        users = User.query.filter(User.id.in_(user_ids)).all()
+        
+        # For each user, get the most recent message
+        conversations = []
+        for user in users:
+            latest_message = Message.query.filter(
+                ((Message.sender_id == self.id) & (Message.recipient_id == user.id)) |
+                ((Message.sender_id == user.id) & (Message.recipient_id == self.id))
+            ).order_by(Message.timestamp.desc()).first()
+            
+            unread_count = Message.query.filter_by(
+                sender_id=user.id, 
+                recipient_id=self.id, 
+                is_read=False
+            ).count()
+            
+            conversations.append({
+                'user': user,
+                'latest_message': latest_message,
+                'unread_count': unread_count
+            })
+        
+        # Sort by latest message timestamp
+        conversations.sort(key=lambda x: x['latest_message'].timestamp, reverse=True)
+        return conversations
 
 class Playdate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -73,6 +129,18 @@ class Pet(db.Model):
     image_filename = db.Column(db.String(255))  # Store the filename of uploaded image
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    is_read = db.Column(db.Boolean, default=False)
+    
+    # Define relationships
+    sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_messages')
+    recipient = db.relationship('User', foreign_keys=[recipient_id], backref='received_messages')
 
 @app.route('/')
 def index():
@@ -123,10 +191,47 @@ def dashboard():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    user = User.query.filter_by(username=session['username']).first()
+    username = session['username']
+    user = User.query.filter_by(username=username).first()
+    email = user.email
     
-    # Pass the user object to the template
-    return render_template('dashboard.html', username=user.username, email=user.email, user=user)
+    # Handle case where user doesn't have the new fields yet
+    try:
+        # Try to access the new fields
+        _ = user.preferred_meetup_types
+        _ = user.availability
+        _ = user.pet_owner_since
+        _ = user.pet_experience_level
+    except Exception as e:
+        # If there's an error, run the migration
+        print(f"Error accessing new fields: {e}")
+        print("Attempting to update database schema...")
+        try:
+            # Add the missing columns directly
+            with app.app_context():
+                op = db.session.execute("""
+                    ALTER TABLE user 
+                    ADD COLUMN preferred_meetup_types VARCHAR(255);
+                """)
+                op = db.session.execute("""
+                    ALTER TABLE user 
+                    ADD COLUMN availability VARCHAR(255);
+                """)
+                op = db.session.execute("""
+                    ALTER TABLE user 
+                    ADD COLUMN pet_owner_since INTEGER;
+                """)
+                op = db.session.execute("""
+                    ALTER TABLE user 
+                    ADD COLUMN pet_experience_level VARCHAR(50);
+                """)
+                db.session.commit()
+                print("Database schema updated successfully.")
+        except Exception as migration_error:
+            print(f"Error updating schema: {migration_error}")
+            # Continue anyway, the template will handle missing attributes
+    
+    return render_template('dashboard.html', username=username, email=email, user=user)
 
 @app.route('/logout')
 def logout():
@@ -154,7 +259,11 @@ def schedule():
     user = User.query.filter_by(username=session['username']).first()
     user_pets = Pet.query.filter_by(owner_id=user.id).all()
     
+    # Get Google Maps API key from environment or config
+    google_maps_api_key = os.environ.get('GOOGLE_MAPS_API_KEY', app.config.get('GOOGLE_MAPS_API_KEY', ''))
+    
     if request.method == 'POST':
+        # Existing code for handling form submission
         date_str = request.form.get('date')
         location = request.form.get('location')
         description = request.form.get('description')
@@ -176,13 +285,25 @@ def schedule():
             selected_pets = Pet.query.filter(Pet.id.in_(selected_pet_ids)).all()
             playdate.pets = selected_pets
         
+        # Add the host as an attendee
         db.session.add(playdate)
-        db.session.commit()
+        db.session.flush()  # Get the playdate ID
         
+        # Add the host as a confirmed attendee
+        stmt = playdate_attendees.insert().values(
+            playdate_id=playdate.id,
+            user_id=user.id,
+            status='confirmed'
+        )
+        db.session.execute(stmt)
+        
+        db.session.commit()
         flash('Playdate scheduled successfully!')
         return redirect(url_for('view_playdates'))
     
-    return render_template('schedule.html', user_pets=user_pets)
+    return render_template('schedule.html', 
+                          user_pets=user_pets, 
+                          google_maps_api_key=google_maps_api_key)
 
 @app.route('/playdates')
 def view_playdates():
@@ -299,32 +420,44 @@ def delete_pet(pet_id):
 def edit_profile():
     if 'username' not in session:
         return redirect(url_for('login'))
-
+    
     user = User.query.filter_by(username=session['username']).first()
-
+    
     if request.method == 'POST':
-        user.bio = request.form.get('bio')
-        user.location = request.form.get('location')
-        profile_picture_file = request.files.get('profile_picture')
+        # Handle profile picture upload
+        if 'profile_picture' in request.files and request.files['profile_picture'].filename:
+            file = request.files['profile_picture']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                # Add timestamp to filename to avoid duplicates
+                filename = f"{int(time.time())}_{filename}"
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], '..', 'profile_pictures', filename))
+                user.profile_picture = filename
         
-        if profile_picture_file:
-            # Create the directory if it doesn't exist
-            profile_pictures_dir = os.path.join('static', 'profile_pictures')
-            if not os.path.exists(profile_pictures_dir):
-                os.makedirs(profile_pictures_dir)
-
-            profile_picture_filename = secure_filename(profile_picture_file.filename)
-            profile_picture_file.save(os.path.join(profile_pictures_dir, profile_picture_filename))
-            user.profile_picture = profile_picture_filename
-
+        # Update basic info
+        user.bio = request.form.get('bio', '')
+        user.location = request.form.get('location', '')
+        
+        # Update new pet parent fields
+        user.pet_owner_since = request.form.get('pet_owner_since', None)
+        user.pet_experience_level = request.form.get('pet_experience_level', '')
+        
+        # Handle checkbox groups
+        preferred_meetup_types = request.form.getlist('preferred_meetup_types')
+        user.preferred_meetup_types = ','.join(preferred_meetup_types) if preferred_meetup_types else ''
+        
+        availability = request.form.getlist('availability')
+        user.availability = ','.join(availability) if availability else ''
+        
         try:
             db.session.commit()
+            flash('Profile updated successfully!')
             return redirect(url_for('dashboard'))
         except Exception as e:
             db.session.rollback()
-            return render_template('edit_profile.html', user=user, error=f'Error updating profile: {str(e)}')
-
-    return render_template('edit_profile.html', user=user)
+            return render_template('edit_profile.html', user=user, error=f'Error updating profile: {str(e)}', current_year=datetime.now().year)
+    
+    return render_template('edit_profile.html', user=user, current_year=datetime.now().year)
 
 @app.route('/search', methods=['GET'])
 def search():
@@ -514,21 +647,13 @@ def leave_playdate(playdate_id):
     flash('You have left this playdate.')
     return redirect(url_for('view_playdates'))
 
-@app.route('/view_playdate/<int:playdate_id>')
+@app.route('/playdate/<int:playdate_id>')
 def view_playdate(playdate_id):
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    playdate = Playdate.query.get(playdate_id)
-    if not playdate:
-        flash('Playdate not found.')
-        return redirect(url_for('view_playdates'))
-    
-    user = User.query.filter_by(username=session['username']).first()
-    
-    # Check if user is attending
-    attendance_record = db.session.query(playdate_attendees).filter_by(
-        playdate_id=playdate_id, user_id=user.id).first()
+    current_user = User.query.filter_by(username=session['username']).first()
+    playdate = Playdate.query.get_or_404(playdate_id)
     
     # Get all attendees with their status
     attendees_query = db.session.query(User, playdate_attendees.c.status).join(
@@ -542,12 +667,21 @@ def view_playdate(playdate_id):
         playdate_pets.c.playdate_id == playdate_id
     ).all()
     
+    # Check if user is attending
+    attendance_record = db.session.query(playdate_attendees).filter_by(
+        playdate_id=playdate_id, user_id=current_user.id).first()
+    
+    # Format the date for display
+    formatted_date = playdate.date.strftime('%A, %B %d, %Y at %I:%M %p')
+    
     return render_template('view_playdate.html', 
-                          playdate=playdate,
+                          playdate=playdate, 
                           pets=pets,
                           attendees=attendees,
-                          is_host=(playdate.host_id == user.id),
-                          attendance_status=attendance_record.status if attendance_record else None)
+                          is_host=(playdate.host_id == current_user.id),
+                          attendance_status=attendance_record.status if attendance_record else None,
+                          formatted_date=formatted_date,
+                          current_user=current_user)
 
 @app.route('/edit_playdate/<int:playdate_id>', methods=['GET', 'POST'])
 def edit_playdate(playdate_id):
@@ -567,6 +701,9 @@ def edit_playdate(playdate_id):
     
     # Get currently selected pets
     selected_pet_ids = [pet.id for pet in playdate.pets]
+    
+    # Get Google Maps API key from environment or config
+    google_maps_api_key = os.environ.get('GOOGLE_MAPS_API_KEY', app.config.get('GOOGLE_MAPS_API_KEY', ''))
     
     if request.method == 'POST':
         # Update playdate information
@@ -602,7 +739,109 @@ def edit_playdate(playdate_id):
                           playdate=playdate,
                           user_pets=user_pets,
                           selected_pet_ids=selected_pet_ids,
-                          formatted_date=formatted_date)
+                          formatted_date=formatted_date,
+                          google_maps_api_key=google_maps_api_key)
+
+@app.route('/messages')
+def messages():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    user = User.query.filter_by(username=session['username']).first()
+    conversations = user.get_conversations()
+    
+    return render_template('messages.html', conversations=conversations, current_user=user)
+
+@app.route('/messages/<int:user_id>', methods=['GET', 'POST'])
+def conversation(user_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+    other_user = User.query.get_or_404(user_id)
+    
+    if request.method == 'POST':
+        content = request.form.get('message')
+        if content and content.strip():
+            message = Message(
+                sender_id=current_user.id,
+                recipient_id=user_id,
+                content=content
+            )
+            db.session.add(message)
+            db.session.commit()
+            
+            # Redirect to avoid form resubmission
+            return redirect(url_for('conversation', user_id=user_id))
+    
+    # Mark messages as read
+    unread_messages = Message.query.filter_by(
+        sender_id=user_id, 
+        recipient_id=current_user.id, 
+        is_read=False
+    ).all()
+    
+    for message in unread_messages:
+        message.is_read = True
+    
+    db.session.commit()
+    
+    # Get all messages between the two users
+    messages = Message.query.filter(
+        ((Message.sender_id == current_user.id) & (Message.recipient_id == user_id)) |
+        ((Message.sender_id == user_id) & (Message.recipient_id == current_user.id))
+    ).order_by(Message.timestamp).all()
+    
+    conversations = current_user.get_conversations()
+    
+    return render_template(
+        'conversation.html', 
+        messages=messages, 
+        other_user=other_user, 
+        current_user=current_user,
+        conversations=conversations
+    )
+
+@app.route('/send_message/<int:user_id>')
+def send_message(user_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+    recipient = User.query.get_or_404(user_id)
+    
+    return redirect(url_for('conversation', user_id=user_id))
+
+@app.route('/profile/<int:user_id>')
+def view_profile(user_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+    user = User.query.get_or_404(user_id)
+    
+    # Don't allow viewing your own profile through this route
+    if user.id == current_user.id:
+        return redirect(url_for('dashboard'))
+    
+    return render_template('view_profile.html', user=user, current_user=current_user)
+
+@app.route('/playdate/<int:playdate_id>/chat')
+def playdate_group_chat(playdate_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    current_user = User.query.filter_by(username=session['username']).first()
+    playdate = Playdate.query.get_or_404(playdate_id)
+    
+    # Check if user is an attendee
+    if current_user not in playdate.attendees and current_user.id != playdate.host_id:
+        flash('You must be an attendee of this playdate to access the group chat.')
+        return redirect(url_for('view_playdate', playdate_id=playdate_id))
+    
+    # For simplicity, we'll redirect to a special conversation with the host
+    # In a real app, you might implement a true group chat feature
+    return redirect(url_for('conversation', user_id=playdate.host_id))
 
 # Create tables if they don't exist
 with app.app_context():

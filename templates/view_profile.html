@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }}'s Profile - PetMate{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-image-container">
+                {% if user.profile_picture %}
+                    <img src="{{ url_for('static', filename='profile_pictures/' + user.profile_picture) }}" alt="Profile Picture" class="profile-picture">
+                {% else %}
+                    <img src="{{ url_for('static', filename='profile_pictures/default_user.png') }}" alt="Default Profile Picture" class="profile-picture">
+                {% endif %}
+            </div>
+            <div class="profile-name-info">
+                <h3>{{ user.username }}</h3>
+                <div class="profile-meta">
+                    <p class="profile-joined">Member since {{ user.created_at.strftime('%B %Y') }}</p>
+                    {% if user.location %}
+                        <p class="profile-location"><i class="fas fa-map-marker-alt"></i> {{ user.location }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-content">
+            <div class="profile-section">
+                <h4><i class="fas fa-user"></i> About</h4>
+                <p>{{ user.bio or "No bio provided." }}</p>
+            </div>
+            
+            <div class="profile-section">
+                <h4><i class="fas fa-paw"></i> Pet Parent Profile</h4>
+                <div class="profile-details">
+                    {% if user.pet_owner_since %}
+                        <div class="profile-detail-item">
+                            <span class="detail-label">Pet Owner Since:</span>
+                            <span class="detail-value">{{ user.pet_owner_since }}</span>
+                        </div>
+                    {% endif %}
+                    
+                    {% if user.pet_experience_level %}
+                        <div class="profile-detail-item">
+                            <span class="detail-label">Experience Level:</span>
+                            <span class="detail-value">{{ user.pet_experience_level }}</span>
+                        </div>
+                    {% endif %}
+                    
+                    {% if user.preferred_meetup_types %}
+                        <div class="profile-detail-item">
+                            <span class="detail-label">Preferred Meetup Locations:</span>
+                            <span class="detail-value">
+                                {% for type in user.preferred_meetup_types.split(',') %}
+                                    <span class="tag">{{ type }}</span>
+                                {% endfor %}
+                            </span>
+                        </div>
+                    {% endif %}
+                    
+                    {% if user.availability %}
+                        <div class="profile-detail-item">
+                            <span class="detail-label">Typically Available:</span>
+                            <span class="detail-value">
+                                {% for time in user.availability.split(',') %}
+                                    <span class="tag">{{ time }}</span>
+                                {% endfor %}
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h4><i class="fas fa-paw"></i> {{ user.username }}'s Pets</h4>
+                {% if user.pets %}
+                    <div class="profile-pets-preview">
+                        {% for pet in user.pets %}
+                            <div class="pet-preview">
+                                {% if pet.image_filename %}
+                                    <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                {% else %}
+                                    <div class="pet-avatar-placeholder">
+                                        <i class="fas fa-paw"></i>
+                                    </div>
+                                {% endif %}
+                                <span>{{ pet.name }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="no-pets-message">{{ user.username }} hasn't added any pets yet.</p>
+                {% endif %}
+            </div>
+            
+            <div class="profile-actions">
+                <a href="{{ url_for('conversation', user_id=user.id) }}" class="button primary">
+                    <i class="fas fa-comment"></i> Send Message
+                </a>
+                <a href="{{ url_for('search') }}" class="button secondary">
+                    <i class="fas fa-search"></i> Find More Pet Parents
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

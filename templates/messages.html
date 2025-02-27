@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Messages - PetMate{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Messages</h2>
+    
+    <div class="messaging-container">
+        <div class="conversations-list">
+            <div class="conversations-header">
+                <h3>Conversations</h3>
+            </div>
+            
+            {% if conversations %}
+                <div class="conversations">
+                    {% for convo in conversations %}
+                        <a href="{{ url_for('conversation', user_id=convo['user'].id) }}" class="conversation-item {% if convo['unread_count'] > 0 %}unread{% endif %}">
+                            <div class="conversation-avatar">
+                                {% if convo['user'].profile_picture %}
+                                    <img src="{{ url_for('static', filename='profile_pictures/' + convo['user'].profile_picture) }}" alt="{{ convo['user'].username }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='profile_pictures/default_user.png') }}" alt="{{ convo['user'].username }}">
+                                {% endif %}
+                            </div>
+                            <div class="conversation-info">
+                                <div class="conversation-header">
+                                    <span class="conversation-name">{{ convo['user'].username }}</span>
+                                    <span class="conversation-time">{{ convo['latest_message'].timestamp.strftime('%I:%M %p') }}</span>
+                                </div>
+                                <div class="conversation-preview">
+                                    <p>
+                                        {% if convo['latest_message'].sender_id == current_user.id %}
+                                            <span class="sent-indicator">You:</span>
+                                        {% endif %}
+                                        {{ convo['latest_message'].content|truncate(30) }}
+                                    </p>
+                                    {% if convo['unread_count'] > 0 %}
+                                        <span class="unread-badge">{{ convo['unread_count'] }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-conversations">
+                    <p>You don't have any messages yet.</p>
+                    <p>Start a conversation by visiting another pet owner's profile or joining a playdate!</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="message-placeholder">
+            <div class="message-placeholder-content">
+                <i class="fas fa-comments"></i>
+                <h3>Select a conversation</h3>
+                <p>Choose a conversation from the list or start a new one by visiting a pet owner's profile.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
