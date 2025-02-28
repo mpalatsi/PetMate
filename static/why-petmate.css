@@ -1,0 +1,198 @@
+:root {
+    --sage-green: #809980;
+    --warm-brown: #966F50;
+    --terracotta: #CD5C41;
+    --deep-forest: #2F4858;
+    --light-gray: #f7f9fc;
+    --light-beige: #f5f2ed;
+}
+
+/* Why PetMate section container */
+.why-petmate {
+    padding: 4rem 0;
+    background: linear-gradient(to bottom, var(--light-gray), var(--light-beige));
+    border-radius: 20px;
+    margin-bottom: 3rem;
+}
+
+.why-petmate h2 {
+    text-align: center;
+    font-size: 2.4rem;
+    margin-bottom: 3rem;
+    color: var(--deep-forest);
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.why-petmate h2:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(to right, var(--sage-green), var(--terracotta));
+    border-radius: 2px;
+}
+
+.benefits {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 1.5rem;
+    padding: 0 2rem;
+}
+
+.benefit-card {
+    flex: 1 1 220px;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    position: relative;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 280px;
+}
+
+.benefit-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+/* Create decorative top border */
+.benefit-card:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(to right, var(--sage-green), var(--terracotta));
+    opacity: 0.8;
+}
+
+/* Unique colors for each card */
+.benefit-card:nth-child(1):before {
+    background: var(--sage-green);
+}
+
+.benefit-card:nth-child(2):before {
+    background: var(--warm-brown);
+}
+
+.benefit-card:nth-child(3):before {
+    background: var(--terracotta); 
+}
+
+.benefit-card:nth-child(4):before {
+    background: var(--deep-forest);
+}
+
+.benefit-content {
+    padding: 2.5rem 1.8rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.benefit-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--light-gray);
+    transition: transform 0.3s ease;
+}
+
+.benefit-card:hover .benefit-icon {
+    transform: scale(1.1);
+}
+
+.benefit-card:nth-child(1) .benefit-icon {
+    color: var(--sage-green);
+}
+
+.benefit-card:nth-child(2) .benefit-icon {
+    color: var(--warm-brown);
+}
+
+.benefit-card:nth-child(3) .benefit-icon {
+    color: var(--terracotta);
+}
+
+.benefit-card:nth-child(4) .benefit-icon {
+    color: var(--deep-forest);
+}
+
+.benefit-card h3 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: var(--deep-forest);
+    position: relative;
+    padding-bottom: 0.8rem;
+}
+
+.benefit-card h3:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background-color: var(--light-gray);
+    transition: all 0.3s ease;
+}
+
+.benefit-card:hover h3:after {
+    width: 60px;
+}
+
+.benefit-card p {
+    color: #666;
+    line-height: 1.6;
+    font-size: 1rem;
+    margin-top: auto;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 992px) {
+    .benefits {
+        gap: 1.2rem;
+    }
+    
+    .benefit-card {
+        min-height: 260px;
+    }
+    
+    .benefit-icon {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+@media (max-width: 768px) {
+    .benefit-card {
+        flex: 1 1 45%;
+    }
+}
+
+@media (max-width: 576px) {
+    .benefit-card {
+        flex: 1 1 100%;
+        max-width: 320px;
+    }
+    
+    .why-petmate h2 {
+        font-size: 2rem;
+    }
+} 

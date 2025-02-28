@@ -18,6 +18,7 @@
         background: linear-gradient(135deg, var(--sage-green), var(--deep-forest));
         position: relative;
         padding: 3rem 2rem 6rem;
+        border-radius: 15px 15px 0 0;
     }
     
     .profile-header::before {
@@ -68,15 +69,18 @@
     
     .profile-joined, .profile-location {
         color: rgba(255, 255, 255, 0.9) !important;
+        display: block;
+        margin-bottom: 0.5rem;
     }
     
     .profile-body {
         background: white;
-        border-radius: 20px 20px 0 0;
+        border-radius: 20px;
         margin-top: -4rem;
         padding: 2rem;
         position: relative;
         z-index: 1;
+        box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.05);
     }
     
     .dashboard-stats {
@@ -212,6 +216,8 @@
         font-weight: 600;
         transition: all 0.3s ease;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        color: white;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
     }
     
     .profile-actions .button:hover {
@@ -224,11 +230,14 @@
     }
     
     .profile-actions .button.primary {
-        background: linear-gradient(135deg, var(--sage-green), #5a7361);
+        background: var(--sage-green);
+        border: 1px solid rgba(0,0,0,0.1);
     }
     
     .profile-actions .button.secondary {
-        background: linear-gradient(135deg, var(--warm-brown), #725f47);
+        background: var(--warm-brown);
+        border: 1px solid rgba(0,0,0,0.1);
+        color: white;
     }
     
     .upcoming-playdates-section {
