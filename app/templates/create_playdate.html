@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Create Playdate - PetMate{% endblock %}
+
+{% block extra_head %}
+<meta id="google-maps-api" data-key="{{ google_maps_api_key }}">
+<style>
+    /* Add some CSS for the map error state */
+    .map-error-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    .map-error {
+        text-align: center;
+        padding: 2rem;
+        color: #721c24;
+    }
+    .map-error i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #dc3545;
+    }
+    .map-container {
+        height: 500px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    #map {
+        height: 100%;
+        width: 100%;
+    }
+    .map-controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .venue-list {
+        margin-top: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Create a New Playdate</h2>
+    
+    <form method="POST" action="{{ url_for('playdates.create_playdate') }}" class="create-playdate-form" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4" placeholder="Describe your playdate. For example: 'Dog-friendly meetup at Central Park'" required></textarea>
+        </div>
+        
+        <div class="form-section">
+            <h3>Location</h3>
+            <div class="location-selection">
+                <div class="form-group">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location" name="location" required placeholder="Search for a location or venue" class="location-autocomplete">
+                    <div class="form-helper">Type to search for a location or select from the dropdown</div>
+                </div>
+                
+                <div class="map-container">
+                    <div id="map" class="map-fallback">
+                        <div class="map-error">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <p>Map loading...</p>
+                            <p><small>If the map doesn't load, you can still enter a location manually above.</small></p>
+                        </div>
+                    </div>
+                    <div class="map-controls">
+                        <button type="button" id="find-venues" class="button secondary" disabled>
+                            <i class="fas fa-search-location"></i> Find Dog-Friendly Venues
+                        </button>
+                        <select id="venue-type" class="venue-select" disabled>
+                            <option value="dog park">Dog Parks</option>
+                            <option value="pet friendly cafe">Pet-Friendly Cafes</option>
+                            <option value="dog beach">Dog Beaches</option>
+                            <option value="dog friendly trail">Dog-Friendly Trails</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="venue-list" class="venue-list"></div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="time">Time:</label>
+            <input type="time" id="time" name="time" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Select pets to join the playdate:</label>
+            <div class="pet-selection">
+                {% for pet in user_pets %}
+                <div class="pet-checkbox">
+                    <input type="checkbox" id="pet-{{ pet.id }}" name="pet_ids" value="{{ pet.id }}">
+                    <label for="pet-{{ pet.id }}">
+                        {% if pet.image_filename %}
+                        <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}" class="pet-thumbnail">
+                        {% else %}
+                        <div class="pet-avatar-placeholder">
+                            <i class="fas fa-paw"></i>
+                        </div>
+                        {% endif %}
+                        <span>{{ pet.name }}</span>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+            {% if not user_pets %}
+            <p class="no-pets-message">You don't have any pets yet. <a href="{{ url_for('pets.add_pet') }}">Add a pet</a> first to create a playdate.</p>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="max_pets">Maximum number of pets:</label>
+            <input type="number" id="max_pets" name="max_pets" min="1" value="5">
+        </div>
+        
+        <button type="submit" class="button primary" {% if not user_pets %}disabled{% endif %}>Create Playdate</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default date to today
+        const dateInput = document.getElementById('date');
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+        
+        // Set default time to current time + 1 hour, rounded to next half hour
+        const timeInput = document.getElementById('time');
+        let nextHour = new Date();
+        nextHour.setHours(nextHour.getHours() + 1);
+        nextHour.setMinutes(Math.ceil(nextHour.getMinutes() / 30) * 30);
+        const hours = String(nextHour.getHours()).padStart(2, '0');
+        const minutes = String(nextHour.getMinutes()).padStart(2, '0');
+        timeInput.value = `${hours}:${minutes}`;
+    });
+</script>
+{% endblock %} 

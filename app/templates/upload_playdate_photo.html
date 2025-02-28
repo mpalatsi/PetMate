@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Photo - PetMate{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="upload-photo-container">
+        <h2>Upload Photo</h2>
+        <div class="playdate-info">
+            <p><i class="fas fa-calendar-day"></i> {{ playdate.date.strftime('%B %d, %Y at %I:%M %p') }}</p>
+            <p><i class="fas fa-map-marker-alt"></i> {{ playdate.location }}</p>
+        </div>
+        
+        <form method="POST" enctype="multipart/form-data" class="upload-photo-form">
+            <div class="form-group">
+                <label for="photo">Select Photo:</label>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="photo" name="photo" accept="image/*" required>
+                    <div class="file-upload-preview">
+                        <img id="photo-preview" src="#" alt="Preview" style="display: none;">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="caption">Caption (optional):</label>
+                <textarea id="caption" name="caption" rows="3" placeholder="Add a caption to your photo..."></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="button primary">Upload Photo</button>
+                <a href="{{ url_for('playdate_photos', playdate_id=playdate.id) }}" class="button">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Show preview of selected image
+    const photoInput = document.getElementById('photo');
+    const photoPreview = document.getElementById('photo-preview');
+    
+    photoInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                photoPreview.src = e.target.result;
+                photoPreview.style.display = 'block';
+            }
+            
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+</script>
+{% endblock %} 

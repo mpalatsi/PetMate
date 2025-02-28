@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}My Pets - PetMate{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>My Pets</h2>
+    
+    <div class="action-bar">
+        <a href="{{ url_for('pets.add_pet') }}" class="button primary">
+            <i class="fas fa-plus"></i> Add New Pet
+        </a>
+    </div>
+    
+    {% if pets %}
+        <div class="pets-grid">
+            {% for pet in pets %}
+                <div class="pet-card-container">
+                    <div class="pet-card-image">
+                        {% if pet.image_filename %}
+                            <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                        {% else %}
+                            <div class="pet-card-image-placeholder">
+                                <i class="fas fa-paw"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="pet-card-content">
+                        <div class="pet-card-header">
+                            <h3 class="pet-card-name">{{ pet.name }}</h3>
+                            <p class="pet-card-breed">{{ pet.breed }}</p>
+                        </div>
+                        <div class="pet-card-details">
+                            <div class="pet-detail">
+                                <i class="fas fa-paw"></i>
+                                <span>{{ pet.species }}</span>
+                            </div>
+                            {% if pet.age %}
+                                <div class="pet-detail">
+                                    <i class="fas fa-birthday-cake"></i>
+                                    <span>{{ pet.age }} years old</span>
+                                </div>
+                            {% endif %}
+                            {% if pet.size %}
+                                <div class="pet-detail">
+                                    <i class="fas fa-ruler"></i>
+                                    <span>{{ pet.size }} size</span>
+                                </div>
+                            {% endif %}
+                            {% if pet.temperament %}
+                                <div class="pet-detail">
+                                    <i class="fas fa-heart"></i>
+                                    <span>{{ pet.temperament }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="pet-card-actions">
+                            <a href="{{ url_for('pets.edit_pet', pet_id=pet.id) }}" class="button secondary">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{{ url_for('pets.delete_pet', pet_id=pet.id) }}" class="button danger">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-pets">
+            <p>You haven't added any pets yet.</p>
+            <a href="{{ url_for('pets.add_pet') }}" class="button primary">
+                <i class="fas fa-plus"></i> Add Your First Pet
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

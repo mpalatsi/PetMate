@@ -490,7 +490,7 @@
                             <div class="playdate-location">
                                 <i class="fas fa-map-marker-alt"></i> {{ playdate.location }}
                             </div>
-                            <a href="{{ url_for('view_playdate', playdate_id=playdate.id) }}" class="view-playdate-button">View Details</a>
+                            <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="view-playdate-button">View Details</a>
                         </div>
                     {% endfor %}
                 </div>
@@ -498,13 +498,13 @@
             {% endif %}
             
             <div class="profile-actions">
-                <a href="{{ url_for('edit_profile') }}" class="button primary">
+                <a href="{{ url_for('main.edit_profile') }}" class="button primary">
                     <i class="fas fa-edit"></i> Edit Profile
                 </a>
-                <a href="{{ url_for('my_pets') }}" class="button secondary">
+                <a href="{{ url_for('pets.my_pets') }}" class="button secondary">
                     <i class="fas fa-paw"></i> Manage Pets
                 </a>
-                <a href="{{ url_for('schedule') }}" class="button secondary">
+                <a href="{{ url_for('playdates.create_playdate') }}" class="button secondary">
                     <i class="fas fa-calendar-plus"></i> Schedule Playdate
                 </a>
             </div>

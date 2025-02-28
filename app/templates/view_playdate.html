@@ -1,0 +1,531 @@
+{% extends "base.html" %}
+
+{% block title %}Playdate Details - PetMate{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Styles for pet avatars section */
+    .pet-avatars-container {
+        max-width: 100%;
+        overflow-x: auto;
+        padding-bottom: 10px; /* Add space for possible scrollbar */
+    }
+    
+    .pet-avatars {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 15px;
+        padding: 5px 0;
+        min-height: 80px;
+    }
+    
+    .pet-avatar {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 80px;
+        text-align: center;
+    }
+    
+    .pet-avatar img, 
+    .pet-avatar-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 5px;
+    }
+    
+    .pet-avatar-placeholder {
+        background-color: var(--sage-green-lighter);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--sage-green);
+    }
+    
+    .pet-name {
+        font-size: 0.85rem;
+        width: 100%;
+        padding: 0 2px;
+        margin-top: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
+        color: #333; /* Explicitly set text color */
+        font-weight: 500; /* Make it slightly bolder */
+        line-height: 1.2; /* Improve line height */
+        min-height: 1.2em; /* Ensure minimum height */
+        display: block; /* Ensure it displays as a block */
+    }
+    
+    /* Styles for attendees section */
+    .attendees-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .attendee-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 15px;
+        border-radius: 20px;
+        background-color: #f8f8f8;
+        width: 100%;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .attendee-item.status-confirmed {
+        border-left: 4px solid #4CAF50;
+    }
+    
+    .attendee-item.status-maybe {
+        border-left: 4px solid #FF9800;
+    }
+    
+    .attendee-item.status-declined {
+        border-left: 4px solid #F44336;
+    }
+    
+    .attendee-name {
+        font-weight: 500;
+    }
+    
+    .status-badge {
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+    
+    .status-badge.status-confirmed {
+        background-color: rgba(76, 175, 80, 0.15);
+        color: #2E7D32;
+    }
+    
+    .status-badge.status-maybe {
+        background-color: rgba(255, 152, 0, 0.15);
+        color: #EF6C00;
+    }
+    
+    .status-badge.status-declined {
+        background-color: rgba(244, 67, 54, 0.15);
+        color: #C62828;
+    }
+    
+    /* Responsive styling */
+    @media (max-width: 768px) {
+        .playdate-content {
+            padding: 15px;
+        }
+        
+        .playdate-pets, .playdate-details-section {
+            margin-bottom: 20px;
+        }
+        
+        .pet-avatar {
+            width: 70px; /* Slightly smaller on mobile but still enough for names */
+        }
+        
+        .attendee-card {
+            flex-direction: column;
+        }
+        
+        .attendee-actions {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+    }
+
+    /* Section headings styling */
+    .section-heading {
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        margin-bottom: 15px;
+        color: #666 !important;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-heading i {
+        margin-right: 8px;
+        color: var(--sage-green);
+        font-size: 1rem !important;
+    }
+    
+    .section-heading span {
+        font-size: 1rem !important;
+        color: #666 !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Reset any potential h5 styling */
+    h5.section-heading {
+        margin-top: 0;
+        line-height: 1.5;
+        font-family: inherit;
+    }
+
+    /* People Attending Section */
+    .playdate-people {
+        margin-top: 20px;
+        padding-bottom: 15px;
+    }
+
+    .people-avatars-container {
+        max-width: 100%;
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+
+    .people-avatars {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 15px;
+        padding: 5px 0;
+        min-height: 80px;
+    }
+
+    .person-avatar {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 90px; /* Increase width to accommodate host badge */
+        text-align: center;
+    }
+
+    .person-avatar img,
+    .person-avatar-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 5px;
+    }
+
+    .person-avatar-placeholder {
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #adb5bd;
+    }
+
+    .person-name {
+        font-size: 0.85rem;
+        width: 100%;
+        padding: 0 2px;
+        margin-top: 3px;
+        text-align: center;
+        color: #333;
+        font-weight: 500;
+        line-height: 1.2;
+        display: block;
+    }
+
+    /* Display host badge on its own line */
+    .host-badge {
+        display: block;
+        background-color: var(--sage-green);
+        color: white;
+        font-size: 0.7rem;
+        padding: 1px 5px;
+        border-radius: 10px;
+        margin-top: 2px;
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: normal;
+        max-width: fit-content;
+    }
+
+    .no-people {
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    /* Playdate actions buttons */
+    .playdate-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 25px;
+        justify-content: flex-start;
+    }
+    
+    .playdate-actions .button,
+    .playdate-actions form {
+        margin: 5px 5px 5px 0;
+    }
+    
+    /* Make primary buttons stand out more */
+    .button.primary {
+        background-color: var(--sage-green);
+        color: white;
+        font-weight: 500;
+    }
+    
+    /* Fix display of inline form buttons */
+    .playdate-actions form {
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Playdate Details</h2>
+    
+    <div class="playdate-details-card">
+        <div class="playdate-header">
+            <div class="playdate-header-content">
+                <div class="playdate-date-time">
+                    <div class="playdate-date">
+                        <i class="fas fa-calendar"></i> {{ playdate.date.strftime('%B %d, %Y') }}
+                    </div>
+                    <div class="playdate-time">
+                        <i class="fas fa-clock"></i> {{ playdate.date.strftime('%I:%M %p') }}
+                    </div>
+                </div>
+                <div class="playdate-location">
+                    <i class="fas fa-map-marker-alt"></i> {{ playdate.location }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="playdate-content">
+            <div class="playdate-info">
+                <div class="playdate-host-info">
+                    <span class="host-label">Host:</span>
+                    <span class="host-name">{{ playdate.host.username }}</span>
+                    {% if is_host %}
+                        <span class="your-playdate-badge">Your Playdate</span>
+                    {% endif %}
+                </div>
+                
+                {% if playdate.description %}
+                    <div class="playdate-description">
+                        {{ playdate.description }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="playdate-pets">
+                <div class="section-heading">
+                    <i class="fas fa-paw"></i> 
+                    <span>Pets Attending</span>
+                </div>
+                <div class="pet-avatars-container">
+                    <div class="pet-avatars">
+                        {% if pets %}
+                            {% for pet in pets %}
+                                <div class="pet-avatar">
+                                    {% if pet.image_filename %}
+                                        <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                    {% else %}
+                                        <div class="pet-avatar-placeholder">
+                                            <i class="fas fa-paw"></i>
+                                        </div>
+                                    {% endif %}
+                                    <span class="pet-name">{{ pet.name }}</span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="no-pets">No pets have been added to this playdate yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="playdate-people">
+                <div class="section-heading">
+                    <i class="fas fa-users"></i> 
+                    <span>People Attending</span>
+                </div>
+                <div class="people-avatars-container">
+                    <div class="people-avatars">
+                        {% set displayed_users = [] %}
+                        
+                        <!-- First add the host -->
+                        {% if playdate.host %}
+                            {% set displayed_users = displayed_users + [playdate.host.id] %}
+                            <div class="person-avatar">
+                                {% if playdate.host.profile_picture %}
+                                    <img src="{{ url_for('static', filename='profile_pictures/' + playdate.host.profile_picture) }}" alt="{{ playdate.host.username }}">
+                                {% else %}
+                                    <div class="person-avatar-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                {% endif %}
+                                <span class="person-name">{{ playdate.host.username }}</span>
+                                <span class="host-badge">Host</span>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Then add pet owners who are not the host -->
+                        {% for pet in pets %}
+                            {% if pet.owner_id != playdate.host_id and pet.owner_id not in displayed_users %}
+                                {% set displayed_users = displayed_users + [pet.owner_id] %}
+                                {% set pet_owner = pet.owner %}
+                                <div class="person-avatar">
+                                    {% if pet_owner.profile_picture %}
+                                        <img src="{{ url_for('static', filename='profile_pictures/' + pet_owner.profile_picture) }}" alt="{{ pet_owner.username }}">
+                                    {% else %}
+                                        <div class="person-avatar-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    {% endif %}
+                                    <span class="person-name">{{ pet_owner.username }}</span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if displayed_users|length == 0 %}
+                            <p class="no-people">No one has joined this playdate yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="playdate-actions">
+                {% if current_user.id != playdate.host_id %}
+                    {% set user_has_pet_attending = false %}
+                    {% for pet in pets %}
+                        {% if pet.owner_id == current_user.id %}
+                            {% set user_has_pet_attending = true %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if user_has_pet_attending %}
+                        <div class="dropdown">
+                            <button class="button dropdown-toggle">
+                                <i class="fas fa-user-check"></i> Attending <i class="fas fa-caret-down"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <form method="POST" action="{{ url_for('main.leave_playdate', playdate_id=playdate.id) }}">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fas fa-sign-out-alt"></i> Leave Playdate
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('main.join_playdate', playdate_id=playdate.id) }}" class="button primary">
+                            <i class="fas fa-plus-circle"></i> Join Playdate
+                        </a>
+                    {% endif %}
+                {% endif %}
+                
+                <!-- Always show Group Chat button -->
+                <a href="{{ url_for('playdates.playdate_group_chat', playdate_id=playdate.id) }}" class="button primary">
+                    <i class="fas fa-comments"></i> Group Chat
+                </a>
+                
+                <a href="{{ url_for('main.view_playdates') }}" class="button secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Playdates
+                </a>
+                
+                {% if current_user.id == playdate.host_id %}
+                    <a href="{{ url_for('playdates.edit_playdate', playdate_id=playdate.id) }}" class="button secondary">
+                        <i class="fas fa-edit"></i> Edit Playdate
+                    </a>
+                    
+                    <!-- Delete Playdate Button with improved confirmation dialog -->
+                    <form method="POST" action="{{ url_for('playdates.delete_playdate', playdate_id=playdate.id) }}" 
+                          onsubmit="return confirm('Are you sure you want to delete this playdate permanently? This action cannot be undone.');" 
+                          style="display: inline;">
+                        <button type="submit" class="button" 
+                                style="background-color: #dc3545; border-color: #dc3545; color: white; font-weight: 500;">
+                            <i class="fas fa-trash"></i> Delete Playdate
+                        </button>
+                    </form>
+                {% endif %}
+                
+                <a href="{{ url_for('playdates.playdate_photos', playdate_id=playdate.id) }}" class="button">
+                    <i class="fas fa-images"></i> Photo Gallery
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="playdate-attendees">
+        <h3>Attendees</h3>
+        {% if attendees %}
+            <div class="attendee-list">
+                {% for attendee_info in attendees %}
+                    {% set attendee = attendee_info.user %}
+                    <div class="attendee-card">
+                        <div class="attendee-info">
+                            <div class="attendee-avatar">
+                                {% if attendee.profile_picture %}
+                                    <img src="{{ url_for('static', filename='profile_pictures/' + attendee.profile_picture) }}" alt="{{ attendee.username }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='profile_pictures/default_user.png') }}" alt="{{ attendee.username }}">
+                                {% endif %}
+                            </div>
+                            <div class="attendee-details">
+                                <h4>{{ attendee.username }}</h4>
+                                {% if attendee.location %}
+                                    <p><i class="fas fa-map-marker-alt"></i> {{ attendee.location }}</p>
+                                {% endif %}
+                                <p class="status-badge status-{{ attendee_info.status }}">
+                                    <i class="fas {% if attendee_info.status == 'confirmed' %}fa-check-circle{% elif attendee_info.status == 'maybe' %}fa-question-circle{% else %}fa-times-circle{% endif %}"></i>
+                                    {{ attendee_info.status|capitalize }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="attendee-actions">
+                            <a href="{{ url_for('main.view_profile', user_id=attendee.id) }}" class="button small secondary">
+                                <i class="fas fa-user"></i> View Profile
+                            </a>
+                            {% if attendee.id != current_user.id %}
+                                <a href="{{ url_for('messages.conversation', user_id=attendee.id) }}" class="button small primary">
+                                    <i class="fas fa-comment"></i> Message
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-attendees">No one has joined this playdate yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="playdate-host">
+        <h3>Hosted by</h3>
+        <div class="host-info">
+            <div class="host-avatar">
+                {% if playdate.host.profile_picture %}
+                    <img src="{{ url_for('static', filename='profile_pictures/' + playdate.host.profile_picture) }}" alt="{{ playdate.host.username }}">
+                {% else %}
+                    <img src="{{ url_for('static', filename='profile_pictures/default_user.png') }}" alt="{{ playdate.host.username }}">
+                {% endif %}
+            </div>
+            <div class="host-details">
+                <h4>{{ playdate.host.username }}</h4>
+                {% if playdate.host.location %}
+                    <p><i class="fas fa-map-marker-alt"></i> {{ playdate.host.location }}</p>
+                {% endif %}
+            </div>
+            <div class="host-actions">
+                <a href="{{ url_for('main.view_profile', user_id=playdate.host.id) }}" class="button small secondary">
+                    <i class="fas fa-user"></i> View Profile
+                </a>
+                {% if current_user.id != playdate.host_id %}
+                    <a href="{{ url_for('messages.conversation', user_id=playdate.host.id) }}" class="button small primary">
+                        <i class="fas fa-comment"></i> Message Host
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

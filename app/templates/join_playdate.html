@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Join Playdate - PetMate{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h2 class="section-title mb-0 text-center">
+                        <i class="fas fa-calendar-plus"></i> Join Playdate
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p><strong>Date:</strong> {{ playdate.date.strftime('%A, %B %d, %Y at %I:%M %p') }}</p>
+                        <p><strong>Location:</strong> {{ playdate.location }}</p>
+                        <p><strong>Host:</strong> {{ playdate.host.username }}</p>
+                    </div>
+                    <hr>
+                    
+                    <form method="POST" action="{{ url_for('main.join_playdate', playdate_id=playdate.id) }}">
+                        <div class="mb-4">
+                            <h4 class="select-pets-heading">Select pets to bring:</h4>
+                            <div class="pet-selection mt-3">
+                                <div class="row">
+                                    {% for pet in user_pets %}
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <label for="pet-{{ pet.id }}" class="pet-card-label">
+                                            <div class="pet-card card h-100">
+                                                <div class="form-check pet-checkbox">
+                                                    <input class="form-check-input" type="checkbox" name="selected_pets" 
+                                                           value="{{ pet.id }}" id="pet-{{ pet.id }}">
+                                                </div>
+                                                <div class="select-indicator">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                                <div class="text-center mt-2">
+                                                    {% if pet.image_filename %}
+                                                    <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" 
+                                                         class="pet-thumbnail card-img-top mx-auto" alt="{{ pet.name }}">
+                                                    {% else %}
+                                                    <div class="pet-thumbnail-placeholder mx-auto">
+                                                        <i class="fas fa-paw"></i>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="card-body text-center">
+                                                    <h5 class="card-title">{{ pet.name }}</h5>
+                                                    <p class="card-text">{{ pet.breed }}, {{ pet.age }} years</p>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('main.view_playdate', playdate_id=playdate.id) }}" class="button secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="button primary">
+                                <i class="fas fa-check"></i> Join Playdate
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--sage-green);
+}
+
+.section-title i {
+    color: var(--sage-green);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1.25rem 1.25rem;
+}
+
+.select-pets-heading {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.pet-card-label {
+    display: block;
+    width: 100%;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+.pet-card {
+    position: relative;
+    transition: all 0.2s;
+    border: 2px solid #e9ecef;
+    overflow: hidden;
+}
+
+.pet-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    border-color: #c8e6c9;
+}
+
+.pet-checkbox {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 10;
+}
+
+.form-check-input {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: var(--sage-green);
+    border-color: var(--sage-green);
+}
+
+.select-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background-color: var(--sage-green);
+    border-bottom-left-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.select-indicator i {
+    font-size: 1.25rem;
+    color: white;
+    position: relative;
+    top: -5px;
+    right: -5px;
+}
+
+input[type="checkbox"]:checked ~ .select-indicator {
+    opacity: 1;
+}
+
+input[type="checkbox"]:checked ~ .pet-card {
+    border-color: var(--sage-green);
+    background-color: rgba(200, 230, 201, 0.1);
+}
+
+.pet-card.selected {
+    border-color: var(--sage-green);
+    background-color: rgba(200, 230, 201, 0.1);
+}
+
+.pet-thumbnail {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.pet-thumbnail-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pet-thumbnail-placeholder i {
+    font-size: 3rem;
+    color: #adb5bd;
+}
+
+.button {
+    display: inline-block;
+    font-weight: 500;
+    color: #212529;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    text-decoration: none;
+}
+
+.button.primary {
+    color: #fff;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.button.primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.button.secondary {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.button.secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.button i {
+    margin-right: 5px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // The entire card is now wrapped in a label that automatically toggles the checkbox,
+    // so we don't need additional click handling
+    
+    // Add visual feedback when a pet is selected
+    const checkboxes = document.querySelectorAll('.form-check-input');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            // Find the parent card container for this checkbox
+            const label = this.closest('.pet-card-label');
+            const card = label.querySelector('.pet-card');
+            
+            if (this.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

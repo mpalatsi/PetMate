@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Debug Session Data{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Session Data</h1>
+            <pre>{{ session_data }}</pre>
+            
+            <h2>User in Database</h2>
+            {% if session_data.get('username') %}
+                {% set user = get_user(session_data['username']) %}
+                {% if user %}
+                    <table class="table">
+                        <tr>
+                            <th>ID</th>
+                            <td>{{ user.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Username</th>
+                            <td>{{ user.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td>{{ user.email }}</td>
+                        </tr>
+                    </table>
+                {% else %}
+                    <p>No user found with username: {{ session_data['username'] }}</p>
+                {% endif %}
+            {% else %}
+                <p>No username in session</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

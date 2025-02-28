@@ -1,0 +1,611 @@
+{% extends "base.html" %}
+
+{% block title %}Training Resources - PetMate{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Training resources specific styles */
+    .resource-container {
+        max-width: 950px;
+        margin: 2rem auto;
+    }
+    
+    .resource-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .resource-header h2 {
+        color: var(--sage-green);
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .resource-header h2 i {
+        margin-right: 0.5rem;
+    }
+    
+    .resource-intro {
+        font-size: 1.1rem;
+        max-width: 800px;
+        margin: 0 auto;
+        color: var(--text-secondary);
+    }
+    
+    .resource-section {
+        margin-bottom: 3rem;
+    }
+    
+    .resource-section h3 {
+        color: var(--sage-green);
+        position: relative;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+        font-size: 1.6rem;
+    }
+    
+    .resource-section h3:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 3px;
+        background-color: var(--sage-green);
+        border-radius: 2px;
+    }
+    
+    /* Enhanced card styling */
+    .resource-card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-left: 5px solid var(--sage-green);
+    }
+    
+    .resource-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .resource-icon {
+        flex-shrink: 0;
+        width: 60px;
+        height: 60px;
+        background-color: rgba(124, 144, 130, 0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--sage-green);
+        font-size: 1.5rem;
+    }
+    
+    .resource-text {
+        flex: 1;
+    }
+    
+    .resource-text h4 {
+        color: var(--sage-green);
+        margin-top: 0;
+        margin-bottom: 0.75rem;
+        font-size: 1.3rem;
+    }
+    
+    .resource-text p {
+        margin-bottom: 0.75rem;
+        line-height: 1.6;
+        color: var(--text-primary);
+    }
+    
+    /* Training tip styling */
+    .training-tip {
+        background-color: rgba(255, 193, 7, 0.1);
+        border-left: 3px solid #ffc107;
+        padding: 0.75rem 1rem;
+        border-radius: 0 8px 8px 0;
+        margin-top: 0.75rem;
+        font-size: 0.95rem;
+    }
+    
+    .training-tip i {
+        color: #ffc107;
+        margin-right: 0.5rem;
+    }
+    
+    /* Command step styling */
+    .command-steps {
+        margin-top: 1rem;
+    }
+    
+    .command-steps .step {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 0;
+    }
+    
+    .command-steps .step span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 25px;
+        height: 25px;
+        background-color: rgba(52, 152, 219, 0.15);
+        color: #3498db;
+        font-weight: bold;
+        border-radius: 50%;
+        margin-right: 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Socialization checklist */
+    .socialization-checklist {
+        margin-top: 1rem;
+    }
+    
+    .socialization-checklist .checklist-item {
+        background-color: rgba(155, 89, 182, 0.1);
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        position: relative;
+        padding-left: 1.75rem;
+    }
+    
+    .socialization-checklist .checklist-item:before {
+        content: '\f00c';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        left: 0.75rem;
+        color: #9b59b6;
+    }
+    
+    /* Benefits list */
+    .benefits-list {
+        margin-top: 1rem;
+    }
+    
+    .benefits-list .benefit {
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .benefits-list .benefit i {
+        color: #9b59b6;
+        margin-right: 0.75rem;
+        font-size: 1rem;
+    }
+    
+    /* Progress steps */
+    .progress-steps {
+        margin-top: 1rem;
+    }
+    
+    .progress-steps .progress-step {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    
+    .progress-steps .progress-step:not(:last-child):after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 15px;
+        height: 1rem;
+        width: 2px;
+        background-color: rgba(155, 89, 182, 0.3);
+    }
+    
+    .progress-steps .step-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        background-color: rgba(155, 89, 182, 0.15);
+        color: #9b59b6;
+        font-weight: bold;
+        border-radius: 50%;
+        margin-right: 1rem;
+    }
+    
+    .progress-steps .step-text {
+        flex: 1;
+    }
+    
+    /* Command card variations */
+    .command-card {
+        border-left: 5px solid #3498db;
+    }
+    
+    .command-card .resource-icon {
+        background-color: rgba(52, 152, 219, 0.15);
+        color: #3498db;
+    }
+    
+    .command-card h4 {
+        color: #3498db;
+    }
+    
+    /* Socialization card variations */
+    .social-card {
+        border-left: 5px solid #9b59b6;
+    }
+    
+    .social-card .resource-icon {
+        background-color: rgba(155, 89, 182, 0.15);
+        color: #9b59b6;
+    }
+    
+    .social-card h4 {
+        color: #9b59b6;
+    }
+    
+    /* Resource links styling */
+    .resource-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .resource-link-card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        height: 100%;
+        transition: transform 0.3s ease;
+        border-top: 5px solid #e67e22;
+    }
+    
+    .resource-link-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .resource-link-card h4 {
+        color: #e67e22;
+        margin-top: 0;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .resource-link-card h4:before {
+        content: '\f0c1';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        margin-right: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .resource-link-card ul {
+        padding-left: 0;
+        list-style-type: none;
+    }
+    
+    .resource-link-card ul li {
+        margin-bottom: 0.5rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+    
+    .resource-link-card ul li:before {
+        content: '\f054';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        left: 0;
+        top: 2px;
+        color: #e67e22;
+        font-size: 0.75rem;
+    }
+    
+    .resource-link-card a {
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    
+    .resource-link-card a:hover {
+        color: #e67e22;
+    }
+    
+    /* Conclusion styling */
+    .resource-conclusion {
+        background-color: rgba(124, 144, 130, 0.1);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .resource-conclusion h3 {
+        color: var(--sage-green);
+        margin-top: 0;
+    }
+    
+    .certification-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 0.75rem;
+        margin: 1.5rem 0;
+    }
+    
+    .certification-list li {
+        background-color: #fff;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+    }
+    
+    .certification-list li:before {
+        content: '\f559';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        margin-right: 0.75rem;
+        color: var(--sage-green);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .resource-links {
+            grid-template-columns: 1fr;
+        }
+        
+        .certification-list {
+            grid-template-columns: 1fr;
+        }
+        
+        .resource-card {
+            flex-direction: column;
+        }
+        
+        .resource-icon {
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container resource-container">
+    <div class="resource-header">
+        <h2><i class="fas fa-graduation-cap"></i> Pet Training Resources</h2>
+        <p class="resource-intro">
+            Proper training is essential for a well-behaved pet and successful playdates. Explore these resources to help your pet develop good manners and social skills.
+        </p>
+    </div>
+    
+    <div class="resource-content">
+        <section class="resource-section">
+            <h3>Basic Training Principles</h3>
+            <div class="resource-card">
+                <div class="resource-icon">
+                    <i class="fas fa-thumbs-up"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Positive Reinforcement</h4>
+                    <p>Reward-based training is the most effective and humane approach. Reward your pet with treats, praise, or play when they perform desired behaviors. This encourages them to repeat those behaviors in the future.</p>
+                    <div class="training-tip">
+                        <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Use high-value treats for new or challenging behaviors, and lower-value treats for behaviors your pet already knows well.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resource-card">
+                <div class="resource-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Consistency & Timing</h4>
+                    <p>Be consistent with commands and expectations. Reward behaviors immediately (within seconds) so your pet associates the reward with the correct action. All family members should use the same commands and rules.</p>
+                    <div class="training-tip">
+                        <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Create a list of commands and their exact wording that everyone in the household agrees to use.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resource-card">
+                <div class="resource-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Patience & Persistence</h4>
+                    <p>Learning takes time. Keep training sessions short (5-15 minutes) but frequent. End on a positive note with something your pet can successfully accomplish. Never train when you're frustrated or angry.</p>
+                    <div class="training-tip">
+                        <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Set a timer for training sessions to avoid fatigue for both you and your pet.
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="resource-section">
+            <h3>Essential Commands for Playdates</h3>
+            <div class="resource-card command-card">
+                <div class="resource-icon">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Recall ("Come")</h4>
+                    <p>Perhaps the most important command for off-leash play. Start in a distraction-free environment and gradually increase difficulty. Always make coming to you a positive experience, even if you're calling your pet away from something fun.</p>
+                    <div class="command-steps">
+                        <div class="step"><span>1</span> Begin in a quiet room with minimal distractions</div>
+                        <div class="step"><span>2</span> Use an excited, happy tone when calling your pet</div>
+                        <div class="step"><span>3</span> Reward generously when they come to you</div>
+                        <div class="step"><span>4</span> Gradually add distance and distractions</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resource-card command-card">
+                <div class="resource-icon">
+                    <i class="fas fa-hand-paper"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>"Leave It"</h4>
+                    <p>Teaches your pet to ignore or move away from something. Useful for preventing resource guarding or interest in inappropriate items. Start with low-value items and gradually work up to more tempting objects.</p>
+                    <div class="command-steps">
+                        <div class="step"><span>1</span> Hold a treat in your closed fist</div>
+                        <div class="step"><span>2</span> Say "leave it" when your pet investigates</div>
+                        <div class="step"><span>3</span> Wait for them to back away</div>
+                        <div class="step"><span>4</span> Reward with a different treat from your other hand</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resource-card command-card">
+                <div class="resource-icon">
+                    <i class="fas fa-couch"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>"Stay" & "Wait"</h4>
+                    <p>Teaches impulse control and patience. "Stay" means remain in position until released, while "wait" means pause temporarily. Both are valuable for managing greetings and transitions during playdates.</p>
+                    <div class="command-steps">
+                        <div class="step"><span>1</span> Ask for a "sit" or "down" position</div>
+                        <div class="step"><span>2</span> Hold your hand up and say "stay"</div>
+                        <div class="step"><span>3</span> Take one step back, then return and reward</div>
+                        <div class="step"><span>4</span> Gradually increase duration and distance</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="resource-section">
+            <h3>Socialization Tips</h3>
+            <div class="resource-card social-card">
+                <div class="resource-icon">
+                    <i class="fas fa-baby"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Start Early</h4>
+                    <p>The critical socialization period for puppies is 3-14 weeks, and for kittens, 2-7 weeks. During this time, expose your pet to various people, animals, environments, and experiences in a positive, controlled manner.</p>
+                    <div class="socialization-checklist">
+                        <div class="checklist-item">Different types of people (ages, genders, appearances)</div>
+                        <div class="checklist-item">Various surfaces (grass, carpet, tile, wood)</div>
+                        <div class="checklist-item">Different sounds (traffic, household appliances, children)</div>
+                        <div class="checklist-item">Other animals (after proper vaccinations)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resource-card social-card">
+                <div class="resource-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Group Classes</h4>
+                    <p>Structured training classes provide socialization opportunities in a controlled environment with professional guidance. Look for classes that use positive reinforcement methods and allow supervised play time.</p>
+                    <div class="benefits-list">
+                        <div class="benefit"><i class="fas fa-check-circle"></i> Professional guidance and feedback</div>
+                        <div class="benefit"><i class="fas fa-check-circle"></i> Controlled introduction to other pets</div>
+                        <div class="benefit"><i class="fas fa-check-circle"></i> Consistent training schedule</div>
+                        <div class="benefit"><i class="fas fa-check-circle"></i> Opportunity to practice with distractions</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resource-card social-card">
+                <div class="resource-icon">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Controlled Playdates</h4>
+                    <p>Arrange one-on-one playdates with pets whose owners you trust and who have compatible play styles. Gradually increase the complexity of social situations as your pet gains confidence and skills.</p>
+                    <div class="progress-steps">
+                        <div class="progress-step">
+                            <div class="step-number">1</div>
+                            <div class="step-text">One calm, friendly pet in a neutral location</div>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-number">2</div>
+                            <div class="step-text">Small group (2-3 pets) in a controlled environment</div>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-number">3</div>
+                            <div class="step-text">Larger groups in various environments</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="resource-section">
+            <h3>Recommended Online Resources</h3>
+            <div class="resource-links">
+                <div class="resource-link-card">
+                    <h4>Training Organizations</h4>
+                    <ul>
+                        <li><a href="https://www.akc.org/expert-advice/training/" target="_blank">American Kennel Club (AKC) Training Resources</a></li>
+                        <li><a href="https://www.aspca.org/pet-care/dog-care/common-dog-behavior-issues" target="_blank">ASPCA Behavior Resources</a></li>
+                        <li><a href="https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics" target="_blank">Cornell Feline Health Center</a></li>
+                    </ul>
+                </div>
+                
+                <div class="resource-link-card">
+                    <h4>Online Training Courses</h4>
+                    <ul>
+                        <li><a href="https://www.drsophiayin.com/" target="_blank">Dr. Sophia Yin's Low Stress Handling</a></li>
+                        <li><a href="https://karenpryoracademy.com/" target="_blank">Karen Pryor Academy</a></li>
+                        <li><a href="https://www.fenzidogsportsacademy.com/" target="_blank">Fenzi Dog Sports Academy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="resource-link-card">
+                    <h4>Apps & Tools</h4>
+                    <ul>
+                        <li><a href="https://dogo.app/" target="_blank">Dogo App - Dog Training</a></li>
+                        <li><a href="https://www.pupford.com/" target="_blank">Pupford - Training Resources</a></li>
+                        <li><a href="https://www.clickertraining.com/" target="_blank">Clicker Training Resources</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <div class="resource-conclusion">
+            <h3>Finding Professional Help</h3>
+            <p>If you're struggling with specific behavioral issues or need personalized guidance, consider working with a professional trainer or behaviorist. Look for certifications from reputable organizations such as:</p>
+            <ul class="certification-list">
+                <li>Certified Professional Dog Trainer (CPDT-KA)</li>
+                <li>Certified Applied Animal Behaviorist (CAAB)</li>
+                <li>International Association of Animal Behavior Consultants (IAABC)</li>
+                <li>Karen Pryor Academy Certified Training Partner (KPA-CTP)</li>
+            </ul>
+            <p>Remember that training is a lifelong process. Continue to reinforce good behaviors and work on new skills throughout your pet's life to maintain a well-behaved companion.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add subtle animations for page elements
+        const allCards = document.querySelectorAll('.resource-card, .resource-link-card');
+        
+        // Simple fade-in animation for cards
+        allCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+    });
+</script>
+{% endblock %} 

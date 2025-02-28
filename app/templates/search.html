@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Find Playdates - PetMate{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/search-page.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container search-container">
+    <h2>Find Playdates</h2>
+    
+    <div class="search-intro">
+        <p>Looking for playdates for your fur babies? Search for nearby gatherings or find events on specific dates.</p>
+    </div>
+    
+    <div class="search-form">
+        <form action="{{ url_for('main.search_results') }}" method="GET">
+            <div class="search-form-grid">
+                <div class="form-group">
+                    <label for="location">
+                        <i class="fas fa-map-marker-alt"></i> Location
+                    </label>
+                    <input type="text" id="location" name="location" placeholder="Enter city, zip code, or address" value="{{ request.args.get('location', '') }}" required>
+                    <div class="form-helper">Search for playdates near a specific location</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="distance">
+                        <i class="fas fa-road"></i> Distance
+                    </label>
+                    <select id="distance" name="distance">
+                        <option value="5" {% if request.args.get('distance') == '5' %}selected{% endif %}>5 miles</option>
+                        <option value="10" {% if request.args.get('distance') == '10' %}selected{% endif %}>10 miles</option>
+                        <option value="25" {% if request.args.get('distance', '25') == '25' %}selected{% endif %}>25 miles</option>
+                        <option value="50" {% if request.args.get('distance') == '50' %}selected{% endif %}>50 miles</option>
+                        <option value="100" {% if request.args.get('distance') == '100' %}selected{% endif %}>100 miles</option>
+                    </select>
+                    <div class="form-helper">How far you're willing to travel</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">
+                        <i class="fas fa-calendar-day"></i> Date
+                    </label>
+                    <input type="date" id="date" name="date" value="{{ request.args.get('date', '') }}">
+                    <div class="form-helper">Leave blank to see all upcoming playdates</div>
+                </div>
+                
+                <div class="search-form-actions">
+                    <button type="submit" class="button primary">
+                        <i class="fas fa-search"></i> Search Playdates
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="playdate-actions">
+        <a href="{{ url_for('playdates.create_playdate') }}" class="button primary">
+            <i class="fas fa-plus"></i> Schedule New Playdate
+        </a>
+        <a href="{{ url_for('main.view_playdates') }}" class="button secondary">
+            <i class="fas fa-calendar-alt"></i> View My Playdates
+        </a>
+    </div>
+</div>
+{% endblock %} 

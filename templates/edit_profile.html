@@ -204,10 +204,12 @@
     
     .form-actions .button.primary {
         background: linear-gradient(135deg, var(--sage-green), #5a7361);
+        color: white;
     }
     
     .form-actions .button.secondary {
         background: linear-gradient(135deg, var(--warm-brown), #725f47);
+        color: white;
     }
     
     @media (max-width: 768px) {
@@ -369,7 +371,7 @@
                 <button type="submit" class="button primary">
                     <i class="fas fa-save"></i> Save Profile
                 </button>
-                <a href="{{ url_for('dashboard') }}" class="button secondary">
+                <a href="{{ url_for('main.dashboard') }}" class="button secondary">
                     <i class="fas fa-times"></i> Cancel
                 </a>
             </div>

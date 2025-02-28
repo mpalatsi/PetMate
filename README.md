@@ -6,7 +6,7 @@
 
 ## 📋 Overview
 
-PetMate is a web application designed to help pet owners connect with other pet parents in their local area to arrange playdates for their furry friends. The platform makes it easy to schedule meetups at parks, beaches, or other pet-friendly venues, helping pets socialize and exercise while allowing owners to build community.
+PetMate is a web application that helps pet owners find playmates for their pets. It allows users to create profiles for their pets, search for compatible playmates, schedule playdates, and communicate with other pet owners.
 
 ## ✨ Features
 
@@ -48,28 +48,47 @@ PetMate is a web application designed to help pet owners connect with other pet 
    pip install -r requirements.txt
    ```
 
-4. Initialize the database:
+4. Set up environment variables:
    ```
-   flask db init
-   flask db migrate
-   flask db upgrade
+   export FLASK_APP=petmate.py
+   export FLASK_ENV=development
+   ```
+   On Windows:
+   ```
+   set FLASK_APP=petmate.py
+   set FLASK_ENV=development
    ```
 
-5. Run the application:
+5. Initialize the database:
+   ```
+   flask create-tables
+   ```
+
+6. (Optional) Seed the database with sample data:
+   ```
+   flask seed-data
+   ```
+
+7. Run the application:
    ```
    flask run
    ```
+   or
+   ```
+   python petmate.py
+   ```
 
-6. Open your browser and navigate to `http://localhost:5000`
+8. Access the application at http://localhost:5000
 
 ## 🛠️ Technology Stack
 
-- **Backend**: Flask (Python)
-- **Database**: SQLAlchemy with SQLite (development) / PostgreSQL (production)
+- **Backend**: Flask, SQLAlchemy
+- **Database**: SQLite (development), PostgreSQL (production)
 - **Frontend**: HTML, CSS, JavaScript
-- **Authentication**: Flask-Login
-- **Image Processing**: Pillow, Cropper.js
-- **Deployment**: Gunicorn, Nginx
+- **Authentication**: Flask-Login, Werkzeug security
+- **File Uploads**: Werkzeug utilities
+- **Forms**: Flask-WTF
+- **Migrations**: Flask-Migrate
 
 ## 📱 Screenshots
 
@@ -91,10 +110,10 @@ PetMate is a web application designed to help pet owners connect with other pet 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit your changes: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature-name`
+5. Submit a pull request
 
 ## 📄 License
 

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PetMate{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='how-it-works.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='feature-cards.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="any">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1>
+                <a href="{{ url_for('main.index') }}" class="site-title">
+                    <div class="logo">
+                        <div class="logo-icon"></div>
+                        <div class="logo-text">Pet<span class="highlight">Mate</span></div>
+                    </div>
+                </a>
+            </h1>
+            <div class="nav-links">
+                {% if 'username' in session %}
+                    <div class="user-menu">
+                        <span>Welcome, {{ session['username'] }}!</span>
+                        <a href="{{ url_for('auth.logout') }}">Logout</a>
+                    </div>
+                    <button class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}">Login</a>
+                    <a href="{{ url_for('auth.register') }}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% if 'username' in session %}
+    <div class="slider-menu">
+        <div class="menu-header">
+            <span>Menu</span>
+            <button class="close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <a href="{{ url_for('main.search') }}">
+            <i class="fas fa-search"></i> Find Playmates
+        </a>
+        <a href="{{ url_for('main.index') }}">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('pets.my_pets') }}">
+            <i class="fas fa-paw"></i> My Pets
+        </a>
+        <a href="{{ url_for('main.dashboard') }}">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="{{ url_for('playdates.create_playdate') }}">
+            <i class="fas fa-calendar-plus"></i> Schedule Playdate
+        </a>
+        <a href="{{ url_for('playdates.playdates') }}">
+            <i class="fas fa-calendar-alt"></i> View Playdates
+        </a>
+        <a href="{{ url_for('messages.inbox') }}">
+            <i class="fas fa-envelope"></i> Messages
+            {% if current_user and current_user.get_unread_message_count() > 0 %}
+                <span class="badge">{{ current_user.get_unread_message_count() }}</span>
+            {% endif %}
+        </a>
+        <a href="{{ url_for('main.gallery') }}">
+            <i class="fas fa-images"></i> Pet Gallery
+        </a>
+        <a href="#" class="resources-menu-toggle">
+            <i class="fas fa-book"></i> Pet Resources
+            <i class="fas fa-chevron-down"></i>
+        </a>
+        <div class="submenu resources-submenu">
+            <a href="{{ url_for('main.safety_guidelines') }}">
+                <i class="fas fa-shield-alt"></i> Safety Guidelines
+            </a>
+            <a href="{{ url_for('main.training_resources') }}">
+                <i class="fas fa-graduation-cap"></i> Training Resources
+            </a>
+        </div>
+    </div>
+    <div class="menu-overlay"></div>
+    {% endif %}
+
+    <!-- Flash Messages Container -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages-container">
+                {% for category, message in messages[-1:] %}
+                    <div class="flash-message {{ category }}">
+                        <div class="flash-content">
+                            <i class="fas {% if category == 'error' %}fa-exclamation-circle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                        <button class="close-flash" onclick="this.parentElement.style.display='none';">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+    
+    {% if 'username' in session %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu toggle
+            document.querySelector('.menu-toggle').addEventListener('click', function() {
+                const sliderMenu = document.querySelector('.slider-menu');
+                sliderMenu.classList.toggle('active');
+                document.querySelector('.menu-overlay').classList.toggle('active');
+            });
+
+            document.querySelector('.close-menu').addEventListener('click', closeMenu);
+            document.querySelector('.menu-overlay').addEventListener('click', closeMenu);
+
+            function closeMenu() {
+                document.querySelector('.slider-menu').classList.remove('active');
+                document.querySelector('.menu-overlay').classList.remove('active');
+            }
+            
+            // Resources submenu toggle
+            const resourcesToggle = document.querySelector('.resources-menu-toggle');
+            const resourcesSubmenu = document.querySelector('.resources-submenu');
+            
+            if (resourcesToggle && resourcesSubmenu) {
+                // Add initial styles to ensure transitions work
+                resourcesSubmenu.style.overflow = 'hidden';
+                resourcesSubmenu.style.maxHeight = '0';
+                
+                // Check if current page is a resource page and expand menu if so
+                const currentPath = window.location.pathname;
+                if (currentPath.includes('/resources/')) {
+                    resourcesToggle.classList.add('active');
+                    resourcesSubmenu.classList.add('active');
+                    resourcesSubmenu.style.maxHeight = resourcesSubmenu.scrollHeight + 'px';
+                    
+                    // Highlight the current resource page in the submenu
+                    const submenuLinks = resourcesSubmenu.querySelectorAll('a');
+                    submenuLinks.forEach(link => {
+                        if (link.getAttribute('href') === currentPath) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+                
+                resourcesToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.classList.toggle('active');
+                    
+                    // Toggle submenu
+                    if (resourcesSubmenu.classList.contains('active')) {
+                        resourcesSubmenu.style.maxHeight = '0';
+                        setTimeout(() => {
+                            resourcesSubmenu.classList.remove('active');
+                        }, 300);
+                    } else {
+                        resourcesSubmenu.classList.add('active');
+                        resourcesSubmenu.style.maxHeight = resourcesSubmenu.scrollHeight + 'px';
+                    }
+                });
+            }
+            
+            // Auto-dismiss flash messages after 5 seconds
+            setTimeout(() => {
+                const flashMessages = document.querySelectorAll('.flash-message');
+                flashMessages.forEach(msg => {
+                    msg.style.opacity = '0';
+                    setTimeout(() => {
+                        msg.style.display = 'none';
+                    }, 500);
+                });
+            }, 5000);
+        });
+    </script>
+    {% endif %}
+</body>
+</html> 

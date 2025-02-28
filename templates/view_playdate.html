@@ -238,7 +238,7 @@
                                 <i class="fas fa-user-check"></i> Attending <i class="fas fa-caret-down"></i>
                             </button>
                             <div class="dropdown-menu">
-                                <form method="POST" action="{{ url_for('leave_playdate', playdate_id=playdate.id) }}">
+                                <form method="POST" action="{{ url_for('main.leave_playdate', playdate_id=playdate.id) }}">
                                     <button type="submit" class="dropdown-item">
                                         <i class="fas fa-sign-out-alt"></i> Leave Playdate
                                     </button>
@@ -246,29 +246,29 @@
                             </div>
                         </div>
                     {% else %}
-                        <a href="{{ url_for('join_playdate', playdate_id=playdate.id) }}" class="button primary">
+                        <a href="{{ url_for('main.join_playdate', playdate_id=playdate.id) }}" class="button primary">
                             <i class="fas fa-plus-circle"></i> Join Playdate
                         </a>
                     {% endif %}
                 {% endif %}
                 
-                <a href="{{ url_for('view_playdates') }}" class="button secondary">
+                <a href="{{ url_for('main.view_playdates') }}" class="button secondary">
                     <i class="fas fa-arrow-left"></i> Back to Playdates
                 </a>
                 
                 {% if current_user.id == playdate.host_id %}
-                    <a href="{{ url_for('edit_playdate', playdate_id=playdate.id) }}" class="button secondary">
+                    <a href="{{ url_for('main.edit_playdate', playdate_id=playdate.id) }}" class="button secondary">
                         <i class="fas fa-edit"></i> Edit Playdate
                     </a>
                 {% endif %}
                 
                 {% if playdate.attendees|length > 1 %}
-                    <a href="{{ url_for('playdate_group_chat', playdate_id=playdate.id) }}" class="button primary">
+                    <a href="{{ url_for('playdates.playdate_group_chat', playdate_id=playdate.id) }}" class="button primary">
                         <i class="fas fa-users"></i> Group Chat
                     </a>
                 {% endif %}
                 
-                <a href="{{ url_for('playdate_photos', playdate_id=playdate.id) }}" class="button">
+                <a href="{{ url_for('playdates.playdate_photos', playdate_id=playdate.id) }}" class="button">
                     <i class="fas fa-images"></i> Photo Gallery
                 </a>
             </div>
@@ -302,11 +302,11 @@
                             </div>
                         </div>
                         <div class="attendee-actions">
-                            <a href="{{ url_for('view_profile', user_id=attendee.id) }}" class="button small secondary">
+                            <a href="{{ url_for('main.view_profile', user_id=attendee.id) }}" class="button small secondary">
                                 <i class="fas fa-user"></i> View Profile
                             </a>
                             {% if attendee.id != current_user.id %}
-                                <a href="{{ url_for('conversation', user_id=attendee.id) }}" class="button small primary">
+                                <a href="{{ url_for('messages.conversation', user_id=attendee.id) }}" class="button small primary">
                                     <i class="fas fa-comment"></i> Message
                                 </a>
                             {% endif %}
@@ -336,11 +336,11 @@
                 {% endif %}
             </div>
             <div class="host-actions">
-                <a href="{{ url_for('view_profile', user_id=playdate.host.id) }}" class="button small secondary">
+                <a href="{{ url_for('main.view_profile', user_id=playdate.host.id) }}" class="button small secondary">
                     <i class="fas fa-user"></i> View Profile
                 </a>
                 {% if current_user.id != playdate.host_id %}
-                    <a href="{{ url_for('conversation', user_id=playdate.host.id) }}" class="button small primary">
+                    <a href="{{ url_for('messages.conversation', user_id=playdate.host.id) }}" class="button small primary">
                         <i class="fas fa-comment"></i> Message Host
                     </a>
                 {% endif %}

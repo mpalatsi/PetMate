@@ -83,10 +83,10 @@
     <h2>Upcoming Playdates</h2>
     
     <div class="action-bar">
-        <a href="{{ url_for('schedule') }}" class="button primary">
+        <a href="{{ url_for('playdates.create_playdate') }}" class="button primary">
             <i class="fas fa-plus"></i> Schedule New Playdate
         </a>
-        <a href="{{ url_for('search') }}" class="button">
+        <a href="{{ url_for('main.search') }}" class="button">
             <i class="fas fa-search"></i> Find Playdates
         </a>
     </div>
@@ -167,7 +167,7 @@
                                         </span>
                                     </div>
                                     <div class="action-buttons">
-                                        <a href="{{ url_for('join_playdate', playdate_id=playdate.id) }}" class="button secondary small">
+                                        <a href="{{ url_for('main.join_playdate', playdate_id=playdate.id) }}" class="button secondary small">
                                             <i class="fas fa-exchange-alt"></i> Change Status
                                         </a>
                                         <a href="{{ url_for('view_playdate', playdate_id=playdate.id) }}" class="button primary small">
@@ -179,7 +179,7 @@
                                         <span class="status-badge">Not attending</span>
                                     </div>
                                     <div class="action-buttons">
-                                        <a href="{{ url_for('join_playdate', playdate_id=playdate.id) }}" class="button primary small">
+                                        <a href="{{ url_for('main.join_playdate', playdate_id=playdate.id) }}" class="button primary small">
                                             <i class="fas fa-plus-circle"></i> Join Playdate
                                         </a>
                                         <a href="{{ url_for('view_playdate', playdate_id=playdate.id) }}" class="button secondary small">
@@ -189,7 +189,7 @@
                                 {% endif %}
                             {% else %}
                                 <div class="action-buttons">
-                                    <a href="{{ url_for('edit_playdate', playdate_id=playdate.id) }}" class="button secondary small">
+                                    <a href="{{ url_for('main.edit_playdate', playdate_id=playdate.id) }}" class="button secondary small">
                                         <i class="fas fa-edit"></i> Edit Playdate
                                     </a>
                                     <a href="{{ url_for('view_playdate', playdate_id=playdate.id) }}" class="button primary small">

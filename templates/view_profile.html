@@ -251,7 +251,7 @@
                         {% endfor %}
                     </div>
                     <span class="rating-value">{{ avg_rating }}</span>
-                    <a href="{{ url_for('user_reviews', user_id=user.id) }}" class="reviews-link">
+                    <a href="{{ url_for('reviews.user_reviews', user_id=user.id) }}" class="reviews-link">
                         See all {{ user.get_reviews_count() }} reviews
                     </a>
                 </div>
@@ -335,10 +335,10 @@
             </div>
             
             <div class="profile-actions">
-                <a href="{{ url_for('conversation', user_id=user.id) }}" class="button primary">
+                <a href="{{ url_for('messages.conversation', user_id=user.id) }}" class="button primary">
                     <i class="fas fa-comment"></i> Send Message
                 </a>
-                <a href="{{ url_for('search') }}" class="button secondary">
+                <a href="{{ url_for('main.search') }}" class="button secondary">
                     <i class="fas fa-search"></i> Find More Pet Parents
                 </a>
             </div>

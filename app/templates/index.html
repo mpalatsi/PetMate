@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}PetMate - Find Playmates for Your Pets{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='how-it-works.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='why-petmate.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="hero hero-bg">
+    <div class="hero-content">
+        <h1>Find Playmates for Your Furry Friends</h1>
+        <p>Connect with local pet parents and schedule fun playdates for your pets!</p>
+        <a href="{{ url_for('playdates.create_playdate') }}" class="cta-button">Schedule a Playdate</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="how-it-works">
+        <h2>How PetMate Works</h2>
+        <div class="steps">
+            <div class="step">
+                <a href="{{ url_for('auth.register') }}" class="step-link">
+                    <div class="step-circle circle-1">1</div>
+                    <div class="step-content">
+                        <h3>Create a Profile</h3>
+                        <p>Sign up and create detailed profiles for you and your pets, including personality traits, preferences, and your schedule.</p>
+                        <span class="step-button">Get Started</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="step">
+                <a href="{{ url_for('main.search') }}" class="step-link">
+                    <div class="step-circle circle-2">2</div>
+                    <div class="step-content">
+                        <h3>Find Perfect Matches</h3>
+                        <p>Our algorithm matches your pet with compatible playdates based on temperament, energy level, and location.</p>
+                        <span class="step-button">See Matches</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="step">
+                <a href="{{ url_for('playdates.create_playdate') }}" class="step-link">
+                    <div class="step-circle circle-3">3</div>
+                    <div class="step-content">
+                        <h3>Schedule Playdates</h3>
+                        <p>Arrange meetups at parks, beaches, or pet-friendly venues near you.</p>
+                        <span class="step-button">Schedule Now</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="features">
+        <h2>Why Pet Parents Love PetMate</h2>
+        <div class="feature-grid">
+            <a href="{{ url_for('main.search') }}" class="feature-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Local Connections</h3>
+                <p>Find pet playmates right in your neighborhood.</p>
+            </a>
+            
+            <a href="{{ url_for('playdates.create_playdate') }}" class="feature-card">
+                <i class="far fa-calendar-alt"></i>
+                <h3>Easy Scheduling</h3>
+                <p>Organize playdates with just a few clicks.</p>
+            </a>
+            
+            <a href="{{ url_for('playdates.playdates') }}" class="feature-card">
+                <i class="fas fa-paw"></i>
+                <h3>Pet Socialization</h3>
+                <p>Help your pets make friends and develop social skills.</p>
+            </a>
+            
+            <a href="{{ url_for('main.gallery') }}" class="feature-card">
+                <i class="fas fa-users"></i>
+                <h3>Community</h3>
+                <p>Connect with other pet parents who share your interests.</p>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

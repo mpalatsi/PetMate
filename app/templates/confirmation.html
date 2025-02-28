@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PetMate - Registration Status</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1><a href="{{ url_for('main.index') }}" class="site-title">PetMate</a></h1>
+            <a href="{{ url_for('main.index') }}">Home</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            {% if error %}
+                <h2>Registration Failed</h2>
+                <p class="error-message">{{ error }}</p>
+                <p>Please <a href="{{ url_for('auth.register') }}">try again</a> or contact support if the problem persists.</p>
+            {% else %}
+                <h2>Registration Successful!</h2>
+                <p>Welcome to PetMate, {{ username }}!</p>
+                <p>Your account has been created successfully.</p>
+            {% endif %}
+            <div class="button-group">
+                <a href="{{ url_for('auth.login') }}" class="button">Go to Login</a>
+                <a href="{{ url_for('main.index') }}" class="button">Return to Home</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

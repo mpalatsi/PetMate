@@ -10,7 +10,7 @@
 <div class="container">
     <h2>Edit Playdate</h2>
     
-    <form method="POST" class="playdate-form">
+    <form method="POST" action="{{ url_for('main.edit_playdate', playdate_id=playdate.id) }}" class="playdate-form">
         <div class="form-group">
             <label for="date">Date and Time:</label>
             <input type="datetime-local" id="date" name="date" required value="{{ formatted_date }}">
@@ -48,7 +48,7 @@
         
         <div class="form-actions">
             <button type="submit" class="button primary">Update Playdate</button>
-            <a href="{{ url_for('view_playdate', playdate_id=playdate.id) }}" class="button">Cancel</a>
+            <a href="{{ url_for('main.view_playdate', playdate_id=playdate.id) }}" class="button">Cancel</a>
         </div>
     </form>
 </div>

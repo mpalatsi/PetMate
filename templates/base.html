@@ -52,7 +52,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <a href="{{ url_for('search') }}">
+        <a href="{{ url_for('main.search') }}">
             <i class="fas fa-search"></i> Find Playmates
         </a>
         <a href="{{ url_for('index') }}">
@@ -61,13 +61,13 @@
         <a href="{{ url_for('my_pets') }}">
             <i class="fas fa-paw"></i> My Pets
         </a>
-        <a href="{{ url_for('dashboard') }}">
+        <a href="{{ url_for('main.dashboard') }}">
             <i class="fas fa-user"></i> Profile
         </a>
-        <a href="{{ url_for('schedule') }}">
+        <a href="{{ url_for('playdates.create_playdate') }}">
             <i class="fas fa-calendar-plus"></i> Schedule Playdate
         </a>
-        <a href="{{ url_for('view_playdates') }}">
+        <a href="{{ url_for('main.view_playdates') }}">
             <i class="fas fa-calendar-alt"></i> View Playdates
         </a>
         <a href="{{ url_for('messages') }}">

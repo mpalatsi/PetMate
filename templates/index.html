@@ -14,7 +14,7 @@
     <div class="hero-content">
         <h1>Find Playmates for Your Furry Friends</h1>
         <p>Connect with local pet parents and schedule fun playdates for your pets!</p>
-        <a href="{{ url_for('schedule') }}" class="cta-button">Schedule a Playdate</a>
+        <a href="{{ url_for('playdates.create_playdate') }}" class="cta-button">Schedule a Playdate</a>
     </div>
 </div>
 
@@ -34,7 +34,7 @@
             </div>
             
             <div class="step">
-                <a href="{{ url_for('search') }}" class="step-link">
+                <a href="{{ url_for('main.search') }}" class="step-link">
                     <div class="step-circle circle-2">2</div>
                     <div class="step-content">
                         <h3>Find Perfect Matches</h3>
@@ -45,7 +45,7 @@
             </div>
             
             <div class="step">
-                <a href="{{ url_for('schedule') }}" class="step-link">
+                <a href="{{ url_for('playdates.create_playdate') }}" class="step-link">
                     <div class="step-circle circle-3">3</div>
                     <div class="step-content">
                         <h3>Schedule Playdates</h3>
@@ -60,19 +60,19 @@
     <div class="features">
         <h2>Why Pet Parents Love PetMate</h2>
         <div class="feature-grid">
-            <a href="{{ url_for('search') }}" class="feature-card">
+            <a href="{{ url_for('main.search') }}" class="feature-card">
                 <i class="fas fa-map-marker-alt"></i>
                 <h3>Local Connections</h3>
                 <p>Find pet playmates right in your neighborhood.</p>
             </a>
             
-            <a href="{{ url_for('schedule') }}" class="feature-card">
+            <a href="{{ url_for('playdates.create_playdate') }}" class="feature-card">
                 <i class="far fa-calendar-alt"></i>
                 <h3>Easy Scheduling</h3>
                 <p>Organize playdates with just a few clicks.</p>
             </a>
             
-            <a href="{{ url_for('view_playdates') }}" class="feature-card">
+            <a href="{{ url_for('main.view_playdates') }}" class="feature-card">
                 <i class="fas fa-paw"></i>
                 <h3>Pet Socialization</h3>
                 <p>Help your pets make friends and develop social skills.</p>

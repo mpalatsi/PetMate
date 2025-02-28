@@ -1,14 +1,25 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from app import create_app, db
+import sys
+from sqlalchemy import text
 
-# Initialize your Flask app and database
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///petmate.db'
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+# Create the app using the application factory
+app = create_app()
 
-# Import your models here - this should be done after db is defined
-from petmate import User, Pet, Playdate, playdate_pets
-
-# No need for the if __name__ == '__main__': block when using Flask CLI
+with app.app_context():
+    try:
+        # Add new columns to the playdate table
+        db.session.execute(text('''
+            ALTER TABLE playdate 
+            ADD COLUMN latitude REAL;
+        '''))
+        db.session.execute(text('''
+            ALTER TABLE playdate 
+            ADD COLUMN longitude REAL;
+        '''))
+        
+        db.session.commit()
+        print("Migration completed successfully!")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error during migration: {str(e)}")
+        sys.exit(1)
