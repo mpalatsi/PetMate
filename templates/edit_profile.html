@@ -1,202 +1,379 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Edit Profile - PetMate</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-    <nav>
-        <div class="nav-container">
-            <h1><a href="{{ url_for('index') }}" class="site-title">PetMate</a></h1>
-            <div class="nav-links">
-                {% if 'username' in session %}
-                    <div class="user-menu">
-                        <span>Welcome, {{ session['username'] }}!</span>
-                        <a href="{{ url_for('logout') }}">Logout</a>
-                    </div>
-                    <button class="menu-toggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                {% else %}
-                    <a href="{{ url_for('login') }}">Login</a>
-                    <a href="{{ url_for('register') }}">Register</a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
-    {% if 'username' in session %}
-    <div class="slider-menu">
-        <div class="menu-header">
-            <span>Menu</span>
-            <button class="close-menu">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <a href="{{ url_for('index') }}">
-            <i class="fas fa-home"></i> Home
-        </a>
-        <a href="{{ url_for('my_pets') }}">
-            <i class="fas fa-paw"></i> My Pets
-        </a>
-        <a href="{{ url_for('dashboard') }}">
-            <i class="fas fa-user"></i> Profile
-        </a>
-        <a href="{{ url_for('schedule') }}">
-            <i class="fas fa-calendar-plus"></i> Schedule Playdate
-        </a>
-        <a href="{{ url_for('view_playdates') }}">
-            <i class="fas fa-calendar-alt"></i> View Playdates
-        </a>
-        <a href="{{ url_for('search') }}">
-            <i class="fas fa-search"></i> Find Playmates
-        </a>
-    </div>
-    <div class="menu-overlay"></div>
-    {% endif %}
+{% block title %}Edit Profile - PetMate{% endblock %}
 
-    <main>
-        <div class="container">
-            <h2>Edit Profile</h2>
-            {% if error %}
-                <p class="error">{{ error }}</p>
-            {% endif %}
-            
-            <form method="POST" enctype="multipart/form-data" class="profile-form">
-                <div class="form-section">
-                    <h3>Basic Information</h3>
-                    
-                    <div class="form-group">
-                        <label for="profile_picture">Profile Picture:</label>
-                        <div class="profile-picture-upload">
-                            <div class="current-picture">
-                                {% if user.profile_picture %}
-                                    <img src="{{ url_for('static', filename='profile_pictures/' + user.profile_picture) }}" alt="Current Profile Picture">
-                                {% else %}
-                                    <img src="{{ url_for('static', filename='profile_pictures/default_user.png') }}" alt="Default Profile Picture">
-                                {% endif %}
-                            </div>
-                            <div class="upload-controls">
-                                <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
-                                <p class="form-helper">Upload a square image for best results. Maximum size: 2MB.</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="bio">About Me:</label>
-                        <textarea id="bio" name="bio" rows="4" placeholder="Tell others about yourself and your pets...">{{ user.bio }}</textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="location">Location:</label>
-                        <input type="text" id="location" name="location" value="{{ user.location }}" placeholder="City, neighborhood, or general area">
-                        <p class="form-helper">This helps other pet owners find playdates near you</p>
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <h3>Pet Parent Profile</h3>
-                    
-                    <div class="form-group">
-                        <label for="pet_owner_since">Pet Owner Since (Year):</label>
-                        <input type="number" id="pet_owner_since" name="pet_owner_since" value="{{ user.pet_owner_since }}" min="1950" max="{{ current_year }}" placeholder="e.g., 2015">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="pet_experience_level">Experience Level:</label>
-                        <select id="pet_experience_level" name="pet_experience_level">
-                            <option value="">Select your experience level</option>
-                            <option value="Beginner" {% if user.pet_experience_level == 'Beginner' %}selected{% endif %}>Beginner - New to pet ownership</option>
-                            <option value="Intermediate" {% if user.pet_experience_level == 'Intermediate' %}selected{% endif %}>Intermediate - Some experience with pets</option>
-                            <option value="Expert" {% if user.pet_experience_level == 'Expert' %}selected{% endif %}>Expert - Very experienced pet owner</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Preferred Meetup Locations:</label>
-                        <div class="checkbox-group">
-                            {% set preferred_types = user.preferred_meetup_types.split(',') if user.preferred_meetup_types else [] %}
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="meetup_parks" name="preferred_meetup_types" value="Parks" {% if 'Parks' in preferred_types %}checked{% endif %}>
-                                <label for="meetup_parks">Parks</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="meetup_beaches" name="preferred_meetup_types" value="Beaches" {% if 'Beaches' in preferred_types %}checked{% endif %}>
-                                <label for="meetup_beaches">Beaches</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="meetup_dog_runs" name="preferred_meetup_types" value="Dog Runs" {% if 'Dog Runs' in preferred_types %}checked{% endif %}>
-                                <label for="meetup_dog_runs">Dog Runs</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="meetup_trails" name="preferred_meetup_types" value="Hiking Trails" {% if 'Hiking Trails' in preferred_types %}checked{% endif %}>
-                                <label for="meetup_trails">Hiking Trails</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="meetup_cafes" name="preferred_meetup_types" value="Pet-Friendly Cafes" {% if 'Pet-Friendly Cafes' in preferred_types %}checked{% endif %}>
-                                <label for="meetup_cafes">Pet-Friendly Cafes</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Typically Available:</label>
-                        <div class="checkbox-group">
-                            {% set availability_times = user.availability.split(',') if user.availability else [] %}
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="avail_weekday_mornings" name="availability" value="Weekday Mornings" {% if 'Weekday Mornings' in availability_times %}checked{% endif %}>
-                                <label for="avail_weekday_mornings">Weekday Mornings</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="avail_weekday_afternoons" name="availability" value="Weekday Afternoons" {% if 'Weekday Afternoons' in availability_times %}checked{% endif %}>
-                                <label for="avail_weekday_afternoons">Weekday Afternoons</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="avail_weekday_evenings" name="availability" value="Weekday Evenings" {% if 'Weekday Evenings' in availability_times %}checked{% endif %}>
-                                <label for="avail_weekday_evenings">Weekday Evenings</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="avail_weekend_mornings" name="availability" value="Weekend Mornings" {% if 'Weekend Mornings' in availability_times %}checked{% endif %}>
-                                <label for="avail_weekend_mornings">Weekend Mornings</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="avail_weekend_afternoons" name="availability" value="Weekend Afternoons" {% if 'Weekend Afternoons' in availability_times %}checked{% endif %}>
-                                <label for="avail_weekend_afternoons">Weekend Afternoons</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="avail_weekend_evenings" name="availability" value="Weekend Evenings" {% if 'Weekend Evenings' in availability_times %}checked{% endif %}>
-                                <label for="avail_weekend_evenings">Weekend Evenings</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="submit" class="button primary">Save Profile</button>
-                    <a href="{{ url_for('dashboard') }}" class="button secondary">Cancel</a>
-                </div>
-            </form>
-        </div>
-    </main>
-
-    {% if 'username' in session %}
-    <script>
-        document.querySelector('.menu-toggle').addEventListener('click', function() {
-            const sliderMenu = document.querySelector('.slider-menu');
-            sliderMenu.classList.toggle('active');
-            document.querySelector('.menu-overlay').classList.toggle('active');
-        });
-
-        document.querySelector('.close-menu').addEventListener('click', closeMenu);
-        document.querySelector('.menu-overlay').addEventListener('click', closeMenu);
-
-        function closeMenu() {
-            document.querySelector('.slider-menu').classList.remove('active');
-            document.querySelector('.menu-overlay').classList.remove('active');
+{% block extra_head %}
+<style>
+    /* Enhanced profile form styling */
+    .container.profile-container {
+        max-width: 900px;
+        padding: 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        margin: 3rem auto;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, var(--sage-green), var(--deep-forest));
+        position: relative;
+        padding: 2rem;
+        color: white;
+        text-align: center;
+    }
+    
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+    }
+    
+    .profile-header h2 {
+        margin: 0;
+        font-size: 2.2rem;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .profile-body {
+        background: white;
+        padding: 2rem;
+        position: relative;
+    }
+    
+    .profile-form {
+        background-color: transparent;
+        box-shadow: none;
+        padding: 0;
+    }
+    
+    .form-section {
+        background-color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-light);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .form-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-section h3 {
+        font-size: 1.3rem;
+        border-bottom: 2px solid var(--bg-sage-light);
+        padding-bottom: 0.8rem;
+        margin-bottom: 1.2rem;
+        color: var(--deep-forest);
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-section h3::before {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        margin-right: 0.5rem;
+        color: var(--sage-green);
+    }
+    
+    .form-section:nth-child(1) h3::before {
+        content: "\f007"; /* user icon */
+    }
+    
+    .form-section:nth-child(2) h3::before {
+        content: "\f1b0"; /* paw icon */
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--deep-forest);
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.8rem;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        font-size: 1rem;
+        background-color: #f9f9f9;
+        transition: all 0.3s ease;
+    }
+    
+    .form-group input[type="text"]:focus,
+    .form-group input[type="number"]:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--sage-green);
+        box-shadow: 0 0 0 3px rgba(124, 144, 130, 0.2);
+        background-color: white;
+    }
+    
+    .profile-picture-upload {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .current-picture {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid white;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .upload-controls {
+        flex: 1;
+        min-width: 250px;
+    }
+    
+    .form-helper {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+    
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 0.8rem;
+    }
+    
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .checkbox-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--sage-green);
+    }
+    
+    .checkbox-item label {
+        margin-bottom: 0;
+        font-weight: normal;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .form-actions .button {
+        flex: 1;
+        min-width: 200px;
+        text-align: center;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-actions .button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .form-actions .button i {
+        margin-right: 0.5rem;
+    }
+    
+    .form-actions .button.primary {
+        background: linear-gradient(135deg, var(--sage-green), #5a7361);
+    }
+    
+    .form-actions .button.secondary {
+        background: linear-gradient(135deg, var(--warm-brown), #725f47);
+    }
+    
+    @media (max-width: 768px) {
+        .profile-header {
+            padding: 1.5rem;
         }
-    </script>
-    {% endif %}
-</body>
-</html> 
+        
+        .profile-header h2 {
+            font-size: 1.8rem;
+        }
+        
+        .profile-body {
+            padding: 1.5rem;
+        }
+        
+        .profile-picture-upload {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .upload-controls {
+            width: 100%;
+        }
+        
+        .form-actions .button {
+            flex: 100%;
+        }
+        
+        .checkbox-group {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container profile-container">
+    <div class="profile-header">
+        <h2>Edit Profile</h2>
+    </div>
+    
+    <div class="profile-body">
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+        
+        <form method="POST" enctype="multipart/form-data" class="profile-form">
+            <div class="form-section">
+                <h3>Basic Information</h3>
+                
+                <div class="form-group">
+                    <label for="profile_picture">Profile Picture:</label>
+                    <div class="profile-picture-upload">
+                        <div class="current-picture">
+                            {% if user.profile_picture %}
+                                <img src="{{ url_for('static', filename='profile_pictures/' + user.profile_picture) }}" alt="Current Profile Picture">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='profile_pictures/default_user.png') }}" alt="Default Profile Picture">
+                            {% endif %}
+                        </div>
+                        <div class="upload-controls">
+                            <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+                            <p class="form-helper">Upload a square image for best results. Maximum size: 2MB.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bio">About Me:</label>
+                    <textarea id="bio" name="bio" rows="4" placeholder="Tell others about yourself and your pets...">{{ user.bio }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location" name="location" value="{{ user.location }}" placeholder="City, neighborhood, or general area">
+                    <p class="form-helper">This helps other pet owners find playdates near you</p>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>Pet Parent Profile</h3>
+                
+                <div class="form-group">
+                    <label for="pet_owner_since">Pet Owner Since (Year):</label>
+                    <input type="number" id="pet_owner_since" name="pet_owner_since" value="{{ user.pet_owner_since }}" min="1950" max="{{ current_year }}" placeholder="e.g., 2015">
+                </div>
+                
+                <div class="form-group">
+                    <label for="pet_experience_level">Experience Level:</label>
+                    <select id="pet_experience_level" name="pet_experience_level">
+                        <option value="">Select your experience level</option>
+                        <option value="Beginner" {% if user.pet_experience_level == 'Beginner' %}selected{% endif %}>Beginner - New to pet ownership</option>
+                        <option value="Intermediate" {% if user.pet_experience_level == 'Intermediate' %}selected{% endif %}>Intermediate - Some experience with pets</option>
+                        <option value="Expert" {% if user.pet_experience_level == 'Expert' %}selected{% endif %}>Expert - Very experienced pet owner</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Preferred Meetup Locations:</label>
+                    <div class="checkbox-group">
+                        {% set preferred_types = user.preferred_meetup_types.split(',') if user.preferred_meetup_types else [] %}
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="meetup_parks" name="preferred_meetup_types" value="Parks" {% if 'Parks' in preferred_types %}checked{% endif %}>
+                            <label for="meetup_parks">Parks</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="meetup_beaches" name="preferred_meetup_types" value="Beaches" {% if 'Beaches' in preferred_types %}checked{% endif %}>
+                            <label for="meetup_beaches">Beaches</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="meetup_dog_runs" name="preferred_meetup_types" value="Dog Runs" {% if 'Dog Runs' in preferred_types %}checked{% endif %}>
+                            <label for="meetup_dog_runs">Dog Runs</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="meetup_trails" name="preferred_meetup_types" value="Hiking Trails" {% if 'Hiking Trails' in preferred_types %}checked{% endif %}>
+                            <label for="meetup_trails">Hiking Trails</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="meetup_cafes" name="preferred_meetup_types" value="Pet-Friendly Cafes" {% if 'Pet-Friendly Cafes' in preferred_types %}checked{% endif %}>
+                            <label for="meetup_cafes">Pet-Friendly Cafes</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Typically Available:</label>
+                    <div class="checkbox-group">
+                        {% set availability_times = user.availability.split(',') if user.availability else [] %}
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="avail_weekday_mornings" name="availability" value="Weekday Mornings" {% if 'Weekday Mornings' in availability_times %}checked{% endif %}>
+                            <label for="avail_weekday_mornings">Weekday Mornings</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="avail_weekday_afternoons" name="availability" value="Weekday Afternoons" {% if 'Weekday Afternoons' in availability_times %}checked{% endif %}>
+                            <label for="avail_weekday_afternoons">Weekday Afternoons</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="avail_weekday_evenings" name="availability" value="Weekday Evenings" {% if 'Weekday Evenings' in availability_times %}checked{% endif %}>
+                            <label for="avail_weekday_evenings">Weekday Evenings</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="avail_weekend_mornings" name="availability" value="Weekend Mornings" {% if 'Weekend Mornings' in availability_times %}checked{% endif %}>
+                            <label for="avail_weekend_mornings">Weekend Mornings</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="avail_weekend_afternoons" name="availability" value="Weekend Afternoons" {% if 'Weekend Afternoons' in availability_times %}checked{% endif %}>
+                            <label for="avail_weekend_afternoons">Weekend Afternoons</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="avail_weekend_evenings" name="availability" value="Weekend Evenings" {% if 'Weekend Evenings' in availability_times %}checked{% endif %}>
+                            <label for="avail_weekend_evenings">Weekend Evenings</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="button primary">
+                    <i class="fas fa-save"></i> Save Profile
+                </button>
+                <a href="{{ url_for('dashboard') }}" class="button secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

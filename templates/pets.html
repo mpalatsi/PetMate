@@ -2,48 +2,276 @@
 
 {% block title %}PetMate - My Pets{% endblock %}
 
+{% block extra_head %}
+<style>
+    /* Enhanced pets page styling */
+    .container.pets-container {
+        max-width: 1100px;
+        margin: 3rem auto;
+    }
+    
+    .pets-header-bg {
+        background: linear-gradient(135deg, var(--sage-green), var(--deep-forest));
+        position: relative;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        border-radius: 15px;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .pets-header-bg::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+        border-radius: 15px;
+    }
+    
+    .pets-header-bg h2 {
+        color: white;
+        font-size: 2.2rem;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        position: relative;
+    }
+    
+    .add-pet-button {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .add-pet-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .add-pet-button i {
+        margin-right: 0.5rem;
+    }
+    
+    .pets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+    
+    .pet-card {
+        background-color: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .pet-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+    }
+    
+    .pet-image-container {
+        width: 100%;
+        height: 220px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .pet-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .pet-card:hover .pet-image {
+        transform: scale(1.05);
+    }
+    
+    .pet-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(45deg, var(--bg-sage-light), var(--bg-light));
+        font-size: 3rem;
+        color: var(--sage-green);
+    }
+    
+    .pet-content {
+        padding: 1.5rem;
+    }
+    
+    .pet-card h3 {
+        margin: 0 0 1rem 0;
+        color: var(--deep-forest);
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+    
+    .pet-info {
+        margin-bottom: 1.5rem;
+    }
+    
+    .pet-info p {
+        margin: 0.4rem 0;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+    }
+    
+    .pet-info p strong {
+        color: var(--sage-green);
+        margin-right: 0.5rem;
+        min-width: 100px;
+    }
+    
+    .pet-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        border-top: 1px solid var(--border-light);
+        padding-top: 1rem;
+    }
+    
+    .pet-actions a {
+        flex: 1;
+        text-align: center;
+        padding: 0.8rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .edit-button {
+        background: var(--sage-green);
+        color: white;
+        box-shadow: 0 4px 8px rgba(var(--sage-green-rgb), 0.2);
+    }
+    
+    .edit-button:hover {
+        background: var(--sage-green-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(var(--sage-green-rgb), 0.3);
+    }
+    
+    .delete-button {
+        background: transparent;
+        color: var(--terracotta);
+        border: 1px solid var(--terracotta);
+    }
+    
+    .delete-button:hover {
+        background: rgba(var(--terracotta-rgb), 0.1);
+        transform: translateY(-3px);
+    }
+    
+    .no-pets {
+        text-align: center;
+        padding: 4rem 2rem;
+        background-color: var(--bg-sage-light);
+        border-radius: 15px;
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin: 2rem 0;
+    }
+    
+    .no-pets a {
+        color: var(--sage-green);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .no-pets a:hover {
+        color: var(--sage-green-hover);
+        text-decoration: underline;
+    }
+    
+    @media (max-width: 768px) {
+        .pets-header-bg {
+            padding: 2rem 1.5rem;
+        }
+        
+        .pets-header-bg h2 {
+            font-size: 1.8rem;
+        }
+        
+        .pets-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="pets-header">
+<div class="container pets-container">
+    <div class="pets-header-bg">
         <h2>My Pets</h2>
-        <a href="{{ url_for('add_pet') }}" class="add-pet-button">Add New Pet</a>
+        <a href="{{ url_for('add_pet') }}" class="add-pet-button">
+            <i class="fas fa-plus-circle"></i> Add New Pet
+        </a>
     </div>
     
     {% if pets %}
         <div class="pets-grid">
             {% for pet in pets %}
                 <div class="pet-card">
-                    {% if pet.image_filename %}
-                        <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" 
-                             alt="{{ pet.name }}" class="pet-image">
-                    {% else %}
-                        <div class="pet-image-placeholder">
-                            <span>🐾</span>
-                        </div>
-                    {% endif %}
-                    <h3>{{ pet.name }}</h3>
-                    <div class="pet-info">
-                        <p><strong>Species:</strong> {{ pet.species }}</p>
-                        <p><strong>Breed:</strong> {{ pet.breed }}</p>
-                        <p><strong>Age:</strong> {{ pet.age }} years</p>
-                        <p><strong>Size:</strong> {{ pet.size }}</p>
-                        <p><strong>Temperament:</strong> {{ pet.temperament }}</p>
+                    <div class="pet-image-container">
+                        {% if pet.image_filename %}
+                            <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" 
+                                alt="{{ pet.name }}" class="pet-image">
+                        {% else %}
+                            <div class="pet-image-placeholder">
+                                <span>🐾</span>
+                            </div>
+                        {% endif %}
                     </div>
-                    <div class="pet-actions">
-                        <a href="{{ url_for('edit_pet', pet_id=pet.id) }}" class="edit-button">Edit</a>
-                        <a href="{{ url_for('delete_pet', pet_id=pet.id) }}" 
-                           class="delete-button"
-                           onclick="return confirm('Are you sure you want to remove {{ pet.name }}?')">
-                            Remove
-                        </a>
+                    <div class="pet-content">
+                        <h3>{{ pet.name }}</h3>
+                        <div class="pet-info">
+                            <p><strong>Species:</strong> {{ pet.species }}</p>
+                            <p><strong>Breed:</strong> {{ pet.breed }}</p>
+                            <p><strong>Age:</strong> {{ pet.age }} years</p>
+                            <p><strong>Size:</strong> {{ pet.size }}</p>
+                            <p><strong>Temperament:</strong> {{ pet.temperament }}</p>
+                        </div>
+                        <div class="pet-actions">
+                            <a href="{{ url_for('edit_pet', pet_id=pet.id) }}" class="edit-button">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{{ url_for('delete_pet', pet_id=pet.id) }}" 
+                               class="delete-button"
+                               onclick="return confirm('Are you sure you want to remove {{ pet.name }}?')">
+                                <i class="fas fa-trash-alt"></i> Remove
+                            </a>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
     {% else %}
-        <p class="no-pets">You haven't added any pets yet. 
-           <a href="{{ url_for('add_pet') }}">Add your first pet!</a>
-        </p>
+        <div class="no-pets">
+            <p>You haven't added any pets yet.</p>
+            <a href="{{ url_for('add_pet') }}">Add your first pet!</a>
+        </div>
     {% endif %}
 </div>
 {% endblock %} 

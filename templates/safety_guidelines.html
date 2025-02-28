@@ -1,0 +1,670 @@
+{% extends "base.html" %}
+
+{% block title %}Safety Guidelines - PetMate{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Safety guidelines specific styles */
+    .resource-container {
+        max-width: 950px;
+        margin: 2rem auto;
+    }
+    
+    .resource-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .resource-header h2 {
+        color: var(--sage-green);
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .resource-header h2 i {
+        margin-right: 0.5rem;
+    }
+    
+    .resource-intro {
+        font-size: 1.1rem;
+        max-width: 800px;
+        margin: 0 auto;
+        color: var(--text-secondary);
+    }
+    
+    .resource-section {
+        margin-bottom: 3rem;
+    }
+    
+    .resource-section h3 {
+        color: var(--sage-green);
+        position: relative;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+        font-size: 1.6rem;
+    }
+    
+    .resource-section h3:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 3px;
+        background-color: var(--sage-green);
+        border-radius: 2px;
+    }
+    
+    /* Enhanced card styling */
+    .resource-card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-left: 5px solid var(--sage-green);
+    }
+    
+    .resource-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .resource-icon {
+        flex-shrink: 0;
+        width: 60px;
+        height: 60px;
+        background-color: rgba(124, 144, 130, 0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--sage-green);
+        font-size: 1.5rem;
+    }
+    
+    .resource-text {
+        flex: 1;
+    }
+    
+    .resource-text h4 {
+        color: var(--sage-green);
+        margin-top: 0;
+        margin-bottom: 0.75rem;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .resource-text p {
+        margin-bottom: 0.75rem;
+        line-height: 1.6;
+        color: var(--text-primary);
+    }
+    
+    /* Card variations */
+    .prep-card {
+        border-left: 5px solid #3498db;
+    }
+    
+    .prep-card .resource-icon {
+        background-color: rgba(52, 152, 219, 0.15);
+        color: #3498db;
+    }
+    
+    .prep-card h4 {
+        color: #3498db;
+    }
+    
+    .intro-card {
+        border-left: 5px solid #9b59b6;
+    }
+    
+    .intro-card .resource-icon {
+        background-color: rgba(155, 89, 182, 0.15);
+        color: #9b59b6;
+    }
+    
+    .intro-card h4 {
+        color: #9b59b6;
+    }
+    
+    .during-card {
+        border-left: 5px solid #f39c12;
+    }
+    
+    .during-card .resource-icon {
+        background-color: rgba(243, 156, 18, 0.15);
+        color: #f39c12;
+    }
+    
+    .during-card h4 {
+        color: #f39c12;
+    }
+    
+    .warning-card {
+        border-left: 5px solid #e74c3c;
+    }
+    
+    .warning-card .resource-icon {
+        background-color: rgba(231, 76, 60, 0.15);
+        color: #e74c3c;
+    }
+    
+    .warning-card h4 {
+        color: #e74c3c;
+    }
+    
+    /* Section header styling */
+    .safety-section-header {
+        background-color: rgba(124, 144, 130, 0.1);
+        padding: 0.75rem 1rem;
+        border-radius: 8px 8px 0 0;
+        margin-top: 1rem;
+        border-left: 4px solid var(--sage-green);
+    }
+    
+    .safety-section-header p {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: bold;
+        color: var(--sage-green);
+    }
+    
+    .safety-section-content {
+        background-color: #fff;
+        border-radius: 0 0 8px 8px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(124, 144, 130, 0.2);
+        border-top: none;
+        border-left: 4px solid var(--sage-green);
+    }
+    
+    .safety-section-content ul {
+        padding-left: 1.5rem;
+        margin-bottom: 0;
+    }
+    
+    .safety-section-content ul li {
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+    
+    .safety-section-content ul li::marker {
+        color: var(--sage-green);
+    }
+    
+    /* Vaccination header and content */
+    .vaccination-header {
+        border-left: 4px solid #3498db;
+    }
+    
+    .vaccination-header p {
+        color: #3498db;
+    }
+    
+    .vaccination-header p i {
+        color: #3498db;
+    }
+    
+    .vaccination-content {
+        border-left: 4px solid #3498db;
+    }
+    
+    .vaccination-content ul li::marker {
+        color: #3498db;
+    }
+    
+    /* Communication header and content */
+    .communication-header {
+        border-left: 4px solid #9b59b6;
+    }
+    
+    .communication-header p {
+        color: #9b59b6;
+    }
+    
+    .communication-header p i {
+        color: #9b59b6;
+    }
+    
+    .communication-content {
+        border-left: 4px solid #9b59b6;
+    }
+    
+    .communication-content ul li::marker {
+        color: #9b59b6;
+    }
+    
+    /* Checklist styling */
+    .safety-checklist {
+        margin: 1.5rem 0;
+    }
+    
+    .safety-checklist-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .safety-checklist-item:hover {
+        background-color: rgba(124, 144, 130, 0.05);
+        transform: translateX(5px);
+    }
+    
+    .safety-checklist-item input[type="checkbox"] {
+        margin-right: 0.75rem;
+        width: 18px;
+        height: 18px;
+        accent-color: var(--sage-green);
+    }
+    
+    .safety-checklist-item label {
+        cursor: pointer;
+        flex: 1;
+        transition: color 0.3s ease;
+    }
+    
+    .safety-checklist-item.checked {
+        background-color: rgba(124, 144, 130, 0.1);
+    }
+    
+    .safety-checklist-item.checked label {
+        text-decoration: line-through;
+        color: var(--text-muted);
+    }
+    
+    /* Visual indicators */
+    .safety-level {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-left: 1rem;
+        white-space: nowrap;
+    }
+    
+    .safety-level.high {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+    }
+    
+    .safety-level.medium {
+        background-color: rgba(255, 193, 7, 0.15);
+        color: #ffc107;
+    }
+    
+    .safety-level.low {
+        background-color: rgba(220, 53, 69, 0.15);
+        color: #dc3545;
+    }
+    
+    .safety-level i {
+        margin-right: 0.5rem;
+    }
+    
+    /* Tips styling */
+    .safety-tip {
+        background-color: rgba(255, 193, 7, 0.1);
+        border-left: 3px solid #ffc107;
+        padding: 0.75rem 1rem;
+        border-radius: 0 8px 8px 0;
+        margin-top: 0.75rem;
+        font-size: 0.95rem;
+    }
+    
+    .safety-tip i {
+        color: #ffc107;
+        margin-right: 0.5rem;
+    }
+    
+    /* Conclusion styling */
+    .resource-conclusion {
+        background-color: rgba(124, 144, 130, 0.1);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .resource-conclusion h3 {
+        color: var(--sage-green);
+        margin-top: 0;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .resource-card {
+            flex-direction: column;
+        }
+        
+        .resource-icon {
+            margin-bottom: 1rem;
+        }
+        
+        .safety-level {
+            margin-left: 0;
+            margin-top: 0.5rem;
+            display: inline-flex;
+        }
+        
+        .safety-checklist-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .safety-checklist-item label {
+            margin: 0.5rem 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container resource-container">
+    <div class="resource-header">
+        <h2><i class="fas fa-shield-alt"></i> Pet Playdate Safety Guidelines</h2>
+        <p class="resource-intro">
+            Ensuring the safety of all pets during playdates is our top priority. Follow these guidelines to create a positive and safe experience for everyone involved.
+        </p>
+    </div>
+    
+    <div class="resource-content">
+        <!-- Pre-Playdate Checklist -->
+        <section class="resource-section">
+            <h3>Playdate Safety Checklist</h3>
+            <div class="resource-card prep-card">
+                <div class="resource-icon">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Before Your Next Playdate</h4>
+                    <p>Use this checklist to ensure you're prepared for a safe and enjoyable playdate:</p>
+                    
+                    <div class="safety-checklist">
+                        <div class="safety-checklist-item">
+                            <input type="checkbox" id="check1">
+                            <label for="check1">Confirm pet vaccinations are up-to-date</label>
+                            <span class="safety-level high"><i class="fas fa-exclamation-circle"></i>Critical</span>
+                        </div>
+                        <div class="safety-checklist-item">
+                            <input type="checkbox" id="check2">
+                            <label for="check2">Discuss any behavioral concerns with the other pet owner</label>
+                            <span class="safety-level high"><i class="fas fa-exclamation-circle"></i>Critical</span>
+                        </div>
+                        <div class="safety-checklist-item">
+                            <input type="checkbox" id="check3">
+                            <label for="check3">Choose a safe, neutral location for the playdate</label>
+                            <span class="safety-level medium"><i class="fas fa-exclamation-circle"></i>Important</span>
+                        </div>
+                        <div class="safety-checklist-item">
+                            <input type="checkbox" id="check4">
+                            <label for="check4">Pack water, treats, and waste bags</label>
+                            <span class="safety-level medium"><i class="fas fa-exclamation-circle"></i>Important</span>
+                        </div>
+                        <div class="safety-checklist-item">
+                            <input type="checkbox" id="check5">
+                            <label for="check5">Bring a leash even for off-leash play areas</label>
+                            <span class="safety-level medium"><i class="fas fa-exclamation-circle"></i>Important</span>
+                        </div>
+                        <div class="safety-checklist-item">
+                            <input type="checkbox" id="check6">
+                            <label for="check6">Have your vet's contact information handy</label>
+                            <span class="safety-level low"><i class="fas fa-exclamation-circle"></i>Recommended</span>
+                        </div>
+                    </div>
+                    
+                    <div class="safety-tip">
+                        <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Take a photo of your pet's vaccination records on your phone for easy access during playdates.
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="resource-section">
+            <h3>Before the Playdate</h3>
+            <div class="resource-card prep-card">
+                <div class="resource-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Health Check</h4>
+                    <p>Ensure your pet is up-to-date on vaccinations, including rabies, distemper, and bordetella (kennel cough) for dogs. Keep pets with contagious conditions at home until they've recovered.</p>
+                    
+                    <div class="safety-section-header vaccination-header">
+                        <p><i class="fas fa-syringe"></i> <strong>Vaccination Checklist</strong></p>
+                    </div>
+                    <div class="safety-section-content vaccination-content">
+                        <ul>
+                            <li><strong>Dogs:</strong> Rabies, DHPP (Distemper, Hepatitis, Parainfluenza, Parvovirus), Bordetella</li>
+                            <li><strong>Cats:</strong> Rabies, FVRCP (Feline Viral Rhinotracheitis, Calicivirus, Panleukopenia)</li>
+                            <li>Consider flea and tick prevention, especially for outdoor playdates</li>
+                            <li>Ensure your pet has had a wellness check within the past year</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="safety-tip">
+                        <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Many veterinarians offer digital vaccination certificates that can be easily shared with other pet owners.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resource-card prep-card">
+                <div class="resource-icon">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Communication</h4>
+                    <p>Discuss your pet's temperament, play style, and any special needs with the other pet owners beforehand. Be honest about any behavioral concerns.</p>
+                    
+                    <div class="safety-section-header communication-header">
+                        <p><i class="fas fa-comments"></i> <strong>Communication Tips</strong></p>
+                    </div>
+                    <div class="safety-section-content communication-content">
+                        <ul>
+                            <li>Share information about your pet's play style (rough, gentle, chase-oriented, etc.)</li>
+                            <li>Mention any triggers that might cause anxiety or aggression</li>
+                            <li>Discuss how your pet signals when they need a break</li>
+                            <li>Exchange emergency contact information</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resource-card prep-card">
+                <div class="resource-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Location Selection</h4>
+                    <p>Choose a neutral, secure location for first-time meetings. Ensure the area is fenced or otherwise contained, free from hazards, and has shade and water available.</p>
+                    
+                    <div class="safety-tip">
+                        <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Dog parks may not be ideal for first meetings due to the unpredictable behavior of other dogs. Consider a quiet, fenced area where you can control the environment.
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="resource-section">
+            <h3>During the Introduction</h3>
+            <div class="resource-card intro-card">
+                <div class="resource-icon">
+                    <i class="fas fa-walking"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Parallel Walking</h4>
+                    <p>For dogs, start with a parallel walk side by side before face-to-face interaction. This reduces tension and allows them to become familiar with each other's scent.</p>
+                    
+                    <div class="safety-tip">
+                        <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Walk parallel with enough distance that the dogs can see each other but not interact directly. Gradually decrease the distance as they become more comfortable.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resource-card intro-card">
+                <div class="resource-icon">
+                    <i class="fas fa-hand-holding"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Leash Management</h4>
+                    <p>Initially introduce dogs on loose leashes. Tight leashes can increase tension and anxiety. Once comfortable, allow off-leash play in a secure area.</p>
+                </div>
+            </div>
+            
+            <div class="resource-card intro-card">
+                <div class="resource-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Body Language</h4>
+                    <p>Watch for relaxed, playful body language: loose body movements, play bows, and balanced interaction. Be alert for signs of stress or aggression.</p>
+                    
+                    <div class="safety-tip">
+                        <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> A play bow (front end down, rear end up) is a good sign that a dog wants to play. Relaxed, wiggly body movements also indicate positive interaction.
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="resource-section">
+            <h3>During the Playdate</h3>
+            <div class="resource-card during-card">
+                <div class="resource-icon">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Time Management</h4>
+                    <p>Keep initial playdates short (30-45 minutes) to prevent overstimulation. Gradually increase duration as pets become more comfortable with each other.</p>
+                </div>
+            </div>
+            
+            <div class="resource-card during-card">
+                <div class="resource-icon">
+                    <i class="fas fa-water"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Hydration & Breaks</h4>
+                    <p>Provide plenty of fresh water and enforce regular breaks, especially during active play or warm weather. This prevents overexertion and dehydration.</p>
+                    
+                    <div class="safety-tip">
+                        <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Bring separate water bowls to reduce potential resource guarding or transmission of germs.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resource-card during-card">
+                <div class="resource-icon">
+                    <i class="fas fa-hand-paper"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Intervention</h4>
+                    <p>Know when to intervene. If play becomes too rough or one pet seems uncomfortable, calmly separate them and allow a cooling-off period before resuming.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="resource-section">
+            <h3>Warning Signs to Watch For</h3>
+            <div class="resource-card warning-card">
+                <div class="resource-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Stress Signals</h4>
+                    <ul>
+                        <li>Excessive panting or drooling</li>
+                        <li>Tucked tail or ears pinned back</li>
+                        <li>Whale eye (showing whites of eyes)</li>
+                        <li>Stiff body posture</li>
+                        <li>Hiding or attempting to escape</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="resource-card warning-card">
+                <div class="resource-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="resource-text">
+                    <h4>Aggression Signals</h4>
+                    <ul>
+                        <li>Growling, snarling, or snapping</li>
+                        <li>Raised hackles (fur along back)</li>
+                        <li>Freezing or intense staring</li>
+                        <li>Lunging or charging</li>
+                        <li>Resource guarding (toys, food, people)</li>
+                    </ul>
+                    
+                    <div class="safety-tip">
+                        <i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Learn to distinguish between play growling (accompanied by relaxed body language) and warning growls (accompanied by stiff posture and other signs of tension).
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <div class="resource-conclusion">
+            <h3>Remember</h3>
+            <p>Every pet is unique, and what works for one may not work for another. Always prioritize safety and be prepared to end a playdate early if necessary. With patience and proper supervision, most pets can develop positive social relationships that enrich their lives.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle checkboxes
+        var checkboxes = document.querySelectorAll('.safety-checklist-item input[type="checkbox"]');
+        
+        checkboxes.forEach(function(checkbox) {
+            // Load saved state
+            var savedState = localStorage.getItem('safety-' + checkbox.id);
+            if (savedState === 'true') {
+                checkbox.checked = true;
+                checkbox.parentElement.classList.add('checked');
+            }
+            
+            // Add click handler
+            checkbox.addEventListener('click', function() {
+                if (this.checked) {
+                    this.parentElement.classList.add('checked');
+                } else {
+                    this.parentElement.classList.remove('checked');
+                }
+                
+                // Save state
+                localStorage.setItem('safety-' + this.id, this.checked);
+            });
+        });
+        
+        // Add subtle animations for page elements
+        const allCards = document.querySelectorAll('.resource-card');
+        
+        // Simple fade-in animation for cards
+        allCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+    });
+</script>
+{% endblock %} 

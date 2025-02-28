@@ -2,6 +2,82 @@
 
 {% block title %}Search Results - PetMate{% endblock %}
 
+{% block extra_head %}
+<style>
+    /* Fix for pet avatars display in search results */
+    .pet-avatars-container {
+        max-width: 100%;
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+    
+    .pet-avatars {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 15px;
+        padding: 5px 0;
+        min-height: 80px;
+    }
+    
+    .pet-avatar {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 80px;
+        text-align: center;
+    }
+    
+    .pet-avatar img, 
+    .pet-avatar-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 5px;
+    }
+    
+    .pet-avatar-placeholder {
+        background-color: var(--sage-green-lighter);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--sage-green);
+    }
+    
+    .pet-name {
+        font-size: 0.85rem;
+        width: 100%;
+        padding: 0 2px;
+        margin-top: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
+        color: #333;
+        font-weight: 500;
+        line-height: 1.2;
+        min-height: 1.2em;
+        display: block;
+    }
+    
+    /* Responsive styling */
+    @media (max-width: 768px) {
+        .search-result-content {
+            padding: 15px;
+        }
+        
+        .search-result-pets {
+            margin-bottom: 15px;
+        }
+        
+        .pet-avatar {
+            width: 70px;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <h2>Search Results</h2>
@@ -67,19 +143,21 @@
                             
                             <div class="search-result-pets">
                                 <h5><i class="fas fa-paw"></i> Pets attending:</h5>
-                                <div class="pet-avatars">
-                                    {% for pet in result.playdate.pets %}
-                                        <div class="pet-avatar">
-                                            {% if pet.image_filename %}
-                                                <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
-                                            {% else %}
-                                                <div class="pet-avatar-placeholder">
-                                                    <i class="fas fa-paw"></i>
-                                                </div>
-                                            {% endif %}
-                                            <span class="pet-name">{{ pet.name }}</span>
-                                        </div>
-                                    {% endfor %}
+                                <div class="pet-avatars-container">
+                                    <div class="pet-avatars">
+                                        {% for pet in result.playdate.pets %}
+                                            <div class="pet-avatar">
+                                                {% if pet.image_filename %}
+                                                    <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                                {% else %}
+                                                    <div class="pet-avatar-placeholder">
+                                                        <i class="fas fa-paw"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <span class="pet-name">{{ pet.name }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
                                 </div>
                             </div>
                             

@@ -5,105 +5,342 @@
 {% block extra_head %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<style>
+    /* Enhanced add pet styling */
+    .container.pet-form-container {
+        max-width: 800px;
+        padding: 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        margin: 3rem auto;
+    }
+    
+    .pet-form-header {
+        background: linear-gradient(135deg, var(--sage-green), var(--deep-forest));
+        position: relative;
+        padding: 2.5rem 2rem;
+        text-align: center;
+    }
+    
+    .pet-form-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+    }
+    
+    .pet-form-header h2 {
+        color: white;
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .pet-form-header p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .pet-form-body {
+        background: white;
+        padding: 2.5rem;
+    }
+    
+    .pet-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.8rem;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        color: var(--deep-forest);
+        font-size: 1.05rem;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group textarea {
+        padding: 0.9rem 1rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-light);
+        font-size: 1rem;
+        color: var(--text-dark);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+        border-color: var(--sage-green);
+        box-shadow: 0 0 0 3px rgba(var(--sage-green-rgb), 0.1);
+        outline: none;
+    }
+    
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .image-upload {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .file-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        padding: 1rem;
+        background-color: var(--bg-sage-light);
+        border: 2px dashed var(--sage-green);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .file-label:hover {
+        background-color: rgba(var(--sage-green-rgb), 0.1);
+        transform: translateY(-3px);
+    }
+    
+    .upload-icon {
+        font-size: 1.5rem;
+    }
+    
+    .upload-text {
+        font-weight: 600;
+        color: var(--sage-green);
+    }
+    
+    .upload-help {
+        background-color: var(--bg-light);
+        padding: 1rem;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+    
+    .upload-help p {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+    
+    .upload-help ul {
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+    
+    .upload-help li {
+        margin-bottom: 0.3rem;
+    }
+    
+    .cropper-container {
+        margin-top: 1rem;
+        border: 1px solid var(--border-light);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .image-container {
+        max-height: 400px;
+        overflow: hidden;
+    }
+    
+    .cropper-controls {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        background-color: var(--bg-light);
+    }
+    
+    .crop-button, .cancel-button {
+        padding: 0.7rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .crop-button {
+        background-color: var(--sage-green);
+        color: white;
+        flex: 1;
+    }
+    
+    .crop-button:hover {
+        background-color: var(--sage-green-hover);
+        transform: translateY(-2px);
+    }
+    
+    .cancel-button {
+        background-color: transparent;
+        color: var(--text-muted);
+        border: 1px solid var(--border-light);
+    }
+    
+    .cancel-button:hover {
+        color: var(--text-dark);
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .image-preview {
+        margin-top: 1rem;
+        text-align: center;
+    }
+    
+    .image-preview img {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .submit-button {
+        padding: 1rem 2rem;
+        background-color: var(--sage-green);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+        box-shadow: 0 4px 10px rgba(var(--sage-green-rgb), 0.3);
+        align-self: center;
+    }
+    
+    .submit-button:hover {
+        background-color: var(--sage-green-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(var(--sage-green-rgb), 0.4);
+    }
+    
+    .error {
+        background-color: rgba(var(--terracotta-rgb), 0.1);
+        color: var(--terracotta);
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+        .pet-form-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .pet-form-header h2 {
+            font-size: 1.8rem;
+        }
+        
+        .pet-form-body {
+            padding: 1.5rem;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2>Add New Pet</h2>
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
-    
-    <form method="POST" class="pet-form" enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="name">Pet's Name:</label>
-            <input type="text" id="name" name="name" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="pet_image">Pet's Photo:</label>
-            <div class="image-upload">
-                <input type="file" id="pet_image" name="pet_image" accept="image/*" class="file-input">
-                <label for="pet_image" class="file-label">
-                    <span class="upload-icon">📷</span>
-                    <span class="upload-text">Choose a photo</span>
-                </label>
-                <div class="upload-help">
-                    <p>Image will be cropped to a square format. For best results:</p>
-                    <ul>
-                        <li>Use a clear photo of your pet</li>
-                        <li>You can adjust the crop area after uploading</li>
-                        <li>Maximum file size: 2MB</li>
-                    </ul>
-                </div>
-                <div class="cropper-container" style="display: none;">
-                    <div class="image-container">
-                        <img id="crop-image" src="" alt="Upload an image to crop">
-                    </div>
-                    <div class="cropper-controls">
-                        <button type="button" class="crop-button">Crop Image</button>
-                        <button type="button" class="cancel-button">Cancel</button>
-                    </div>
-                </div>
-                <div id="image-preview" class="image-preview"></div>
-                <input type="hidden" name="cropped_image" id="cropped-image-data">
-            </div>
-        </div>
-        
-        <div class="form-group">
-            <label for="species">Species:</label>
-            <input type="text" id="species" name="species" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="breed">Breed:</label>
-            <input type="text" id="breed" name="breed">
-        </div>
-        
-        <div class="form-group">
-            <label for="age">Age:</label>
-            <input type="number" id="age" name="age" min="0" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="size">Size:</label>
-            <input type="text" id="size" name="size" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="temperament">Temperament:</label>
-            <textarea id="temperament" name="temperament" required></textarea>
-        </div>
-        
-        <button type="submit" class="submit-button">Add Pet</button>
-    </form>
-</div>
-
-<div class="slider-menu">
-    <div class="menu-header">
-        <span>Menu</span>
-        <button class="close-menu">
-            <i class="fas fa-times"></i>
-        </button>
+<div class="container pet-form-container">
+    <div class="pet-form-header">
+        <h2>Add New Pet</h2>
+        <p>Share information about your furry friend to find the perfect playmates</p>
     </div>
-    <a href="{{ url_for('index') }}">
-        <i class="fas fa-home"></i> Home
-    </a>
-    <a href="{{ url_for('my_pets') }}">
-        <i class="fas fa-paw"></i> My Pets
-    </a>
-    <a href="{{ url_for('dashboard') }}">
-        <i class="fas fa-user"></i> Profile
-    </a>
-    <a href="{{ url_for('schedule') }}">
-        <i class="fas fa-calendar-plus"></i> Schedule Playdate
-    </a>
-    <a href="{{ url_for('view_playdates') }}">
-        <i class="fas fa-calendar-alt"></i> View Playdates
-    </a>
-    <a href="{{ url_for('search') }}">
-        <i class="fas fa-search"></i> Find Playmates
-    </a>
+    
+    <div class="pet-form-body">
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        
+        <form method="POST" class="pet-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Pet's Name</label>
+                <input type="text" id="name" name="name" required placeholder="What's your pet's name?">
+            </div>
+            
+            <div class="form-group">
+                <label for="pet_image">Pet's Photo</label>
+                <div class="image-upload">
+                    <input type="file" id="pet_image" name="pet_image" accept="image/*" class="file-input">
+                    <label for="pet_image" class="file-label">
+                        <span class="upload-icon">📷</span>
+                        <span class="upload-text">Choose a photo</span>
+                    </label>
+                    <div class="upload-help">
+                        <p>Image will be cropped to a square format. For best results:</p>
+                        <ul>
+                            <li>Use a clear photo of your pet</li>
+                            <li>You can adjust the crop area after uploading</li>
+                            <li>Maximum file size: 2MB</li>
+                        </ul>
+                    </div>
+                    <div class="cropper-container" style="display: none;">
+                        <div class="image-container">
+                            <img id="crop-image" src="" alt="Upload an image to crop">
+                        </div>
+                        <div class="cropper-controls">
+                            <button type="button" class="crop-button">Crop Image</button>
+                            <button type="button" class="cancel-button">Cancel</button>
+                        </div>
+                    </div>
+                    <div id="image-preview" class="image-preview"></div>
+                    <input type="hidden" name="cropped_image" id="cropped-image-data">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="species">Species</label>
+                <input type="text" id="species" name="species" required placeholder="Dog, Cat, Rabbit, etc.">
+            </div>
+            
+            <div class="form-group">
+                <label for="breed">Breed</label>
+                <input type="text" id="breed" name="breed" placeholder="What breed is your pet?">
+            </div>
+            
+            <div class="form-group">
+                <label for="age">Age (years)</label>
+                <input type="number" id="age" name="age" min="0" required placeholder="How old is your pet?">
+            </div>
+            
+            <div class="form-group">
+                <label for="size">Size</label>
+                <input type="text" id="size" name="size" required placeholder="Small, Medium, Large, etc.">
+            </div>
+            
+            <div class="form-group">
+                <label for="temperament">Temperament</label>
+                <textarea id="temperament" name="temperament" required placeholder="Describe your pet's personality, energy level, and how they interact with other animals..."></textarea>
+            </div>
+            
+            <button type="submit" class="submit-button">
+                <i class="fas fa-paw"></i> Add Pet
+            </button>
+        </form>
+    </div>
 </div>
 {% endblock %}
 

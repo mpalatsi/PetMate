@@ -2,8 +2,218 @@
 
 {% block title %}{{ user.username }}'s Profile - PetMate{% endblock %}
 
+{% block extra_head %}
+<style>
+    /* Enhanced profile styling */
+    .container.profile-container {
+        max-width: 900px;
+        padding: 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        margin: 3rem auto;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, var(--sage-green), var(--deep-forest));
+        position: relative;
+        padding: 3rem 2rem 6rem;
+    }
+    
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+    }
+    
+    .profile-card {
+        background-color: transparent;
+        border-radius: 0;
+        box-shadow: none;
+        margin: 0;
+        position: relative;
+        border: none;
+    }
+    
+    .profile-image-container {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 5px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        position: relative;
+        z-index: 2;
+        background-color: white;
+    }
+    
+    .profile-name-info {
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .profile-name-info h3 {
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+    
+    .profile-meta {
+        opacity: 0.9;
+    }
+    
+    .profile-joined, .profile-location {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .profile-body {
+        background: white;
+        border-radius: 20px 20px 0 0;
+        margin-top: -4rem;
+        padding: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .user-rating-summary {
+        background-color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-light);
+    }
+    
+    .profile-section {
+        background-color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-light);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .profile-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-section h4 {
+        font-size: 1.3rem;
+        border-bottom: 2px solid var(--bg-sage-light);
+        padding-bottom: 0.8rem;
+        margin-bottom: 1.2rem;
+        color: var(--deep-forest);
+    }
+    
+    .profile-section h4 i {
+        color: var(--sage-green);
+        margin-right: 0.5rem;
+    }
+    
+    .pet-preview {
+        width: 100px;
+        transition: transform 0.3s ease;
+    }
+    
+    .pet-preview:hover {
+        transform: translateY(-5px);
+    }
+    
+    .pet-preview img, .pet-avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border: 3px solid white;
+    }
+    
+    .tag {
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-light);
+    }
+    
+    .tag:hover {
+        background-color: var(--sage-green);
+        color: white;
+    }
+    
+    .profile-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .profile-actions .button {
+        flex: 1;
+        min-width: 200px;
+        text-align: center;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-actions .button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .profile-actions .button i {
+        margin-right: 0.5rem;
+    }
+    
+    .profile-actions .button.primary {
+        background: linear-gradient(135deg, var(--sage-green), #5a7361);
+    }
+    
+    .profile-actions .button.secondary {
+        background: linear-gradient(135deg, var(--warm-brown), #725f47);
+    }
+    
+    @media (max-width: 768px) {
+        .profile-header {
+            padding: 2rem 1.5rem 5rem;
+        }
+        
+        .profile-image-container {
+            width: 120px;
+            height: 120px;
+            margin-right: 1rem;
+        }
+        
+        .profile-name-info h3 {
+            font-size: 1.8rem;
+        }
+        
+        .profile-body {
+            padding: 1.5rem;
+        }
+        
+        .profile-actions .button {
+            flex: 100%;
+        }
+        
+        .profile-detail-item {
+            grid-template-columns: 1fr;
+        }
+        
+        .detail-label {
+            margin-bottom: 0.3rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
+<div class="container profile-container">
     <div class="profile-card">
         <div class="profile-header">
             <div class="profile-image-container">
@@ -24,38 +234,38 @@
             </div>
         </div>
         
-        <div class="user-rating-summary">
-            <h3>Rating</h3>
-            <div class="rating-display">
-                <div class="rating-stars">
-                    {% set avg_rating = user.get_average_rating() %}
-                    {% for i in range(5) %}
-                        {% if i < avg_rating|int %}
-                            <i class="fas fa-star"></i>
-                        {% elif i < avg_rating and i == avg_rating|int %}
-                            <i class="fas fa-star-half-alt"></i>
-                        {% else %}
-                            <i class="far fa-star"></i>
-                        {% endif %}
-                    {% endfor %}
+        <div class="profile-body">
+            <div class="user-rating-summary">
+                <h4><i class="fas fa-star"></i> Rating</h4>
+                <div class="rating-display">
+                    <div class="rating-stars">
+                        {% set avg_rating = user.get_average_rating() %}
+                        {% for i in range(5) %}
+                            {% if i < avg_rating|int %}
+                                <i class="fas fa-star"></i>
+                            {% elif i < avg_rating and i == avg_rating|int %}
+                                <i class="fas fa-star-half-alt"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="rating-value">{{ avg_rating }}</span>
+                    <a href="{{ url_for('user_reviews', user_id=user.id) }}" class="reviews-link">
+                        See all {{ user.get_reviews_count() }} reviews
+                    </a>
                 </div>
-                <span class="rating-value">{{ avg_rating }}</span>
-                <a href="{{ url_for('user_reviews', user_id=user.id) }}" class="reviews-link">
-                    See all {{ user.get_reviews_count() }} reviews
-                </a>
+                
+                {% if 'username' in session and session['username'] != user.username %}
+                    {% set current_user = get_current_user() %}
+                    {% if current_user and current_user.can_review_user(user.id) %}
+                        <a href="{{ url_for('write_review', user_id=user.id) }}" class="button secondary">
+                            <i class="fas fa-star"></i> Write a Review
+                        </a>
+                    {% endif %}
+                {% endif %}
             </div>
             
-            {% if 'username' in session and session['username'] != user.username %}
-                {% set current_user = get_current_user() %}
-                {% if current_user and current_user.can_review_user(user.id) %}
-                    <a href="{{ url_for('write_review', user_id=user.id) }}" class="button secondary">
-                        <i class="fas fa-star"></i> Write a Review
-                    </a>
-                {% endif %}
-            {% endif %}
-        </div>
-        
-        <div class="profile-content">
             <div class="profile-section">
                 <h4><i class="fas fa-user"></i> About</h4>
                 <p>{{ user.bio or "No bio provided." }}</p>
