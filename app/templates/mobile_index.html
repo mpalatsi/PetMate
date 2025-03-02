@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#F5F1E8">
+    <meta name="supported-color-schemes" content="light">
+    <title>PetMate - Find Pet Playmates</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="any">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-homepage.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script>
+        // Force light mode
+        document.documentElement.style.colorScheme = 'light';
+    </script>
+</head>
+<body>
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-container">
+            <a href="{{ url_for('main.index') }}" class="mobile-logo">
+                <div class="mobile-logo-icon"></div>
+                <div class="mobile-logo-text">Pet<span class="highlight">Mate</span></div>
+            </a>
+            <div class="mobile-nav-actions">
+                {% if 'username' in session %}
+                    <a href="{{ url_for('auth.logout') }}" class="mobile-nav-link">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="mobile-nav-link">Login</a>
+                {% endif %}
+                <button class="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <div class="mobile-menu-header">
+            <span>Menu</span>
+            <button class="mobile-close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="{{ url_for('main.index') }}" class="mobile-menu-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="{{ url_for('main.search') }}" class="mobile-menu-link">
+                <i class="fas fa-search"></i> Find Playmates
+            </a>
+            <a href="{{ url_for('pets.my_pets') }}" class="mobile-menu-link">
+                <i class="fas fa-paw"></i> My Pets
+            </a>
+            <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-menu-link">
+                <i class="fas fa-calendar-plus"></i> Schedule Playdate
+            </a>
+            {% if 'username' in session %}
+                <a href="{{ url_for('main.dashboard') }}" class="mobile-menu-link">
+                    <i class="fas fa-user"></i> My Profile
+                </a>
+                <a href="{{ url_for('messages.inbox') }}" class="mobile-menu-link">
+                    <i class="fas fa-envelope"></i> Messages
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Content -->
+    <main class="mobile-main">
+        <!-- Mobile-optimized Hero Section -->
+        <div class="mobile-hero" style="background-image: url('{{ url_for('static', filename='playing_dogs.jpg') }}');">
+            <div class="mobile-hero-content">
+                <h1>Find Playmates for Your Furry Friends</h1>
+                <p>Connect with local pet parents and schedule fun playdates for your pets!</p>
+                <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-cta-button mobile-touch-feedback">Schedule a Playdate</a>
+            </div>
+        </div>
+
+        <!-- Mobile How It Works Section -->
+        <div class="mobile-how-it-works">
+            <h2>How PetMate Works</h2>
+            <div class="mobile-steps">
+                <a href="{{ url_for('auth.register') }}" class="mobile-step">
+                    <div class="mobile-step-number">1</div>
+                    <h3>Create a Profile</h3>
+                    <p>Sign up and create detailed profiles for you and your pets, including personality traits and preferences.</p>
+                    <span class="mobile-step-button">Get Started</span>
+                </a>
+                
+                <a href="{{ url_for('main.search') }}" class="mobile-step">
+                    <div class="mobile-step-number">2</div>
+                    <h3>Find Perfect Matches</h3>
+                    <p>Our algorithm matches your pet with compatible playdates based on temperament and location.</p>
+                    <span class="mobile-step-button">See Matches</span>
+                </a>
+                
+                <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-step">
+                    <div class="mobile-step-number">3</div>
+                    <h3>Schedule Playdates</h3>
+                    <p>Arrange meetups at parks, beaches, or pet-friendly venues near you.</p>
+                    <span class="mobile-step-button">Schedule Now</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Mobile Features Section -->
+        <div class="mobile-features">
+            <h2>Why Pet Parents Love PetMate</h2>
+            <div class="mobile-feature-grid">
+                <a href="{{ url_for('main.search') }}" class="mobile-feature-card">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>Local Connections</h3>
+                    <p>Find pet playmates right in your neighborhood.</p>
+                </a>
+                
+                <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-feature-card">
+                    <i class="far fa-calendar-alt"></i>
+                    <h3>Easy Scheduling</h3>
+                    <p>Organize playdates with just a few taps.</p>
+                </a>
+                
+                <a href="{{ url_for('playdates.playdates') }}" class="mobile-feature-card">
+                    <i class="fas fa-paw"></i>
+                    <h3>Pet Socialization</h3>
+                    <p>Help your pets make friends and develop social skills.</p>
+                </a>
+                
+                <a href="{{ url_for('main.gallery') }}" class="mobile-feature-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Community</h3>
+                    <p>Connect with other pet parents who share your interests.</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Mobile Bottom CTA -->
+        <div class="mobile-bottom-cta">
+            <h2>Ready to Find Playmates?</h2>
+            <p>Join thousands of pet parents already using PetMate to find the perfect playmates for their pets.</p>
+            <div class="mobile-cta-buttons">
+                <a href="{{ url_for('auth.register') }}" class="mobile-cta-button mobile-touch-feedback">Sign Up Now</a>
+                <a href="{{ url_for('auth.login') }}" class="mobile-secondary-cta mobile-touch-feedback">Log In</a>
+            </div>
+            
+            <p class="desktop-link">
+                <a href="/" id="view-desktop-version">View Desktop Version</a>
+            </p>
+        </div>
+    </main>
+
+    <!-- Mobile-specific JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu toggle functionality
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            const closeMenu = document.querySelector('.mobile-close-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            
+            if (menuToggle && closeMenu && mobileMenu) {
+                menuToggle.addEventListener('click', function() {
+                    mobileMenu.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling
+                });
+                
+                closeMenu.addEventListener('click', function() {
+                    mobileMenu.classList.remove('active');
+                    document.body.style.overflow = ''; // Enable scrolling
+                });
+            }
+            
+            // Apply ripple effect to touch elements
+            const touchButtons = document.querySelectorAll('.mobile-touch-feedback');
+            
+            touchButtons.forEach(button => {
+                button.addEventListener('touchstart', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.touches[0].clientX - rect.left;
+                    const y = e.touches[0].clientY - rect.top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

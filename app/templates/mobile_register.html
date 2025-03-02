@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#F5F1E8">
+    <meta name="supported-color-schemes" content="light">
+    <title>PetMate - Register</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="any">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-homepage.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Additional styles specific to the register page */
+        .mobile-auth-container {
+            padding: 2rem 1.5rem;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            max-width: 400px;
+        }
+        
+        .mobile-auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .mobile-auth-header h2 {
+            color: var(--deep-forest);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .mobile-auth-header p {
+            color: #777;
+            font-size: 0.95rem;
+        }
+        
+        .mobile-form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .mobile-form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--deep-forest);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .mobile-form-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .mobile-form-group input:focus {
+            border-color: var(--sage-green);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(124, 144, 130, 0.2);
+        }
+        
+        .mobile-form-group input[type="file"] {
+            padding: 0.6rem;
+            font-size: 0.9rem;
+        }
+        
+        .flash-messages {
+            margin-bottom: 1.5rem;
+        }
+        
+        .flash-message {
+            padding: 0.8rem 1rem;
+            background-color: #FFEBEE;
+            color: #C62828;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .mobile-auth-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .mobile-auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #555;
+            font-size: 0.95rem;
+        }
+        
+        .mobile-auth-footer a {
+            color: var(--sage-green);
+            font-weight: 600;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            border: 2px dashed #ddd;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-width: 100%;
+            min-height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .file-input-label {
+            display: block;
+            padding: 0.5rem 1rem;
+            background-color: var(--sage-green);
+            color: white;
+            border-radius: 8px;
+            font-weight: 500;
+            width: fit-content;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+        
+        .file-name {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            color: #555;
+            word-break: break-all;
+        }
+    </style>
+    
+    <script>
+        // Force light mode
+        document.documentElement.style.colorScheme = 'light';
+    </script>
+</head>
+<body>
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-container">
+            <a href="{{ url_for('main.index') }}" class="mobile-logo">
+                <div class="mobile-logo-icon"></div>
+                <div class="mobile-logo-text">Pet<span class="highlight">Mate</span></div>
+            </a>
+            <div class="mobile-nav-actions">
+                <a href="{{ url_for('auth.login') }}" class="mobile-nav-link">Login</a>
+                <button class="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <div class="mobile-menu-header">
+            <span>Menu</span>
+            <button class="mobile-close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="{{ url_for('main.index') }}" class="mobile-menu-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="{{ url_for('main.search') }}" class="mobile-menu-link">
+                <i class="fas fa-search"></i> Find Playmates
+            </a>
+            <a href="{{ url_for('auth.login') }}" class="mobile-menu-link">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="{{ url_for('main.mobile_index') }}" class="mobile-menu-link">
+                <i class="fas fa-info-circle"></i> About PetMate
+            </a>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <main class="mobile-main">
+        <div class="mobile-auth-container">
+            <div class="mobile-auth-header">
+                <h2>Join PetMate</h2>
+                <p>Create your account to connect with pet lovers</p>
+            </div>
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for message in messages %}
+                            <div class="flash-message">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('auth.register') }}" enctype="multipart/form-data" class="mobile-auth-form">
+                <div class="mobile-form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required autocomplete="username" placeholder="Choose a username">
+                </div>
+                <div class="mobile-form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required autocomplete="email" placeholder="Enter your email">
+                </div>
+                <div class="mobile-form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required autocomplete="new-password" placeholder="Create a password">
+                </div>
+                <div class="mobile-form-group">
+                    <label for="profile_picture">Profile Picture (optional)</label>
+                    <div class="file-input-wrapper">
+                        <div class="file-input-label">Choose a photo</div>
+                        <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+                        <div class="file-name">No file chosen</div>
+                    </div>
+                </div>
+                
+                <div class="mobile-auth-actions">
+                    <button type="submit" class="mobile-cta-button mobile-touch-feedback">Create Account</button>
+                </div>
+            </form>
+            
+            <div class="mobile-auth-footer">
+                <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+            </div>
+        </div>
+        
+        <p class="desktop-link" style="text-align: center; margin: 2rem 0;">
+            <a href="{{ url_for('auth.register') }}?mode=desktop" id="view-desktop-version">View Desktop Version</a>
+        </p>
+    </main>
+
+    <!-- Mobile-specific JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu toggle functionality
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            const closeMenu = document.querySelector('.mobile-close-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            
+            if (menuToggle && closeMenu && mobileMenu) {
+                menuToggle.addEventListener('click', function() {
+                    mobileMenu.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling
+                });
+                
+                closeMenu.addEventListener('click', function() {
+                    mobileMenu.classList.remove('active');
+                    document.body.style.overflow = ''; // Enable scrolling
+                });
+            }
+            
+            // File input handling
+            const fileInput = document.getElementById('profile_picture');
+            const fileName = document.querySelector('.file-name');
+            
+            if (fileInput && fileName) {
+                fileInput.addEventListener('change', function() {
+                    if (this.files.length > 0) {
+                        fileName.textContent = this.files[0].name;
+                    } else {
+                        fileName.textContent = 'No file chosen';
+                    }
+                });
+            }
+            
+            // Apply ripple effect to touch elements
+            const touchButtons = document.querySelectorAll('.mobile-touch-feedback');
+            
+            touchButtons.forEach(button => {
+                button.addEventListener('touchstart', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.touches[0].clientX - rect.left;
+                    const y = e.touches[0].clientY - rect.top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

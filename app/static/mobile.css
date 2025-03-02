@@ -1,0 +1,366 @@
+/* 
+ * PetMate Mobile Enhancements
+ * Adds mobile-friendly styles to improve responsiveness
+ */
+
+/* Prevent forced dark mode */
+html {
+    color-scheme: light only;
+    forced-color-adjust: none;
+}
+
+body {
+    color-scheme: light only;
+    -webkit-forced-color-adjust: none;
+    forced-color-adjust: none;
+}
+
+/* Mobile Touch Improvements */
+@media (max-width: 768px) {
+    /* Make buttons more touch-friendly */
+    .button, button, .submit-button, .cta-button, 
+    .nav-links a, .slider-menu a {
+        min-height: 44px;  /* Apple's recommended minimum */
+        min-width: 44px;
+        padding: 12px 16px;
+        margin: 8px 0;
+    }
+    
+    /* Improve form fields for mobile */
+    input, select, textarea {
+        height: 44px;
+        font-size: 16px; /* Prevents iOS zoom on focus */
+        margin-bottom: 12px; 
+    }
+    
+    textarea {
+        height: auto;
+        min-height: 80px;
+    }
+    
+    /* Improve touch spacing between elements */
+    .form-group, .pet-card, .playdate-card, .search-result-card,
+    .conversation-item, .message, .attendee-card {
+        margin-bottom: 16px;
+    }
+    
+    /* Add touch feedback */
+    .button:active, .nav-links a:active, .slider-menu a:active {
+        transform: scale(0.97);
+        transition: transform 0.1s;
+    }
+    
+    /* Make checkboxes and radio buttons larger for mobile */
+    input[type="checkbox"], input[type="radio"] {
+        transform: scale(1.2);
+        margin-right: 8px;
+    }
+    
+    /* Improve tap targets in cards */
+    .pet-info, .playdate-info, .search-result-info,
+    .pet-avatar, .pet-image {
+        padding: 8px;
+    }
+    
+    /* Improve hero CTA button placement on mobile */
+    .hero-content .cta-button {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 80%;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        position: relative;
+        left: 0;  /* Reset any potential left positioning */
+        right: 0; /* Reset any potential right positioning */
+        transform: none; /* Reset any transforms that could affect positioning */
+    }
+}
+
+/* Mobile Layout Adjustments */
+@media (max-width: 768px) {
+    /* Update grid layouts for better mobile viewing */
+    .pet-grid, .playdate-grid, .feature-grid, .search-results {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    /* Full width containers on mobile */
+    .container, .search-container, .profile-container,
+    .pet-container, .messaging-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 16px;
+        margin: 0;
+        border-radius: 0;
+    }
+    
+    /* Improve hero section on mobile */
+    .hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .hero-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+    
+    /* Stack items that should be vertically arranged on mobile */
+    .playdate-header-content, .search-result-header-content,
+    .profile-content, .form-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    /* Fix spacing for stacked elements */
+    .playdate-location, .search-result-location,
+    .playdate-date-time, .search-result-date-time {
+        margin-top: 8px;
+        width: 100%;
+    }
+    
+    /* Make cards full width on mobile */
+    .pet-card, .playdate-card, .search-result-card,
+    .conversation-item, .message, .review-card {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    /* Improve mobile navigation */
+    .nav-container {
+        padding: 12px 16px;
+    }
+    
+    /* Improve mobile forms */
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    /* Better display for long text elements */
+    .playdate-description, .search-result-description,
+    .profile-bio, .pet-description {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+}
+
+/* Mobile-Friendly Forms */
+@media (max-width: 768px) {
+    /* Single column forms on mobile */
+    .form-group {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Labels above inputs on mobile */
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+    }
+    
+    /* Full-width selects and inputs */
+    .form-group select,
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"],
+    .form-group input[type="date"],
+    .form-group input[type="time"],
+    .form-group textarea {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Stack form buttons on mobile */
+    .form-actions, .submit-container {
+        flex-direction: column;
+    }
+    
+    .form-actions .button,
+    .submit-container .button {
+        width: 100%;
+        margin: 8px 0;
+    }
+}
+
+/* Mobile Image Optimization */
+@media (max-width: 768px) {
+    /* Optimize images for mobile */
+    .pet-image, .profile-picture, .playdate-image, 
+    .gallery-image img, .photo-gallery img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    /* Center small images */
+    .pet-avatar, .pet-avatar-placeholder,
+    .profile-picture, .user-avatar {
+        margin: 0 auto;
+    }
+    
+    /* Make gallery more mobile-friendly */
+    .gallery-item {
+        width: 100%;
+    }
+    
+    .photo-gallery {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Mobile-Friendly Navigation */
+@media (max-width: 768px) {
+    /* Improve the top navigation spacing */
+    .nav-container {
+        justify-content: space-between;
+    }
+    
+    /* Make the menu toggle more visible */
+    .menu-toggle {
+        display: block;
+        font-size: 24px;
+        padding: 8px;
+    }
+    
+    /* Enhance slider menu */
+    .slider-menu {
+        width: 85%;
+        max-width: 320px;
+    }
+    
+    .slider-menu a {
+        padding: 16px;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    /* Make submenu more visible */
+    .submenu a {
+        padding-left: 32px;
+    }
+}
+
+/* Small Screen Optimization */
+@media (max-width: 480px) {
+    /* Even smaller screens need special care */
+    body {
+        font-size: 14px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    h3 {
+        font-size: 1.3rem;
+    }
+    
+    /* Make form elements even more mobile-friendly */
+    .form-group label {
+        font-size: 14px;
+    }
+    
+    /* Reduce padding further */
+    .container, .pet-container, .search-container {
+        padding: 12px;
+    }
+    
+    /* Further optimize hero CTA button for very small screens */
+    .hero-content .cta-button {
+        max-width: 100%;
+        font-size: 0.9rem;
+        padding: 10px 14px;
+        white-space: normal;
+        line-height: 1.4;
+    }
+    
+    /* Optimize hero section for very small screens */
+    .hero {
+        padding: 60px 15px;
+    }
+    
+    .hero-content {
+        padding: 1.5rem;
+    }
+}
+
+/* Touch-specific effects */
+.touch-active {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    transform: scale(0.98);
+    transition: all 0.1s ease-in-out;
+}
+
+/* Mobile menu improvements */
+@media (max-width: 768px) {
+    /* Improve menu overlay */
+    .menu-overlay {
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+    }
+    
+    /* Menu transition improvements */
+    .slider-menu {
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    /* Prevent scroll when menu is open */
+    body.menu-open {
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* Mobile form accessibility */
+@media (max-width: 768px) {
+    /* Fix autocomplete zoom on iOS */
+    input:focus,
+    select:focus,
+    textarea:focus,
+    button:focus {
+        font-size: 16px;
+    }
+    
+    /* More accessible focus states */
+    input:focus,
+    select:focus,
+    textarea:focus,
+    button:focus {
+        outline: 3px solid var(--sage-green);
+        outline-offset: 2px;
+    }
+    
+    /* Fix iOS scroll behavior */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select, textarea {
+        -webkit-appearance: none;
+        border-radius: 5px;
+    }
+}
+
+/* Lazy loading image styles */
+.lazy-image {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.lazy-image.loaded {
+    opacity: 1;
+} 

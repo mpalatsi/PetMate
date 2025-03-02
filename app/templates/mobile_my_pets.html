@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#F5F1E8">
+    <meta name="supported-color-schemes" content="light">
+    <title>My Pets - PetMate</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="any">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-homepage.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Additional styles specific to the pets page */
+        .mobile-page-header {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            background-color: var(--sage-green);
+            color: white;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mobile-page-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        
+        .mobile-page-header p {
+            font-size: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .mobile-pet-card {
+            background-color: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .mobile-pet-image-container {
+            height: 180px;
+            background-color: var(--bg-sage-light);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mobile-pet-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .mobile-pet-image-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-sage-light);
+            color: var(--text-muted);
+            font-size: 3rem;
+        }
+        
+        .mobile-pet-content {
+            padding: 1.2rem;
+        }
+        
+        .mobile-pet-header {
+            margin-bottom: 1rem;
+        }
+        
+        .mobile-pet-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--deep-forest);
+            margin: 0 0 0.3rem;
+        }
+        
+        .mobile-pet-breed {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin: 0;
+        }
+        
+        .mobile-pet-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
+        }
+        
+        .mobile-pet-detail {
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+        }
+        
+        .mobile-pet-detail i {
+            color: var(--sage-green);
+            margin-right: 0.5rem;
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .mobile-pet-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 1.2rem;
+        }
+        
+        .mobile-action-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .mobile-action-button.edit {
+            background-color: var(--sage-green);
+            color: white;
+        }
+        
+        .mobile-action-button.delete {
+            background-color: var(--terracotta);
+            color: white;
+        }
+        
+        .mobile-action-button i {
+            margin-right: 0.5rem;
+        }
+        
+        .mobile-add-pet-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 10;
+        }
+        
+        .mobile-add-pet-button {
+            width: 60px;
+            height: 60px;
+            background-color: var(--sage-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 1.5rem;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .mobile-add-pet-button:active {
+            transform: scale(0.95);
+            background-color: var(--deep-forest);
+        }
+        
+        .mobile-no-pets {
+            background-color: white;
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin: 2rem 1rem;
+        }
+        
+        .mobile-no-pets p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .mobile-no-pets-image {
+            max-width: 180px;
+            margin: 0 auto 1.5rem;
+            opacity: 0.8;
+        }
+    </style>
+    
+    <script>
+        // Force light mode
+        document.documentElement.style.colorScheme = 'light';
+    </script>
+</head>
+<body>
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-container">
+            <a href="{{ url_for('main.index') }}" class="mobile-logo">
+                <div class="mobile-logo-icon"></div>
+                <div class="mobile-logo-text">Pet<span class="highlight">Mate</span></div>
+            </a>
+            <div class="mobile-nav-actions">
+                <a href="{{ url_for('main.dashboard') }}" class="mobile-nav-link">
+                    <i class="fas fa-user"></i>
+                </a>
+                <button class="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <div class="mobile-menu-header">
+            <span>Menu</span>
+            <button class="mobile-close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="{{ url_for('main.index') }}" class="mobile-menu-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="{{ url_for('main.search') }}" class="mobile-menu-link">
+                <i class="fas fa-search"></i> Find Playmates
+            </a>
+            <a href="{{ url_for('pets.my_pets') }}" class="mobile-menu-link">
+                <i class="fas fa-paw"></i> My Pets
+            </a>
+            <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-menu-link">
+                <i class="fas fa-calendar-plus"></i> Schedule Playdate
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="mobile-menu-link">
+                <i class="fas fa-user"></i> My Profile
+            </a>
+            <a href="{{ url_for('messages.inbox') }}" class="mobile-menu-link">
+                <i class="fas fa-envelope"></i> Messages
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="mobile-menu-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <main class="mobile-main">
+        <div class="mobile-page-header">
+            <h2>My Pets</h2>
+            <p>Manage your furry friends' profiles</p>
+        </div>
+        
+        <div class="container">
+            {% if pets %}
+                {% for pet in pets %}
+                    <div class="mobile-pet-card">
+                        <div class="mobile-pet-image-container">
+                            {% if pet.image_filename %}
+                                <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}" class="mobile-pet-image">
+                            {% else %}
+                                <div class="mobile-pet-image-placeholder">
+                                    <i class="fas fa-paw"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mobile-pet-content">
+                            <div class="mobile-pet-header">
+                                <h3 class="mobile-pet-name">{{ pet.name }}</h3>
+                                <p class="mobile-pet-breed">{{ pet.breed }}</p>
+                            </div>
+                            <div class="mobile-pet-details">
+                                <div class="mobile-pet-detail">
+                                    <i class="fas fa-paw"></i>
+                                    <span>{{ pet.species }}</span>
+                                </div>
+                                {% if pet.age %}
+                                    <div class="mobile-pet-detail">
+                                        <i class="fas fa-birthday-cake"></i>
+                                        <span>{{ pet.age }} years old</span>
+                                    </div>
+                                {% endif %}
+                                {% if pet.size %}
+                                    <div class="mobile-pet-detail">
+                                        <i class="fas fa-ruler"></i>
+                                        <span>{{ pet.size }} size</span>
+                                    </div>
+                                {% endif %}
+                                {% if pet.temperament %}
+                                    <div class="mobile-pet-detail">
+                                        <i class="fas fa-heart"></i>
+                                        <span>{{ pet.temperament }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="mobile-pet-actions">
+                                <a href="{{ url_for('pets.edit_pet', pet_id=pet.id) }}" class="mobile-action-button edit mobile-touch-feedback">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{{ url_for('pets.delete_pet', pet_id=pet.id) }}" class="mobile-action-button delete mobile-touch-feedback" 
+                                   onclick="return confirm('Are you sure you want to delete this pet?')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="mobile-no-pets">
+                    <div class="mobile-no-pets-image">
+                        <i class="fas fa-paw" style="font-size: 5rem; color: var(--sage-green);"></i>
+                    </div>
+                    <p>You haven't added any pets yet.</p>
+                    <a href="{{ url_for('pets.add_pet') }}" class="mobile-cta-button mobile-touch-feedback">
+                        <i class="fas fa-plus"></i> Add Your First Pet
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        
+        {% if pets %}
+        <div class="mobile-add-pet-container">
+            <a href="{{ url_for('pets.add_pet') }}" class="mobile-add-pet-button mobile-touch-feedback">
+                <i class="fas fa-plus"></i>
+            </a>
+        </div>
+        {% endif %}
+        
+        <p class="desktop-link" style="text-align: center; margin: 2rem 0;">
+            <a href="{{ url_for('pets.my_pets') }}?mode=desktop" id="view-desktop-version">View Desktop Version</a>
+        </p>
+    </main>
+
+    <!-- Mobile-specific JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu toggle functionality
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            const closeMenu = document.querySelector('.mobile-close-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            
+            if (menuToggle && closeMenu && mobileMenu) {
+                menuToggle.addEventListener('click', function() {
+                    mobileMenu.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling
+                });
+                
+                closeMenu.addEventListener('click', function() {
+                    mobileMenu.classList.remove('active');
+                    document.body.style.overflow = ''; // Enable scrolling
+                });
+            }
+            
+            // Apply ripple effect to touch elements
+            const touchButtons = document.querySelectorAll('.mobile-touch-feedback');
+            
+            touchButtons.forEach(button => {
+                button.addEventListener('touchstart', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.touches[0].clientX - rect.left;
+                    const y = e.touches[0].clientY - rect.top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

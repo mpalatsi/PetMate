@@ -45,8 +45,18 @@ def playdates():
             "pets": playdate.pets
         })
     
+    # Check if the request is from a mobile device
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+    
+    # Check if mode is explicitly specified via query parameter
+    mode = request.args.get('mode', None)
+    use_mobile = is_mobile and mode != 'desktop'
+    
+    template = 'mobile_playdates.html' if use_mobile else 'playdates.html'
+    
     return render_template(
-        'playdates.html', 
+        template, 
         playdates=formatted_playdates, 
         user=user
     )
@@ -75,7 +85,16 @@ def create_playdate():
             
             if not pet_ids:
                 flash('Please select at least one pet for the playdate.', 'error')
-                return render_template('create_playdate.html', user=user, user_pets=user_pets)
+                # Check if we should display the mobile version
+                user_agent = request.user_agent.string
+                is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
+                mode = request.args.get('mode', None)  # Check for manual override
+                
+                return render_template(
+                    'mobile_create_playdate.html' if is_mobile and mode != 'desktop' else 'create_playdate.html', 
+                    user=user, 
+                    user_pets=user_pets
+                )
             
             # Create a new playdate
             new_playdate = Playdate(
@@ -107,9 +126,29 @@ def create_playdate():
             db.session.rollback()
             flash(f'Error creating playdate: {str(e)}', 'error')
             print(f"Error creating playdate: {str(e)}")
-            return render_template('create_playdate.html', user=user, user_pets=user_pets)
+            
+            # Check if we should display the mobile version
+            user_agent = request.user_agent.string
+            is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
+            mode = request.args.get('mode', None)  # Check for manual override
+            
+            return render_template(
+                'mobile_create_playdate.html' if is_mobile and mode != 'desktop' else 'create_playdate.html', 
+                user=user, 
+                user_pets=user_pets
+            )
     
-    return render_template('create_playdate.html', user=user, user_pets=user_pets)
+    # Check if we should display the mobile version
+    user_agent = request.user_agent.string
+    is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
+    return render_template(
+        'mobile_create_playdate.html' if is_mobile and mode != 'desktop' else 'create_playdate.html', 
+        user=user, 
+        user_pets=user_pets, 
+        google_maps_api_key=os.environ.get('GOOGLE_MAPS_API_KEY', '')
+    )
 
 @bp.route('/<int:playdate_id>')
 def view_playdate(playdate_id):
@@ -133,11 +172,33 @@ def view_playdate(playdate_id):
     # Get photos for this playdate
     photos = PlaydatePhoto.query.filter_by(playdate_id=playdate_id).all()
     
+    # Check if the request is from a mobile device
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+    
+    # Check if mode is explicitly specified via query parameter
+    mode = request.args.get('mode', None)
+    use_mobile = is_mobile and mode != 'desktop'
+    
+    # Get all attendees for the playdate
+    attendees = []
+    for pet in playdate.pets:
+        pet_owner = pet.owner
+        if pet_owner.id not in [attendee_info['user'].id for attendee_info in attendees]:
+            attendees.append({
+                'user': pet_owner,
+                'status': 'confirmed'  # Default status, can be customized
+            })
+    
+    template = 'mobile_view_playdate.html' if use_mobile else 'view_playdate.html'
     return render_template(
-        'view_playdate.html', 
+        template,
         playdate=playdate, 
         user=user,
-        photos=photos
+        photos=photos,
+        pets=playdate.pets,
+        attendees=attendees,
+        is_host=(playdate.host_id == user.id)
     )
 
 @bp.route('/<int:playdate_id>/add_photos', methods=['POST'])

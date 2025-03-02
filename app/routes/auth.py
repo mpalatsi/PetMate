@@ -13,6 +13,12 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     print("Register route called with method:", request.method)
+    
+    # Check if we should display the mobile version
+    user_agent = request.user_agent.string
+    is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -25,13 +31,13 @@ def register():
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             flash('Username already exists. Please choose a different one.', 'error')
-            return render_template('register.html')
+            return render_template('mobile_register.html' if is_mobile and mode != 'desktop' else 'register.html')
         
         # Check if email already exists
         existing_email = User.query.filter_by(email=email).first()
         if existing_email:
             flash('Email already registered. Please use a different email or login.', 'error')
-            return render_template('register.html')
+            return render_template('mobile_register.html' if is_mobile and mode != 'desktop' else 'register.html')
         
         # Handle profile picture upload
         profile_picture = None
@@ -87,42 +93,35 @@ def register():
             print(f"Error during registration: {str(e)}")
             flash(f'Error during registration: {str(e)}', 'error')
     
-    return render_template('register.html')
+    # For GET requests, return the appropriate template based on device
+    return render_template('mobile_register.html' if is_mobile and mode != 'desktop' else 'register.html')
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    print("Login route called with method:", request.method)
+    # Check if we should display the mobile version
+    user_agent = request.user_agent.string
+    is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         
-        print(f"Login attempt: username={username}")
-
         user = User.query.filter_by(username=username).first()
         
-        if user:
-            # Debug information
-            print(f"Found user: {username}")
-            flash(f"Found user: {username}", 'info')
+        if user and check_password_hash(user.password, password):
+            session['username'] = username
+            session['user_id'] = user.id
             
-            is_password_valid = check_password_hash(user.password, password)
-            print(f"Password valid: {is_password_valid}")
-            flash(f"Password valid: {is_password_valid}", 'info')
+            # Set last login time
+            user.last_login = datetime.utcnow()
+            db.session.commit()
             
-            if is_password_valid:
-                session['username'] = username
-                session['user_id'] = user.id
-                flash('Login successful!', 'success')
-                print(f"Login successful for: {username}")
-                return redirect(url_for('main.index'))
-            else:
-                print(f"Invalid password for: {username}")
-                flash('Invalid password.', 'error')
+            return redirect(url_for('main.dashboard'))
         else:
-            print(f"No user found with username: {username}")
-            flash(f"No user found with username: {username}", 'error')
-
-    return render_template('login.html')
+            flash('Invalid username or password')
+    
+    return render_template('mobile_login.html' if is_mobile and mode != 'desktop' else 'login.html')
 
 @bp.route('/logout')
 def logout():

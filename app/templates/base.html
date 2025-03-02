@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#F5F1E8">
+    <meta name="supported-color-schemes" content="light">
     <title>{% block title %}PetMate{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='how-it-works.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='feature-cards.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -15,6 +19,20 @@
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
     
     {% block extra_head %}{% endblock %}
+    
+    <!-- Prevent forced dark mode -->
+    <script>
+        // Force light mode to prevent dark mode styling
+        document.documentElement.style.colorScheme = 'light';
+        
+        // Make sure iOS respects our preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F5F1E8');
+        }
+    </script>
+    
+    <!-- Mobile detection script -->
+    <script src="{{ url_for('static', filename='js/mobile-detect.js') }}"></script>
 </head>
 <body>
     <nav>
@@ -193,5 +211,8 @@
         });
     </script>
     {% endif %}
+    
+    <!-- Mobile enhancements JavaScript -->
+    <script src="{{ url_for('static', filename='js/mobile.js') }}"></script>
 </body>
 </html> 

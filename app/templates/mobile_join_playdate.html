@@ -1,0 +1,234 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Join Playdate{% endblock %}
+
+{% block header_title %}Join Playdate{% endblock %}
+
+{% block styles %}
+<style>
+    .playdate-info {
+        background-color: white;
+        border-radius: var(--border-radius);
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: var(--box-shadow);
+    }
+    
+    .playdate-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--dark-color);
+    }
+    
+    .playdate-detail {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .playdate-detail i {
+        color: var(--primary-color);
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 20px 0 15px;
+        color: var(--dark-color);
+    }
+    
+    .pet-selection {
+        margin-bottom: 20px;
+    }
+    
+    .pet-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+    }
+    
+    .pet-card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+    }
+    
+    .pet-card.selected {
+        border: 2px solid var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+    }
+    
+    .pet-card-image {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+    }
+    
+    .pet-card-content {
+        padding: 10px;
+    }
+    
+    .pet-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    
+    .pet-details {
+        font-size: 0.8rem;
+        color: var(--gray-color);
+    }
+    
+    .pet-checkbox {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        height: 20px;
+        width: 20px;
+        opacity: 0;
+        z-index: 2;
+    }
+    
+    .pet-checkbox-indicator {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        height: 20px;
+        width: 20px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: transparent;
+        font-size: 0.8rem;
+        border: 1px solid #ddd;
+        transition: all 0.2s;
+    }
+    
+    .pet-checkbox:checked + .pet-checkbox-indicator {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 30px 20px;
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--light-gray-color);
+        margin-bottom: 15px;
+    }
+    
+    .empty-state-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--dark-color);
+    }
+    
+    .empty-state-text {
+        color: var(--gray-color);
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="playdate-info">
+    <h2 class="playdate-title">{{ playdate.title }}</h2>
+    <div class="playdate-detail">
+        <i class="fas fa-calendar"></i>
+        <span>{{ playdate.date.strftime('%A, %B %d, %Y') }}</span>
+    </div>
+    <div class="playdate-detail">
+        <i class="fas fa-clock"></i>
+        <span>{{ playdate.start_time.strftime('%I:%M %p') }} - {{ playdate.end_time.strftime('%I:%M %p') }}</span>
+    </div>
+    <div class="playdate-detail">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>{{ playdate.location }}</span>
+    </div>
+    <div class="playdate-detail">
+        <i class="fas fa-user"></i>
+        <span>Hosted by {{ playdate.host.username }}</span>
+    </div>
+</div>
+
+{% if user_pets %}
+<form method="POST" action="{{ url_for('main.join_playdate', playdate_id=playdate.id) }}">
+    <h3 class="section-title">Select pets to bring</h3>
+    <div class="pet-selection">
+        <div class="pet-cards">
+            {% for pet in user_pets %}
+            <div class="pet-card">
+                <img src="{{ pet.profile_image or url_for('static', filename='images/default_pet.jpg') }}" alt="{{ pet.name }}" class="pet-card-image">
+                <div class="pet-card-content">
+                    <div class="pet-name">{{ pet.name }}</div>
+                    <div class="pet-details">{{ pet.species }}, {{ pet.breed }}</div>
+                </div>
+                <input type="checkbox" name="selected_pets" value="{{ pet.id }}" class="pet-checkbox" id="pet-{{ pet.id }}">
+                <label for="pet-{{ pet.id }}" class="pet-checkbox-indicator">
+                    <i class="fas fa-check"></i>
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="action-buttons">
+        <button type="submit" class="btn btn-primary btn-block">Join Playdate</button>
+        <a href="{{ url_for('main.view_playdate', playdate_id=playdate.id) }}" class="btn btn-outline btn-block">Cancel</a>
+    </div>
+</form>
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-paw"></i>
+    <h3 class="empty-state-title">No pets found</h3>
+    <p class="empty-state-text">You need to add a pet before you can join a playdate.</p>
+    <a href="{{ url_for('main.add_pet') }}" class="btn btn-primary">Add a Pet</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add visual feedback when a pet is selected
+        const petCheckboxes = document.querySelectorAll('.pet-checkbox');
+        
+        petCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const petCard = this.closest('.pet-card');
+                if (this.checked) {
+                    petCard.classList.add('selected');
+                } else {
+                    petCard.classList.remove('selected');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

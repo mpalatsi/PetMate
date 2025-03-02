@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#6B8E23">
+    <title>{{ pet.name }} - PetMate</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile_styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        :root {
+            --sage-green: #6B8E23;
+            --sage-green-light: #8FBC8F;
+            --sage-green-dark: #556B2F;
+            --sage-green-lighter: #E8F5E9;
+        }
+        
+        /* Force light mode */
+        body {
+            background-color: #f8f8f8;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .mobile-pet-header {
+            background-color: var(--sage-green);
+            color: white;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+            height: 250px;
+        }
+        
+        .mobile-pet-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .mobile-pet-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            background-color: var(--sage-green-light);
+        }
+        
+        .mobile-pet-header-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.7));
+            padding: 20px 15px;
+            z-index: 2;
+        }
+        
+        .mobile-pet-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .mobile-pet-breed {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 5px 0 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .mobile-back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 3;
+            background-color: rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            text-decoration: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .mobile-pet-content {
+            padding: 20px 16px;
+        }
+        
+        .mobile-pet-owner {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .mobile-owner-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 12px;
+            background-color: var(--sage-green-lighter);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--sage-green);
+            font-size: 1.3rem;
+        }
+        
+        .mobile-owner-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .mobile-owner-info {
+            flex: 1;
+        }
+        
+        .mobile-owner-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        
+        .mobile-owner-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .mobile-pet-section {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .mobile-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--sage-green-dark);
+            margin: 0 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .mobile-section-title i {
+            margin-right: 8px;
+            color: var(--sage-green);
+        }
+        
+        .mobile-pet-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .mobile-pet-detail {
+            display: flex;
+            align-items: center;
+        }
+        
+        .mobile-detail-icon {
+            width: 36px;
+            height: 36px;
+            background-color: var(--sage-green-lighter);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: var(--sage-green);
+        }
+        
+        .mobile-detail-content {
+            flex: 1;
+        }
+        
+        .mobile-detail-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 2px;
+        }
+        
+        .mobile-detail-value {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .mobile-pet-description {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #444;
+            white-space: pre-wrap;
+        }
+        
+        .mobile-pet-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .mobile-pet-action {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 14px;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mobile-pet-action.primary {
+            background-color: var(--sage-green);
+            color: white;
+        }
+        
+        .mobile-pet-action i {
+            font-size: 1.3rem;
+        }
+        
+        .mobile-pet-action span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .mobile-health-info {
+            margin-top: 10px;
+        }
+        
+        .mobile-health-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .mobile-health-icon {
+            width: 24px;
+            text-align: center;
+            margin-right: 10px;
+            color: var(--sage-green);
+        }
+        
+        .mobile-health-text {
+            flex: 1;
+            font-size: 0.95rem;
+        }
+        
+        .mobile-status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background-color: var(--sage-green-lighter);
+            color: var(--sage-green-dark);
+            margin-top: 5px;
+        }
+        
+        .mobile-favorite-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        
+        .mobile-favorite-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .mobile-favorite-icon {
+            width: 24px;
+            text-align: center;
+            margin-right: 10px;
+            color: var(--sage-green);
+        }
+        
+        .mobile-favorite-text {
+            flex: 1;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="mobile-pet-header">
+        <a href="{{ url_for('pets.my_pets') }}" class="mobile-back-button mobile-touch-feedback">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        
+        {% if pet.image_filename %}
+            <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}" class="mobile-pet-image">
+        {% else %}
+            <div class="mobile-pet-image-placeholder">
+                <i class="fas fa-paw"></i>
+            </div>
+        {% endif %}
+        
+        <div class="mobile-pet-header-overlay">
+            <h1 class="mobile-pet-name">{{ pet.name }}</h1>
+            <p class="mobile-pet-breed">{{ pet.breed }}</p>
+        </div>
+    </header>
+    
+    <div class="mobile-pet-content">
+        <div class="mobile-pet-owner">
+            <div class="mobile-owner-avatar">
+                {% if owner.profile_picture %}
+                    <img src="{{ url_for('static', filename='profile_pictures/' + owner.profile_picture) }}" alt="{{ owner.username }}">
+                {% else %}
+                    <i class="fas fa-user"></i>
+                {% endif %}
+            </div>
+            <div class="mobile-owner-info">
+                <div class="mobile-owner-label">Owner</div>
+                <div class="mobile-owner-name">{{ owner.username }}</div>
+            </div>
+            {% if not is_owner %}
+                <a href="{{ url_for('messages.send_message', recipient_id=owner.id) }}" class="mobile-message-owner mobile-touch-feedback" style="text-decoration: none; color: var(--sage-green); padding: 8px;">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            {% endif %}
+        </div>
+        
+        <div class="mobile-pet-section">
+            <h2 class="mobile-section-title"><i class="fas fa-info-circle"></i> Basic Info</h2>
+            <div class="mobile-pet-details">
+                <div class="mobile-pet-detail">
+                    <div class="mobile-detail-icon">
+                        <i class="fas fa-paw"></i>
+                    </div>
+                    <div class="mobile-detail-content">
+                        <div class="mobile-detail-label">Species</div>
+                        <div class="mobile-detail-value">{{ pet.species }}</div>
+                    </div>
+                </div>
+                
+                <div class="mobile-pet-detail">
+                    <div class="mobile-detail-icon">
+                        <i class="fas fa-birthday-cake"></i>
+                    </div>
+                    <div class="mobile-detail-content">
+                        <div class="mobile-detail-label">Age</div>
+                        <div class="mobile-detail-value">{{ pet.age }} years</div>
+                    </div>
+                </div>
+                
+                <div class="mobile-pet-detail">
+                    <div class="mobile-detail-icon">
+                        <i class="fas fa-ruler"></i>
+                    </div>
+                    <div class="mobile-detail-content">
+                        <div class="mobile-detail-label">Size</div>
+                        <div class="mobile-detail-value">{{ pet.size }}</div>
+                    </div>
+                </div>
+                
+                <div class="mobile-pet-detail">
+                    <div class="mobile-detail-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="mobile-detail-content">
+                        <div class="mobile-detail-label">Temperament</div>
+                        <div class="mobile-detail-value">{{ pet.temperament }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if pet.needs or pet.dietary_restrictions %}
+        <div class="mobile-pet-section">
+            <h2 class="mobile-section-title"><i class="fas fa-medkit"></i> Health & Needs</h2>
+            <div class="mobile-health-info">
+                {% if pet.needs %}
+                    <div class="mobile-health-item">
+                        <div class="mobile-health-icon">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <div class="mobile-health-text">
+                            <strong>Special Needs:</strong> {{ pet.needs }}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if pet.dietary_restrictions %}
+                    <div class="mobile-health-item">
+                        <div class="mobile-health-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div class="mobile-health-text">
+                            <strong>Dietary Restrictions:</strong> {{ pet.dietary_restrictions }}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if pet.vaccinated %}
+                    <div class="mobile-health-item">
+                        <div class="mobile-health-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="mobile-health-text">
+                            <span class="mobile-status-badge">
+                                <i class="fas fa-syringe"></i> Vaccinated
+                            </span>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if pet.spayed_neutered %}
+                    <div class="mobile-health-item">
+                        <div class="mobile-health-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="mobile-health-text">
+                            <span class="mobile-status-badge">
+                                <i class="fas fa-clipboard-check"></i> Spayed/Neutered
+                            </span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if pet.favorite_toys or pet.favorite_activities or pet.favorite_treats %}
+        <div class="mobile-pet-section">
+            <h2 class="mobile-section-title"><i class="fas fa-star"></i> Favorites</h2>
+            <div class="mobile-favorite-info">
+                {% if pet.favorite_toys %}
+                    <div class="mobile-favorite-item">
+                        <div class="mobile-favorite-icon">
+                            <i class="fas fa-baseball-ball"></i>
+                        </div>
+                        <div class="mobile-favorite-text">
+                            <strong>Toys:</strong> {{ pet.favorite_toys }}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if pet.favorite_activities %}
+                    <div class="mobile-favorite-item">
+                        <div class="mobile-favorite-icon">
+                            <i class="fas fa-running"></i>
+                        </div>
+                        <div class="mobile-favorite-text">
+                            <strong>Activities:</strong> {{ pet.favorite_activities }}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if pet.favorite_treats %}
+                    <div class="mobile-favorite-item">
+                        <div class="mobile-favorite-icon">
+                            <i class="fas fa-bone"></i>
+                        </div>
+                        <div class="mobile-favorite-text">
+                            <strong>Treats:</strong> {{ pet.favorite_treats }}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Additional details section for any custom fields -->
+        {% if pet.description %}
+        <div class="mobile-pet-section">
+            <h2 class="mobile-section-title"><i class="fas fa-comment-alt"></i> About {{ pet.name }}</h2>
+            <p class="mobile-pet-description">{{ pet.description }}</p>
+        </div>
+        {% endif %}
+        
+        <!-- Action buttons -->
+        {% if is_owner %}
+        <div class="mobile-pet-actions">
+            <a href="{{ url_for('pets.edit_pet', pet_id=pet.id) }}" class="mobile-pet-action mobile-touch-feedback">
+                <i class="fas fa-edit"></i>
+                <span>Edit Profile</span>
+            </a>
+            <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-pet-action primary mobile-touch-feedback">
+                <i class="fas fa-calendar-plus"></i>
+                <span>Schedule Playdate</span>
+            </a>
+        </div>
+        {% else %}
+        <div class="mobile-pet-actions">
+            <a href="{{ url_for('main.search') }}" class="mobile-pet-action mobile-touch-feedback">
+                <i class="fas fa-search"></i>
+                <span>Find More Playmates</span>
+            </a>
+            <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-pet-action primary mobile-touch-feedback">
+                <i class="fas fa-calendar-plus"></i>
+                <span>Invite to Playdate</span>
+            </a>
+        </div>
+        {% endif %}
+        
+        <p style="text-align: center; margin: 30px 0 10px;">
+            <a href="{{ url_for('pets.view_pet', pet_id=pet.id) }}?mode=desktop" style="color: var(--sage-green); text-decoration: none; font-size: 0.9rem;">
+                <i class="fas fa-desktop"></i> View Desktop Version
+            </a>
+        </p>
+    </div>
+    
+    <script>
+        // Force light mode
+        document.documentElement.style.colorScheme = 'light';
+        
+        // Add ripple effect to buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const touchElements = document.querySelectorAll('.mobile-touch-feedback');
+            
+            touchElements.forEach(element => {
+                element.addEventListener('touchstart', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.touches[0].clientX - rect.left;
+                    const y = e.touches[0].clientY - rect.top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.position = 'absolute';
+                    ripple.style.width = '100px';
+                    ripple.style.height = '100px';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
+                    ripple.style.transform = 'scale(0)';
+                    ripple.style.left = `${x - 50}px`;
+                    ripple.style.top = `${y - 50}px`;
+                    ripple.style.animation = 'ripple 0.6s linear';
+                    ripple.style.pointerEvents = 'none';
+                    
+                    this.style.position = this.style.position || 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+        
+        // Add animation keyframe
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2.5);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html> 

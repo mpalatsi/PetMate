@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#8BC34A">
+    <title>Search Results - PetMate</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile_styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Override dark mode */
+        :root {
+            color-scheme: light only;
+        }
+        
+        /* Mobile search results page */
+        .mobile-page-header {
+            background-color: var(--sage-green);
+            color: white;
+            padding: 16px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .mobile-page-title {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .mobile-results-count {
+            background-color: var(--sage-green-lighter);
+            color: var(--dark-text);
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .mobile-sort-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .mobile-sort-control select {
+            padding: 4px 6px;
+            border-radius: 20px;
+            border: 1px solid var(--sage-green);
+            background-color: white;
+            font-size: 0.8rem;
+        }
+        
+        .mobile-search-result-card {
+            margin: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .mobile-result-header {
+            background-color: var(--sage-green-lighter);
+            padding: 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .mobile-result-datetime {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .mobile-result-date, .mobile-result-time {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark-text);
+        }
+        
+        .mobile-result-location {
+            font-size: 0.9rem;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .mobile-distance-badge {
+            background-color: white;
+            color: var(--sage-green);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid var(--sage-green);
+        }
+        
+        .mobile-result-content {
+            padding: 14px;
+        }
+        
+        .mobile-result-host {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .mobile-host-label {
+            font-weight: 500;
+            color: var(--dark-text);
+            font-size: 0.85rem;
+        }
+        
+        .mobile-host-name {
+            color: var(--dark-text);
+            font-size: 0.85rem;
+        }
+        
+        .mobile-result-description {
+            margin-bottom: 14px;
+            font-size: 0.9rem;
+            color: var(--dark-text);
+            line-height: 1.4;
+        }
+        
+        .mobile-result-pets {
+            margin-bottom: 14px;
+        }
+        
+        .mobile-result-pets h5 {
+            font-size: 0.9rem;
+            margin: 0 0 10px 0;
+            color: var(--dark-text);
+        }
+        
+        .mobile-pet-avatars {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .mobile-pet-avatar {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 60px;
+        }
+        
+        .mobile-pet-avatar img,
+        .mobile-pet-avatar-placeholder {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .mobile-pet-avatar-placeholder {
+            background-color: var(--sage-green-lighter);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--sage-green);
+        }
+        
+        .mobile-pet-name {
+            margin-top: 4px;
+            font-size: 0.75rem;
+            text-align: center;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .mobile-result-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .mobile-action-btn {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 1;
+            font-weight: 500;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mobile-action-btn.primary {
+            background-color: var(--sage-green);
+            color: white;
+        }
+        
+        .mobile-action-btn.secondary {
+            background-color: var(--light-background);
+            color: var(--dark-text);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .mobile-action-btn .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.4);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+            width: 100px;
+            height: 100px;
+            transform-origin: center;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+        
+        .mobile-no-results {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .mobile-no-results p {
+            margin-bottom: 15px;
+            color: var(--dark-text);
+            font-size: 0.95rem;
+        }
+        
+        .mobile-bottom-action {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            display: flex;
+            gap: 10px;
+            padding: 12px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 3;
+        }
+        
+        /* Add padding to prevent content from being hidden behind fixed bottom bar */
+        .mobile-content-container {
+            padding-bottom: 70px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile nav bar -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PetMate" class="mobile-logo">
+        </div>
+        
+        <div class="mobile-nav-actions">
+            {% if 'username' in session %}
+                <a href="{{ url_for('user.profile') }}" class="mobile-nav-profile">
+                    <i class="fas fa-user-circle"></i>
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="mobile-btn-login">
+                    Login
+                </a>
+            {% endif %}
+            
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Mobile menu (hidden by default) -->
+    <div class="mobile-menu">
+        <div class="mobile-menu-header">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PetMate" class="mobile-logo">
+            <button class="mobile-close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="mobile-menu-items">
+            <a href="{{ url_for('main.index') }}" class="mobile-menu-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ url_for('main.search') }}" class="mobile-menu-item active">
+                <i class="fas fa-search"></i>
+                <span>Find Playmates</span>
+            </a>
+            {% if 'username' in session %}
+                <a href="{{ url_for('pets.view_pets') }}" class="mobile-menu-item">
+                    <i class="fas fa-paw"></i>
+                    <span>My Pets</span>
+                </a>
+                <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-menu-item">
+                    <i class="fas fa-calendar-plus"></i>
+                    <span>Schedule Playdate</span>
+                </a>
+                <a href="{{ url_for('user.profile') }}" class="mobile-menu-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="{{ url_for('messages.message_list') }}" class="mobile-menu-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="mobile-menu-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="mobile-menu-item">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="mobile-menu-item">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Register</span>
+                </a>
+            {% endif %}
+        </div>
+        
+        <div class="mobile-menu-footer">
+            <a href="{{ url_for('main.search_results') }}?mode=desktop" class="mobile-view-desktop">
+                <i class="fas fa-desktop"></i> View Desktop Version
+            </a>
+        </div>
+    </div>
+    
+    <!-- Page content -->
+    <div class="mobile-page-header">
+        <h1 class="mobile-page-title">Search Results</h1>
+    </div>
+    
+    <div class="mobile-content-container">
+        <div class="mobile-results-count">
+            <div class="results-count-text">
+                {% if results|length == 0 %}
+                    No playdates found
+                {% elif results|length == 1 %}
+                    1 playdate found
+                {% else %}
+                    {{ results|length }} playdates found
+                {% endif %}
+            </div>
+            <div class="mobile-sort-control">
+                <label for="mobile-sort">Sort:</label>
+                <select id="mobile-sort" onchange="sortResults(this.value)">
+                    <option value="date">Date</option>
+                    <option value="distance" {% if sort_by == 'distance' %}selected{% endif %}>Distance</option>
+                </select>
+            </div>
+        </div>
+        
+        {% if results %}
+            <div class="mobile-search-results">
+                {% for result in results %}
+                    <div class="mobile-search-result-card">
+                        <div class="mobile-result-header">
+                            <div class="mobile-result-datetime">
+                                <div class="mobile-result-date">
+                                    <i class="fas fa-calendar"></i> {{ result.playdate.date.strftime('%b %d, %Y') }}
+                                </div>
+                                <div class="mobile-result-time">
+                                    <i class="fas fa-clock"></i> {{ result.playdate.date.strftime('%I:%M %p') }}
+                                </div>
+                            </div>
+                            <div class="mobile-result-location">
+                                <div><i class="fas fa-map-marker-alt"></i> {{ result.playdate.location }}</div>
+                                {% if result.distance %}
+                                    <div class="mobile-distance-badge">
+                                        <i class="fas fa-route"></i> {{ result.distance|round(1) }} mi
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mobile-result-content">
+                            <div class="mobile-result-host">
+                                <span class="mobile-host-label">Host:</span>
+                                <span class="mobile-host-name">{{ result.playdate.host.username }}</span>
+                            </div>
+                            
+                            {% if result.playdate.description %}
+                                <div class="mobile-result-description">
+                                    {{ result.playdate.description }}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="mobile-result-pets">
+                                <h5><i class="fas fa-paw"></i> Pets attending:</h5>
+                                <div class="mobile-pet-avatars">
+                                    {% for pet in result.playdate.pets %}
+                                        <div class="mobile-pet-avatar">
+                                            {% if pet.image_filename %}
+                                                <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                            {% else %}
+                                                <div class="mobile-pet-avatar-placeholder">
+                                                    <i class="fas fa-paw"></i>
+                                                </div>
+                                            {% endif %}
+                                            <span class="mobile-pet-name">{{ pet.name }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="mobile-result-actions">
+                                <a href="{{ url_for('main.view_playdate', playdate_id=result.playdate.id) }}" class="mobile-action-btn secondary mobile-touch-feedback">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a href="{{ url_for('main.join_playdate', playdate_id=result.playdate.id) }}" class="mobile-action-btn primary mobile-touch-feedback">
+                                    <i class="fas fa-plus-circle"></i> Join
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="mobile-no-results">
+                <p>No playdates found matching your search criteria.</p>
+                <p>Try adjusting your search parameters or create your own playdate!</p>
+                <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-action-btn primary mobile-touch-feedback" style="display: inline-block; max-width: 200px; margin-top: 10px;">
+                    <i class="fas fa-plus"></i> Create Playdate
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="mobile-bottom-action">
+        <a href="{{ url_for('main.search') }}" class="mobile-action-btn secondary mobile-touch-feedback">
+            <i class="fas fa-search"></i> New Search
+        </a>
+        <a href="{{ url_for('main.view_playdates') }}" class="mobile-action-btn primary mobile-touch-feedback">
+            <i class="fas fa-calendar-alt"></i> My Playdates
+        </a>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enforce light mode
+            document.documentElement.style.colorScheme = 'light';
+            
+            // Mobile menu toggle
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            const closeMenu = document.querySelector('.mobile-close-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            
+            if (menuToggle && closeMenu && mobileMenu) {
+                menuToggle.addEventListener('click', function() {
+                    mobileMenu.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling
+                });
+                
+                closeMenu.addEventListener('click', function() {
+                    mobileMenu.classList.remove('active');
+                    document.body.style.overflow = ''; // Enable scrolling
+                });
+            }
+            
+            // Apply ripple effect to touch elements
+            const touchButtons = document.querySelectorAll('.mobile-touch-feedback');
+            
+            touchButtons.forEach(button => {
+                button.addEventListener('touchstart', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.touches[0].clientX - rect.left;
+                    const y = e.touches[0].clientY - rect.top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+        
+        function sortResults(sortBy) {
+            // Add the sort parameter to the current URL and reload
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort_by', sortBy);
+            window.location.href = url.toString();
+        }
+    </script>
+</body>
+</html> 

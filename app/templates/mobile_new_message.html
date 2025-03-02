@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#6B8E23">
+    <title>New Message - PetMate</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile_styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        :root {
+            --sage-green: #6B8E23;
+            --sage-green-light: #8FBC8F;
+            --sage-green-dark: #556B2F;
+            --sage-green-lighter: #E8F5E9;
+        }
+        
+        /* Force light mode */
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background-color: var(--sage-green);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            padding: 15px;
+        }
+        
+        .back-button {
+            color: white;
+            text-decoration: none;
+            margin-right: 15px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .chat-title {
+            flex: 1;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 80px 15px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .recipient-selection {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .user-select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 15px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 15px;
+        }
+        
+        .message-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .message-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            font-size: 1rem;
+            color: #333;
+            resize: vertical;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+        
+        .send-button {
+            background-color: var(--sage-green);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .send-button i {
+            margin-right: 8px;
+        }
+        
+        .desktop-link {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.8rem;
+        }
+        
+        .desktop-link a {
+            color: var(--sage-green);
+            text-decoration: none;
+        }
+        
+        .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="chat-header">
+        <a href="{{ url_for('messages.inbox') }}" class="back-button mobile-touch-feedback">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="chat-title">New Message</h1>
+    </header>
+    
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="error-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('messages.new_message') }}">
+            <div class="recipient-selection">
+                <label for="recipient" class="form-label">Send to:</label>
+                <select name="recipient" id="recipient" class="user-select" required>
+                    <option value="" disabled selected>Select a user</option>
+                    {% for user in users %}
+                        <option value="{{ user.username }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="message-container">
+                <textarea name="message" placeholder="Type your message here..." class="message-textarea" required></textarea>
+                <button type="submit" class="send-button mobile-touch-feedback">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </div>
+        </form>
+        
+        <div class="desktop-link">
+            <a href="{{ url_for('messages.new_message') }}?mode=desktop">
+                <i class="fas fa-desktop"></i> View Desktop Version
+            </a>
+        </div>
+    </main>
+    
+    <script>
+        // Force light mode
+        document.documentElement.style.colorScheme = 'light';
+        
+        // Add ripple effect to buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const touchElements = document.querySelectorAll('.mobile-touch-feedback');
+            
+            touchElements.forEach(element => {
+                element.addEventListener('touchstart', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.touches[0].clientX - rect.left;
+                    const y = e.touches[0].clientY - rect.top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.position = 'absolute';
+                    ripple.style.width = '100px';
+                    ripple.style.height = '100px';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
+                    ripple.style.transform = 'scale(0)';
+                    ripple.style.left = `${x - 50}px`;
+                    ripple.style.top = `${y - 50}px`;
+                    ripple.style.animation = 'ripple 0.6s linear';
+                    ripple.style.pointerEvents = 'none';
+                    
+                    this.style.position = this.style.position || 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+        
+        // Add animation keyframe
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2.5);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html> 

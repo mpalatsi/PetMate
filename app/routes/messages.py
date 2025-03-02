@@ -48,8 +48,18 @@ def inbox():
         reverse=True
     )
     
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+    
+    # Check if mode is explicitly specified via query parameter
+    mode = request.args.get('mode', None)
+    use_mobile = is_mobile and mode != 'desktop'
+    
+    template = 'mobile_messages.html' if use_mobile else 'messages.html'
+    
     return render_template(
-        'messages.html',
+        template,
         conversations=conversations_list,
         current_user=user
     )
@@ -90,8 +100,18 @@ def conversation(user_id):
     
     db.session.commit()
     
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+    
+    # Check if mode is explicitly specified via query parameter
+    mode = request.args.get('mode', None)
+    use_mobile = is_mobile and mode != 'desktop'
+    
+    template = 'mobile_conversation.html' if use_mobile else 'conversation.html'
+    
     return render_template(
-        'conversation.html',
+        template,
         messages=messages,
         current_user=current_user,
         other_user=other_user
@@ -130,7 +150,17 @@ def new_message():
     # Get all users except current user
     users = User.query.filter(User.id != current_user.id).all()
     
-    return render_template('new_message.html', users=users)
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+    
+    # Check if mode is explicitly specified via query parameter
+    mode = request.args.get('mode', None)
+    use_mobile = is_mobile and mode != 'desktop'
+    
+    template = 'mobile_new_message.html' if use_mobile else 'new_message.html'
+    
+    return render_template(template, users=users, current_user=current_user)
 
 @bp.route('/api/send', methods=['POST'])
 def api_send_message():
@@ -172,7 +202,7 @@ def api_send_message():
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@bp.route('/playdate/<int:playdate_id>/chat', methods=['GET', 'POST'])
+@bp.route('/playdate/<int:playdate_id>', methods=['GET', 'POST'])
 def playdate_group_chat(playdate_id):
     if 'username' not in session:
         return redirect(url_for('auth.login'))
@@ -213,8 +243,18 @@ def playdate_group_chat(playdate_id):
             'is_host': user.id == playdate.host_id
         })
     
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+    
+    # Check if mode is explicitly specified via query parameter
+    mode = request.args.get('mode', None)
+    use_mobile = is_mobile and mode != 'desktop'
+    
+    template = 'mobile_playdate_group_chat.html' if use_mobile else 'playdate_group_chat.html'
+    
     return render_template(
-        'playdate_group_chat.html',
+        template,
         playdate=playdate,
         participants=formatted_participants,
         current_user=current_user

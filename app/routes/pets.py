@@ -18,7 +18,13 @@ def my_pets():
         return redirect(url_for('auth.login'))  # Redirect if user is not found
     
     pets = user.pets  # Assuming you have a relationship set up
-    return render_template('my_pets.html', pets=pets)
+    
+    # Check if we should display the mobile version
+    user_agent = request.user_agent.string
+    is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
+    return render_template('mobile_my_pets.html' if is_mobile and mode != 'desktop' else 'my_pets.html', pets=pets)
 
 @bp.route('/add', methods=['GET', 'POST'])
 def add_pet():
@@ -140,4 +146,48 @@ def delete_pet(pet_id):
             return redirect(url_for('pets.my_pets'))
 
     flash('Pet not found or you do not have permission to delete this pet.', 'error')
-    return redirect(url_for('pets.my_pets')) 
+    return redirect(url_for('pets.my_pets'))
+
+@bp.route('/pet/<int:pet_id>')
+def view_pet(pet_id):
+    """
+    View a single pet's profile.
+    
+    Args:
+        pet_id: The ID of the pet to view
+        
+    Returns:
+        Rendered template for the pet's profile
+    """
+    # Check if user is logged in
+    if 'username' not in session:
+        return redirect(url_for('auth.login'))
+    
+    # Get the current user and the requested pet
+    current_user = User.query.filter_by(username=session['username']).first()
+    pet = Pet.query.get_or_404(pet_id)
+    
+    # Get the pet's owner
+    owner = User.query.get(pet.owner_id)
+    
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+    
+    # Check if mode is explicitly specified via query parameter
+    mode = request.args.get('mode', None)
+    use_mobile = is_mobile and mode != 'desktop'
+    
+    # Set the template based on device type
+    template = 'mobile_view_pet.html' if use_mobile else 'view_pet.html'
+    
+    # Check if the current user is the owner
+    is_owner = current_user.id == pet.owner_id
+    
+    return render_template(
+        template,
+        pet=pet,
+        owner=owner,
+        is_owner=is_owner,
+        user=current_user
+    ) 

@@ -14,7 +14,23 @@ bp = Blueprint('main', __name__)
 
 @bp.route('/')
 def index():
+    # Check if user has a mobile preference in their session
+    mobile_preference = request.cookies.get('preferMobileVersion')
+    
+    # Check if it's a mobile device
+    user_agent = request.user_agent.string
+    is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
+    
+    # If mobile and no preference set to desktop, redirect to mobile version
+    if is_mobile and mobile_preference != 'false':
+        return redirect(url_for('main.mobile_index'))
+        
     return render_template('index.html')
+
+@bp.route('/mobile')
+def mobile_index():
+    """Mobile-optimized version of the homepage"""
+    return render_template('mobile_index.html')
 
 @bp.route('/profile')
 def profile():
@@ -25,6 +41,15 @@ def profile():
     
     if user is None:
         return redirect(url_for('auth.login'))
+    
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent.lower() for device in ['iphone', 'android', 'mobile', 'tablet'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
+    # For mobile, redirect to the view_profile route which already has mobile support
+    if is_mobile and mode != 'desktop':
+        return redirect(url_for('main.view_profile', user_id=user.id))
     
     # Get user's pets
     pets = Pet.query.filter_by(owner_id=user.id).all()
@@ -78,11 +103,22 @@ def view_profile(user_id):
     recent_playdates.sort(key=lambda x: x.date, reverse=True)
     recent_playdates = recent_playdates[:5]  # Limit to 5 most recent
     
+    # Get the current user's ID for the template to check if viewing own profile
+    current_user_id = User.query.filter_by(username=session['username']).first().id
+    
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent.lower() for device in ['iphone', 'android', 'mobile', 'tablet'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
+    template = 'mobile_view_profile.html' if is_mobile and mode != 'desktop' else 'view_profile.html'
+    
     return render_template(
-        'view_profile.html', 
+        template, 
         user=user, 
         pets=pets,
-        playdates=recent_playdates
+        playdates=recent_playdates,
+        current_user_id=current_user_id
     )
 
 @bp.route('/edit_profile', methods=['GET', 'POST'])
@@ -204,10 +240,12 @@ def delete_gallery_photo(photo_id):
 
 @bp.route('/search')
 def search():
-    if 'username' not in session:
-        return redirect(url_for('auth.login'))
+    # Check if we should display the mobile version
+    user_agent = request.user_agent.string
+    is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
+    mode = request.args.get('mode', None)  # Check for manual override
     
-    return render_template('search.html')
+    return render_template('mobile_search.html' if is_mobile and mode != 'desktop' else 'search.html')
 
 @bp.route('/search_results', methods=['GET'])
 def search_results():
@@ -317,7 +355,13 @@ def search_results():
         with_distance.sort(key=lambda x: x['distance'])
         results = with_distance + without_distance
     
-    return render_template('search_results.html', results=results, sort_by=sort_by)
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent.lower() for device in ['iphone', 'android', 'mobile', 'tablet'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
+    return render_template('mobile_search_results.html' if is_mobile and mode != 'desktop' else 'search_results.html', 
+                          results=results, sort_by=sort_by)
 
 def location_matches_text(playdate_location, search_location):
     """Helper function to determine if a playdate location matches a search term"""
@@ -412,7 +456,18 @@ def dashboard():
         )
     ).order_by(Playdate.date).limit(5).all()
     
-    return render_template('dashboard.html', username=username, user=user, unread_messages=unread_messages, upcoming_playdates=upcoming_playdates)
+    # Check if we should display the mobile version
+    user_agent = request.user_agent.string
+    is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
+    return render_template(
+        'mobile_dashboard.html' if is_mobile and mode != 'desktop' else 'dashboard.html', 
+        username=username, 
+        user=user, 
+        unread_messages=unread_messages, 
+        upcoming_playdates=upcoming_playdates
+    )
 
 @bp.route('/resources/safety-guidelines')
 def safety_guidelines():
@@ -460,8 +515,18 @@ def view_playdates():
             "pets": pets
         })
     
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+    
+    # Check if mode is explicitly specified via query parameter
+    mode = request.args.get('mode', None)
+    use_mobile = is_mobile and mode != 'desktop'
+    
+    template = 'mobile_playdates.html' if use_mobile else 'playdates.html'
+    
     return render_template(
-        'playdates.html', 
+        template, 
         playdates=formatted_playdates, 
         user=user
     )
@@ -510,8 +575,18 @@ def view_playdate(playdate_id):
         # Format the data for the template
         attendees = [{'user': user, 'status': status} for user, status in attendees_info]
     
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+    
+    # Check if mode is explicitly specified via query parameter
+    mode = request.args.get('mode', None)
+    use_mobile = is_mobile and mode != 'desktop'
+    
+    template = 'mobile_view_playdate.html' if use_mobile else 'view_playdate.html'
+    
     return render_template(
-        'view_playdate.html', 
+        template, 
         playdate=playdate, 
         user=user,
         current_user=user,
@@ -553,8 +628,19 @@ def join_playdate(playdate_id):
         
         if not selected_pet_ids:
             flash('Please select at least one pet to join the playdate.', 'error')
+            
+            # Check if we should display the mobile version
+            user_agent = request.headers.get('User-Agent', '').lower()
+            is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+            
+            # Check if mode is explicitly specified via query parameter
+            mode = request.args.get('mode', None)
+            use_mobile = is_mobile and mode != 'desktop'
+            
+            template = 'mobile_join_playdate.html' if use_mobile else 'join_playdate.html'
+            
             return render_template(
-                'join_playdate.html',
+                template,
                 playdate=playdate,
                 user=user,
                 user_pets=user_pets
@@ -574,8 +660,18 @@ def join_playdate(playdate_id):
             db.session.rollback()
             flash(f'Error joining playdate: {str(e)}', 'error')
     
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+    
+    # Check if mode is explicitly specified via query parameter
+    mode = request.args.get('mode', None)
+    use_mobile = is_mobile and mode != 'desktop'
+    
+    template = 'mobile_join_playdate.html' if use_mobile else 'join_playdate.html'
+    
     return render_template(
-        'join_playdate.html',
+        template,
         playdate=playdate,
         user=user,
         user_pets=user_pets

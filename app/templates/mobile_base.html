@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}PetMate{% endblock %} - PetMate</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Base CSS -->
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #F5A623;
+            --accent-color: #50E3C2;
+            --danger-color: #E74C3C;
+            --success-color: #2ECC71;
+            --warning-color: #F39C12;
+            --info-color: #3498DB;
+            --light-color: #F8F9FA;
+            --dark-color: #343A40;
+            --gray-color: #6C757D;
+            --light-gray-color: #E9ECEF;
+            --white-color: #FFFFFF;
+            --black-color: #000000;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding-bottom: 70px; /* Space for mobile footer */
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            padding: 0 15px;
+            margin: 0 auto;
+        }
+        
+        /* Mobile Header */
+        .mobile-header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mobile-header h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Mobile Footer Navigation */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--gray-color);
+            text-decoration: none;
+            font-size: 0.7rem;
+            padding: 5px;
+        }
+        
+        .nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            padding: 15px;
+            margin-bottom: 60px;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            font-weight: 500;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            user-select: none;
+            border: 1px solid transparent;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: var(--border-radius);
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gray-color);
+            color: var(--gray-color);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 15px;
+        }
+        
+        .flash-message {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+        }
+        
+        .flash-success {
+            background-color: rgba(46, 204, 113, 0.2);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+        
+        .flash-error {
+            background-color: rgba(231, 76, 60, 0.2);
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+        
+        .flash-info {
+            background-color: rgba(52, 152, 219, 0.2);
+            border: 1px solid var(--info-color);
+            color: var(--info-color);
+        }
+        
+        .flash-warning {
+            background-color: rgba(243, 156, 18, 0.2);
+            border: 1px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+        
+        /* Touch Ripple Effect */
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    </style>
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    {% block header %}
+    <header class="mobile-header">
+        <button class="back-button" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1>{% block header_title %}PetMate{% endblock %}</h1>
+        <div style="width: 24px;"></div> <!-- Spacer for alignment -->
+    </header>
+    {% endblock %}
+    
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <div class="main-content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    
+    {% block footer %}
+    <nav class="mobile-nav">
+        <a href="{{ url_for('main.index') }}" class="nav-item {% if request.endpoint == 'main.index' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{{ url_for('main.search') }}" class="nav-item {% if request.endpoint == 'main.search' %}active{% endif %}">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </a>
+        <a href="{{ url_for('main.my_pets') }}" class="nav-item {% if request.endpoint == 'main.my_pets' %}active{% endif %}">
+            <i class="fas fa-paw"></i>
+            <span>My Pets</span>
+        </a>
+        <a href="{{ url_for('main.messages') }}" class="nav-item {% if request.endpoint == 'main.messages' %}active{% endif %}">
+            <i class="fas fa-envelope"></i>
+            <span>Messages</span>
+        </a>
+        <a href="{{ url_for('main.view_profile', username=session.username) }}" class="nav-item {% if request.endpoint == 'main.view_profile' and username == session.username %}active{% endif %}">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+    {% endblock %}
+    
+    <!-- Base JavaScript -->
+    <script>
+        // Add ripple effect to buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.btn');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const x = e.clientX - e.target.getBoundingClientRect().left;
+                    const y = e.clientY - e.target.getBoundingClientRect().top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html> 

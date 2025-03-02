@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#F5F1E8">
+    <meta name="supported-color-schemes" content="light">
+    <title>Create Playdate - PetMate</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="any">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-homepage.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Additional styles specific to the create playdate page */
+        .mobile-page-header {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            background-color: var(--warm-brown);
+            color: white;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mobile-page-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        
+        .mobile-page-header p {
+            font-size: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .mobile-form-container {
+            background-color: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 0 1rem 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .mobile-form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .mobile-form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--deep-forest);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .mobile-form-input {
+            width: 100%;
+            padding: 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            background-color: #fcfcfc;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .mobile-form-input:focus {
+            outline: none;
+            border-color: var(--sage-green);
+            box-shadow: 0 0 0 3px rgba(142, 169, 147, 0.25), inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .mobile-form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .mobile-form-hint {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
+        }
+        
+        .mobile-form-section {
+            margin-bottom: 2rem;
+        }
+        
+        .mobile-form-section-title {
+            font-size: 1.1rem;
+            color: var(--deep-forest);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .mobile-form-section-title i {
+            margin-right: 0.5rem;
+            color: var(--sage-green);
+        }
+        
+        .mobile-map-container {
+            height: 250px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+            position: relative;
+            border: 1px solid #eee;
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .mobile-map-fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .mobile-map-fallback i {
+            font-size: 2rem;
+            color: #aaa;
+            margin-bottom: 0.8rem;
+        }
+        
+        .mobile-venue-controls {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+            flex-direction: column;
+        }
+        
+        .mobile-venue-select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            background-color: #fcfcfc;
+        }
+        
+        .mobile-venue-list {
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+        
+        .mobile-date-time-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .mobile-pet-selection {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 0.5rem 0;
+        }
+        
+        .mobile-pet-item {
+            background-color: var(--bg-sage-light);
+            border-radius: 10px;
+            padding: 0.8rem;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .mobile-pet-checkbox {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .mobile-pet-checkbox:checked + .mobile-pet-card {
+            border: 2px solid var(--sage-green);
+            background-color: rgba(142, 169, 147, 0.1);
+        }
+        
+        .mobile-pet-checkbox:checked + .mobile-pet-card::after {
+            content: '✓';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 24px;
+            height: 24px;
+            background-color: var(--sage-green);
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .mobile-pet-card {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 0.5rem;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .mobile-pet-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 0.8rem;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mobile-pet-placeholder {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            color: #aaa;
+            font-size: 1.2rem;
+        }
+        
+        .mobile-pet-info {
+            flex-grow: 1;
+        }
+        
+        .mobile-pet-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--deep-forest);
+            margin: 0 0 0.2rem;
+        }
+        
+        .mobile-pet-breed {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+        
+        .mobile-no-pets {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+        }
+        
+        .mobile-no-pets i {
+            font-size: 2.5rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+        
+        .location-permission-prompt {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .location-permission-prompt i {
+            font-size: 2.5rem;
+            color: var(--sage-green);
+            margin-bottom: 1rem;
+        }
+        
+        .location-permission-prompt p {
+            margin-bottom: 1.2rem;
+            color: var(--deep-forest);
+            font-size: 0.95rem;
+        }
+        
+        .grant-permission-btn {
+            background-color: var(--sage-green) !important;
+            color: white;
+            padding: 0.7rem 1.2rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 500;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    
+    <script>
+        // Force light mode
+        document.documentElement.style.colorScheme = 'light';
+    </script>
+    
+    <!-- Google Maps API Key -->
+    <meta id="google-maps-api" data-key="{{ google_maps_api_key }}">
+    
+    <!-- Map JavaScript - Removing this to avoid conflicts -->
+    <!-- <script src="{{ url_for('static', filename='js/map.js') }}"></script> -->
+</head>
+<body>
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-container">
+            <a href="{{ url_for('main.index') }}" class="mobile-logo">
+                <div class="mobile-logo-icon"></div>
+                <div class="mobile-logo-text">Pet<span class="highlight">Mate</span></div>
+            </a>
+            <div class="mobile-nav-actions">
+                <a href="{{ url_for('main.dashboard') }}" class="mobile-nav-link">
+                    <i class="fas fa-user"></i>
+                </a>
+                <button class="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <div class="mobile-menu-header">
+            <span>Menu</span>
+            <button class="mobile-close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="{{ url_for('main.index') }}" class="mobile-menu-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="{{ url_for('main.search') }}" class="mobile-menu-link">
+                <i class="fas fa-search"></i> Find Playmates
+            </a>
+            <a href="{{ url_for('pets.my_pets') }}" class="mobile-menu-link">
+                <i class="fas fa-paw"></i> My Pets
+            </a>
+            <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-menu-link">
+                <i class="fas fa-calendar-plus"></i> Schedule Playdate
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="mobile-menu-link">
+                <i class="fas fa-user"></i> My Profile
+            </a>
+            <a href="{{ url_for('messages.inbox') }}" class="mobile-menu-link">
+                <i class="fas fa-envelope"></i> Messages
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="mobile-menu-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <main class="mobile-main">
+        <div class="mobile-page-header">
+            <h2>Create Playdate</h2>
+            <p>Schedule a fun meetup for your pets</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('playdates.create_playdate') }}" enctype="multipart/form-data" class="mobile-create-playdate-form">
+            <div class="mobile-form-container">
+                <div class="mobile-form-group">
+                    <label for="description" class="mobile-form-label">Description:</label>
+                    <textarea id="description" name="description" class="mobile-form-input mobile-form-textarea" placeholder="Describe your playdate. For example: 'Dog-friendly meetup at Central Park'" required></textarea>
+                    <span class="mobile-form-hint">Briefly describe the playdate so others know what to expect</span>
+                </div>
+                
+                <div class="mobile-form-section">
+                    <h3 class="mobile-form-section-title"><i class="fas fa-map-marker-alt"></i> Location</h3>
+                    <div class="mobile-form-group">
+                        <label for="location" class="mobile-form-label">Location:</label>
+                        <input type="text" id="location" name="location" class="mobile-form-input location-autocomplete" placeholder="Search for a location or venue" required>
+                        <span class="mobile-form-hint">Type to search for parks, cafes, or other pet-friendly venues</span>
+                    </div>
+                    
+                    <div class="mobile-map-container">
+                        <div id="map" class="mobile-map-fallback">
+                            <div>
+                                <i class="fas fa-map-marker-alt"></i>
+                                <p>Map loading...</p>
+                                <p><small>Enter a location above to see it on the map</small></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mobile-venue-controls">
+                        <button type="button" id="find-venues" class="mobile-cta-button mobile-touch-feedback" disabled>
+                            <i class="fas fa-search-location"></i> Find Dog-Friendly Venues
+                        </button>
+                        <select id="venue-type" class="mobile-venue-select" disabled>
+                            <option value="dog park">Dog Parks</option>
+                            <option value="pet friendly cafe">Pet-Friendly Cafes</option>
+                            <option value="dog beach">Dog Beaches</option>
+                            <option value="dog friendly trail">Dog-Friendly Trails</option>
+                        </select>
+                    </div>
+                    
+                    <div id="venue-list" class="mobile-venue-list"></div>
+                </div>
+                
+                <div class="mobile-date-time-row">
+                    <div class="mobile-form-group">
+                        <label for="date" class="mobile-form-label">Date:</label>
+                        <input type="date" id="date" name="date" class="mobile-form-input" required>
+                    </div>
+                    
+                    <div class="mobile-form-group">
+                        <label for="time" class="mobile-form-label">Time:</label>
+                        <input type="time" id="time" name="time" class="mobile-form-input" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mobile-form-container">
+                <div class="mobile-form-section">
+                    <h3 class="mobile-form-section-title"><i class="fas fa-paw"></i> Your Pets</h3>
+                    
+                    {% if user_pets %}
+                        <label class="mobile-form-label">Select pets to join the playdate:</label>
+                        <div class="mobile-pet-selection">
+                            {% for pet in user_pets %}
+                                <div class="mobile-pet-item">
+                                    <input type="checkbox" id="pet-{{ pet.id }}" name="pet_ids" value="{{ pet.id }}" class="mobile-pet-checkbox">
+                                    <label for="pet-{{ pet.id }}" class="mobile-pet-card mobile-touch-feedback">
+                                        {% if pet.image_filename %}
+                                            <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}" class="mobile-pet-image">
+                                        {% else %}
+                                            <div class="mobile-pet-placeholder">
+                                                <i class="fas fa-paw"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="mobile-pet-info">
+                                            <h4 class="mobile-pet-name">{{ pet.name }}</h4>
+                                            <p class="mobile-pet-breed">{{ pet.breed }}</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="mobile-no-pets">
+                            <i class="fas fa-paw"></i>
+                            <p>You don't have any pets yet.</p>
+                            <a href="{{ url_for('pets.add_pet') }}" class="mobile-cta-button mobile-touch-feedback">
+                                <i class="fas fa-plus"></i> Add a Pet First
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {% if user_pets %}
+                    <div class="mobile-form-group">
+                        <label for="max_pets" class="mobile-form-label">Maximum number of pets:</label>
+                        <input type="number" id="max_pets" name="max_pets" min="1" value="5" class="mobile-form-input">
+                        <span class="mobile-form-hint">Maximum number of pets that can join this playdate</span>
+                    </div>
+                    
+                    <button type="submit" class="mobile-cta-button mobile-cta-button-large mobile-touch-feedback">
+                        <i class="fas fa-calendar-plus"></i> Create Playdate
+                    </button>
+                {% endif %}
+            </div>
+        </form>
+        
+        <p class="desktop-link" style="text-align: center; margin: 2rem 0;">
+            <a href="{{ url_for('playdates.create_playdate') }}?mode=desktop" id="view-desktop-version">View Desktop Version</a>
+        </p>
+    </main>
+
+    <!-- Mobile-specific JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOMContentLoaded fired"); // Debugging
+            
+            // Menu toggle functionality
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            const closeMenu = document.querySelector('.mobile-close-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            
+            if (menuToggle && closeMenu && mobileMenu) {
+                menuToggle.addEventListener('click', function() {
+                    mobileMenu.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling
+                });
+                
+                closeMenu.addEventListener('click', function() {
+                    mobileMenu.classList.remove('active');
+                    document.body.style.overflow = ''; // Enable scrolling
+                });
+            }
+            
+            // Apply ripple effect to touch elements
+            const touchButtons = document.querySelectorAll('.mobile-touch-feedback');
+            
+            touchButtons.forEach(button => {
+                button.addEventListener('touchstart', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.touches[0].clientX - rect.left;
+                    const y = e.touches[0].clientY - rect.top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+            
+            // Set default date to today
+            const dateInput = document.getElementById('date');
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            dateInput.value = `${yyyy}-${mm}-${dd}`;
+            
+            // Set default time to current time + 1 hour, rounded to next half hour
+            const timeInput = document.getElementById('time');
+            let nextHour = new Date();
+            nextHour.setHours(nextHour.getHours() + 1);
+            nextHour.setMinutes(Math.ceil(nextHour.getMinutes() / 30) * 30);
+            const hours = String(nextHour.getHours()).padStart(2, '0');
+            const minutes = String(nextHour.getMinutes()).padStart(2, '0');
+            timeInput.value = `${hours}:${minutes}`;
+            
+            // Simple direct Google Maps implementation
+            let map;
+            let marker;
+            let geocoder;
+            let placesService;
+            
+            // Load Google Maps API directly
+            function loadGoogleMaps() {
+                console.log("loadGoogleMaps called"); // Debugging
+                
+                // Get API key from meta tag
+                const apiKeyMeta = document.getElementById('google-maps-api');
+                if (!apiKeyMeta) {
+                    console.error("Google Maps API key meta tag not found");
+                    return;
+                }
+                
+                const apiKey = apiKeyMeta.getAttribute('data-key');
+                if (!apiKey) {
+                    console.error("Google Maps API key is missing");
+                    return;
+                }
+                
+                console.log("API Key found, loading Google Maps"); // Debugging
+                
+                try {
+                    // Create Google Maps script
+                    const script = document.createElement('script');
+                    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initMap`;
+                    script.async = true;
+                    script.defer = true;
+                    script.onerror = function() {
+                        console.error("Failed to load Google Maps API script");
+                    };
+                    document.head.appendChild(script);
+                    console.log("Google Maps script added to head"); // Debugging
+                } catch (error) {
+                    console.error("Error loading Google Maps:", error);
+                }
+                
+                // This will be called when Google Maps is loaded
+                window.initMap = function() {
+                    console.log("initMap callback fired"); // Debugging
+                    
+                    const mapElement = document.getElementById('map');
+                    if (!mapElement) {
+                        console.error("Map element not found");
+                        return;
+                    }
+                    
+                    console.log("Map element found, initializing map"); // Debugging
+                    
+                    try {
+                        // Clear fallback content and initialize map
+                        mapElement.innerHTML = '';
+                        mapElement.classList.remove('mobile-map-fallback');
+                        
+                        // Default location (use a central location like New York)
+                        const defaultLocation = { lat: 40.7128, lng: -74.0060 };
+                        
+                        // Initialize map
+                        map = new google.maps.Map(mapElement, {
+                            center: defaultLocation,
+                            zoom: 12,
+                            mapTypeControl: false,
+                            fullscreenControl: false,
+                            streetViewControl: false
+                        });
+                        
+                        console.log("Map initialized successfully"); // Debugging
+                        
+                        // Initialize geocoder
+                        geocoder = new google.maps.Geocoder();
+                        
+                        // Initialize autocomplete
+                        const locationInput = document.getElementById('location');
+                        if (locationInput) {
+                            const autocomplete = new google.maps.places.Autocomplete(locationInput, {
+                                types: ['establishment', 'geocode']
+                            });
+                            
+                            autocomplete.bindTo('bounds', map);
+                            
+                            autocomplete.addListener('place_changed', function() {
+                                const place = autocomplete.getPlace();
+                                if (!place.geometry) return;
+                                
+                                // Update map
+                                map.setCenter(place.geometry.location);
+                                map.setZoom(15);
+                                
+                                // Update or create marker
+                                if (marker) marker.setMap(null);
+                                marker = new google.maps.Marker({
+                                    position: place.geometry.location,
+                                    map: map,
+                                    animation: google.maps.Animation.DROP,
+                                    title: place.name
+                                });
+                            });
+                        }
+                        
+                        // Initialize places service for venue search
+                        placesService = new google.maps.places.PlacesService(map);
+                        
+                        // Enable venue search button
+                        const findVenuesButton = document.getElementById('find-venues');
+                        const venueTypeSelect = document.getElementById('venue-type');
+                        
+                        if (findVenuesButton) findVenuesButton.removeAttribute('disabled');
+                        if (venueTypeSelect) venueTypeSelect.removeAttribute('disabled');
+                        
+                        if (findVenuesButton && venueTypeSelect) {
+                            findVenuesButton.addEventListener('click', function() {
+                                const venueType = venueTypeSelect.value;
+                                searchVenues(venueType);
+                            });
+                        }
+                        
+                        // Add location button
+                        const locationButton = document.createElement('button');
+                        locationButton.className = 'mobile-cta-button my-location-btn';
+                        locationButton.innerHTML = '<i class="fas fa-location-arrow"></i> Use My Location';
+                        map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
+                        
+                        locationButton.addEventListener('click', function() {
+                            if (navigator.geolocation) {
+                                // Show loading indicator
+                                const loadingDiv = document.createElement('div');
+                                loadingDiv.className = 'map-loading-overlay';
+                                loadingDiv.innerHTML = `
+                                    <div class="map-loading">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Getting your location...</p>
+                                    </div>
+                                `;
+                                mapElement.appendChild(loadingDiv);
+                                
+                                navigator.geolocation.getCurrentPosition(
+                                    function(position) {
+                                        // Remove loading indicator
+                                        mapElement.removeChild(loadingDiv);
+                                        
+                                        const userLocation = {
+                                            lat: position.coords.latitude,
+                                            lng: position.coords.longitude
+                                        };
+                                        
+                                        map.setCenter(userLocation);
+                                        map.setZoom(15);
+                                        
+                                        if (marker) marker.setMap(null);
+                                        marker = new google.maps.Marker({
+                                            position: userLocation,
+                                            map: map,
+                                            animation: google.maps.Animation.DROP,
+                                            title: 'Your Location'
+                                        });
+                                        
+                                        // Reverse geocode to get address
+                                        geocoder.geocode({ location: userLocation }, function(results, status) {
+                                            if (status === 'OK' && results[0]) {
+                                                const locationInput = document.getElementById('location');
+                                                if (locationInput) {
+                                                    locationInput.value = results[0].formatted_address;
+                                                }
+                                            }
+                                        });
+                                    },
+                                    function(error) {
+                                        // Remove loading indicator
+                                        mapElement.removeChild(loadingDiv);
+                                        
+                                        let errorMessage = "Could not get your location. ";
+                                        
+                                        switch(error.code) {
+                                            case error.PERMISSION_DENIED:
+                                                errorMessage += "Location permission denied.";
+                                                break;
+                                            case error.POSITION_UNAVAILABLE:
+                                                errorMessage += "Location information unavailable.";
+                                                break;
+                                            case error.TIMEOUT:
+                                                errorMessage += "Location request timed out.";
+                                                break;
+                                            default:
+                                                errorMessage += "Unknown error.";
+                                                break;
+                                        }
+                                        
+                                        alert(errorMessage);
+                                        console.error("Geolocation error:", error);
+                                    },
+                                    {
+                                        enableHighAccuracy: true,
+                                        timeout: 10000,
+                                        maximumAge: 0
+                                    }
+                                );
+                            } else {
+                                alert("Geolocation is not supported by this browser.");
+                            }
+                        });
+                    } catch (error) {
+                        console.error("Error in initMap:", error);
+                    }
+                };
+            }
+            
+            // Function to search for venues
+            function searchVenues(venueType) {
+                if (!map || !placesService) return;
+                
+                const venueListElement = document.getElementById('venue-list');
+                if (!venueListElement) return;
+                
+                // Show loading indicator
+                venueListElement.innerHTML = `
+                    <div style="text-align: center; padding: 1rem;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Searching for ${venueType} near this location...</p>
+                    </div>
+                `;
+                
+                const request = {
+                    location: map.getCenter(),
+                    radius: 5000, // 5km radius
+                    query: venueType
+                };
+                
+                placesService.textSearch(request, function(results, status) {
+                    if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+                        displayVenueResults(results, venueListElement);
+                    } else {
+                        venueListElement.innerHTML = `
+                            <div style="text-align: center; padding: 1rem;">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <p>No ${venueType} found near this location.</p>
+                            </div>
+                        `;
+                    }
+                });
+            }
+            
+            // Function to display venue results
+            function displayVenueResults(results, container) {
+                container.innerHTML = '';
+                
+                // Clear existing markers
+                if (window.venueMarkers) {
+                    window.venueMarkers.forEach(marker => marker.setMap(null));
+                }
+                window.venueMarkers = [];
+                
+                // Create bounds to fit all results
+                const bounds = new google.maps.LatLngBounds();
+                
+                results.slice(0, 5).forEach(place => {
+                    // Add marker for this venue
+                    const marker = new google.maps.Marker({
+                        position: place.geometry.location,
+                        map: map,
+                        title: place.name,
+                        icon: {
+                            url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                        }
+                    });
+                    window.venueMarkers.push(marker);
+                    
+                    // Extend bounds to include this marker
+                    bounds.extend(place.geometry.location);
+                    
+                    // Create venue item in the list
+                    const venueItem = document.createElement('div');
+                    venueItem.className = 'venue-item';
+                    venueItem.innerHTML = `
+                        <h4>${place.name}</h4>
+                        <p>${place.formatted_address}</p>
+                        <div class="venue-rating">
+                            ${place.rating ? `<span>${place.rating} ★</span>` : ''}
+                            ${place.user_ratings_total ? `<span>(${place.user_ratings_total} reviews)</span>` : ''}
+                        </div>
+                    `;
+                    
+                    venueItem.addEventListener('click', function() {
+                        // Update location input with selected venue
+                        const locationInput = document.getElementById('location');
+                        if (locationInput) {
+                            locationInput.value = `${place.name}, ${place.formatted_address}`;
+                        }
+                        
+                        // Update map to show selected venue
+                        map.setCenter(place.geometry.location);
+                        map.setZoom(16);
+                        
+                        // Highlight this marker
+                        window.venueMarkers.forEach(m => {
+                            m.setIcon('https://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+                        });
+                        marker.setIcon('https://maps.google.com/mapfiles/ms/icons/green-dot.png');
+                        
+                        // Add animation
+                        marker.setAnimation(google.maps.Animation.BOUNCE);
+                        setTimeout(() => {
+                            marker.setAnimation(null);
+                        }, 1500);
+                    });
+                    
+                    container.appendChild(venueItem);
+                });
+                
+                // Fit map to show all markers
+                map.fitBounds(bounds);
+            }
+            
+            // Load Google Maps
+            console.log("About to call loadGoogleMaps"); // Debugging
+            loadGoogleMaps();
+        });
+    </script>
+    
+    <!-- Add venue item styles -->
+    <style>
+        .venue-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        
+        .venue-item:last-child {
+            border-bottom: none;
+        }
+        
+        .venue-item h4 {
+            margin: 0 0 0.3rem;
+            color: var(--deep-forest);
+        }
+        
+        .venue-item p {
+            margin: 0 0 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .venue-rating {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .venue-rating span:first-child {
+            color: #ffa41c;
+            font-weight: 600;
+        }
+        
+        .venue-rating span:last-child {
+            color: var(--text-muted);
+        }
+        
+        .map-loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .map-loading, .map-error {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .map-loading i, .map-error i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .map-loading i {
+            color: var(--sage-green);
+        }
+        
+        .map-error i {
+            color: #e74c3c;
+        }
+        
+        .map-loading p, .map-error p {
+            margin-bottom: 1rem;
+            color: var(--deep-forest);
+        }
+        
+        .my-location-btn {
+            margin: 10px !important;
+            padding: 8px 16px !important;
+            background-color: var(--sage-green) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 20px !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+        }
+    </style>
+</body>
+</html> 
