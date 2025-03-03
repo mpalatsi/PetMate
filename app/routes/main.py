@@ -163,48 +163,89 @@ def gallery():
     
     user = User.query.filter_by(username=session['username']).first()
     
-    # Get all gallery photos for the user
-    photos = GalleryPhoto.query.filter_by(user_id=user.id).order_by(GalleryPhoto.uploaded_at.desc()).all()
+    # Get all gallery photos
+    photos = GalleryPhoto.query.order_by(GalleryPhoto.uploaded_at.desc()).all()
     
     return render_template('gallery.html', photos=photos, user=user)
 
-@bp.route('/gallery/upload', methods=['POST'])
+@bp.route('/gallery/upload', methods=['GET', 'POST'])
 def upload_to_gallery():
     if 'username' not in session:
         return redirect(url_for('auth.login'))
     
     user = User.query.filter_by(username=session['username']).first()
     
-    if 'photos' not in request.files:
-        flash('No files selected', 'error')
-        return redirect(url_for('main.gallery'))
+    # Get user's pets for the form
+    pets = Pet.query.filter_by(owner_id=user.id).all()
     
-    files = request.files.getlist('photos')
+    if request.method == 'POST':
+        # Debug print to check what files are being received
+        print("Files in request:", request.files)
+        print("Form data:", request.form)
+        
+        # Check if any files were uploaded
+        if 'photos[]' not in request.files:
+            flash('No files selected', 'error')
+            return redirect(request.url)
+
+        files = request.files.getlist('photos[]')
+        if not files or not files[0].filename:
+            flash('No files selected', 'error')
+            return redirect(request.url)
+
+        title = request.form.get('title')
+        description = request.form.get('description')
+        pet_id = request.form.get('pet_id')
+        is_public = request.form.get('is_public') == 'on'
+        
+        uploaded_count = 0
+        for file in files:
+            if file and file.filename:  # Check if file has a filename
+                try:
+                    # Check if file is allowed
+                    if not allowed_file(file.filename, {'jpg', 'jpeg', 'png', 'gif'}):
+                        flash(f'File {file.filename} has an invalid format. Only JPG, PNG, and GIF are allowed.', 'error')
+                        continue
+
+                    # Generate a unique filename
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')
+                    filename = save_uploaded_file(
+                        file, 
+                        'app/static/pet_images/gallery_photos', 
+                        f"user_{user.id}_{timestamp}"
+                    )
+                    
+                    photo = GalleryPhoto(
+                        filename=filename,
+                        user_id=user.id,
+                        pet_id=pet_id if pet_id else None,
+                        title=title,
+                        description=description,
+                        is_public=is_public,
+                        uploaded_at=datetime.now()
+                    )
+                    db.session.add(photo)
+                    uploaded_count += 1
+                except Exception as e:
+                    print(f"Error uploading file {file.filename}:", str(e))  # Debug print
+                    flash(f'Error uploading file {file.filename}: {str(e)}', 'error')
+                    continue
+        
+        try:
+            if uploaded_count > 0:
+                db.session.commit()
+                flash(f'Successfully uploaded {uploaded_count} photo{"s" if uploaded_count > 1 else ""}!', 'success')
+                return redirect(url_for('main.gallery'))
+            else:
+                flash('No valid photos were uploaded', 'error')
+                return redirect(request.url)
+        except Exception as e:
+            print("Database error:", str(e))  # Debug print
+            db.session.rollback()
+            flash(f'Error saving to database: {str(e)}', 'error')
+            return redirect(request.url)
     
-    for file in files:
-        if file and allowed_file(file.filename, {'jpg', 'jpeg', 'png', 'gif'}):
-            filename = save_uploaded_file(
-                file, 
-                'app/static/gallery', 
-                f"user_{user.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-            )
-            
-            photo = GalleryPhoto(
-                filename=filename,
-                user_id=user.id,
-                uploaded_at=datetime.now(),
-                caption=request.form.get('caption', '')
-            )
-            db.session.add(photo)
-    
-    try:
-        db.session.commit()
-        flash('Photos uploaded successfully!', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error uploading photos: {str(e)}', 'error')
-    
-    return redirect(url_for('main.gallery'))
+    return render_template('upload_gallery_photo.html', pets=pets)
 
 @bp.route('/gallery/delete/<int:photo_id>', methods=['POST'])
 def delete_gallery_photo(photo_id):
@@ -237,6 +278,60 @@ def delete_gallery_photo(photo_id):
         flash(f'Error deleting photo: {str(e)}', 'error')
     
     return redirect(url_for('main.gallery'))
+
+@bp.route('/gallery/photo/<int:photo_id>/toggle_visibility', methods=['POST'])
+def toggle_gallery_photo_visibility(photo_id):
+    if 'username' not in session:
+        return redirect(url_for('auth.login'))
+    
+    user = User.query.filter_by(username=session['username']).first()
+    photo = GalleryPhoto.query.get_or_404(photo_id)
+    
+    # Check if user owns the photo
+    if photo.user_id != user.id:
+        flash('You can only change visibility of your own photos.', 'error')
+        return redirect(url_for('main.gallery'))
+    
+    try:
+        # Toggle the is_public flag
+        photo.is_public = not photo.is_public
+        db.session.commit()
+        flash('Photo visibility updated successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error updating photo visibility: {str(e)}', 'error')
+    
+    return redirect(url_for('main.gallery'))
+
+@bp.route('/gallery/photo/<int:photo_id>/edit', methods=['GET', 'POST'])
+def edit_gallery_photo(photo_id):
+    if 'username' not in session:
+        return redirect(url_for('auth.login'))
+    
+    user = User.query.filter_by(username=session['username']).first()
+    photo = GalleryPhoto.query.get_or_404(photo_id)
+    
+    # Check if user owns the photo
+    if photo.user_id != user.id:
+        flash('You can only edit your own photos.', 'error')
+        return redirect(url_for('main.gallery'))
+    
+    if request.method == 'POST':
+        try:
+            photo.title = request.form.get('title')
+            photo.description = request.form.get('description')
+            photo.pet_id = request.form.get('pet_id') or None
+            db.session.commit()
+            flash('Photo updated successfully!', 'success')
+            return redirect(url_for('main.gallery'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating photo: {str(e)}', 'error')
+    
+    # Get user's pets for the form
+    pets = Pet.query.filter_by(owner_id=user.id).all()
+    
+    return render_template('edit_gallery_photo.html', photo=photo, pets=pets)
 
 @bp.route('/search')
 def search():

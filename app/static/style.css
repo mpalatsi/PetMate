@@ -177,34 +177,90 @@ nav {
 }
 
 /* Enhanced logo styling */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Increased gap between logo and text */
+}
+
 .logo-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--terracotta) 0%, #a05e3f 100%);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), 
-                inset 0 1px 1px rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 50px; /* Increased from 40px */
+    height: 50px; /* Increased from 40px */
+    background-image: url('SmokyPetLogoWhite.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none; /* Removed shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Remove the heart symbol */
+.logo-icon::before {
+    content: '';
+}
+
+.logo-icon::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
 }
 
 .logo-text {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: white;
+    letter-spacing: 0.5px;
+    position: relative;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: letter-spacing 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .logo-text .highlight {
+    color: white;
     position: relative;
     display: inline-block;
+    font-weight: 800;
 }
 
-.logo-text .highlight::after {
+.site-title:hover .logo-icon {
+    transform: none;
+    box-shadow: none;
+}
+
+.site-title:hover .logo-icon::after {
+    transform: none;
+}
+
+.site-title:hover .logo-text {
+    letter-spacing: 0.5px;
+}
+
+/* Paw print after the logo text */
+.logo-text::after {
     content: '';
     position: absolute;
+    width: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    height: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    background-color: transparent;  /* Changed from var(--terracotta) to transparent */
+    border-radius: 0;
+    right: 0;
     bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--terracotta), transparent);
-    opacity: 0.7;
-    border-radius: 3px;
+    box-shadow: none;
+    opacity: 0;  /* Keep it hidden */
+    transform: none;
+}
+
+.site-title:hover .logo-text::after {
+    opacity: 0;  /* Keep it hidden on hover */
+    transform: none;
 }
 
 /* Enhanced nav links */
@@ -1140,34 +1196,90 @@ nav {
 }
 
 /* Enhanced logo styling */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Increased gap between logo and text */
+}
+
 .logo-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--terracotta) 0%, #a05e3f 100%);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), 
-                inset 0 1px 1px rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 50px; /* Increased from 40px */
+    height: 50px; /* Increased from 40px */
+    background-image: url('SmokyPetLogoWhite.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none; /* Removed shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Remove the heart symbol */
+.logo-icon::before {
+    content: '';
+}
+
+.logo-icon::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
 }
 
 .logo-text {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: white;
+    letter-spacing: 0.5px;
+    position: relative;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: letter-spacing 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .logo-text .highlight {
+    color: white;
     position: relative;
     display: inline-block;
+    font-weight: 800;
 }
 
-.logo-text .highlight::after {
+.site-title:hover .logo-icon {
+    transform: none;
+    box-shadow: none;
+}
+
+.site-title:hover .logo-icon::after {
+    transform: none;
+}
+
+.site-title:hover .logo-text {
+    letter-spacing: 0.5px;
+}
+
+/* Paw print after the logo text */
+.logo-text::after {
     content: '';
     position: absolute;
+    width: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    height: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    background-color: transparent;  /* Changed from var(--terracotta) to transparent */
+    border-radius: 0;
+    right: 0;
     bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--terracotta), transparent);
-    opacity: 0.7;
-    border-radius: 3px;
+    box-shadow: none;
+    opacity: 0;  /* Keep it hidden */
+    transform: none;
+}
+
+.site-title:hover .logo-text::after {
+    opacity: 0;  /* Keep it hidden on hover */
+    transform: none;
 }
 
 /* Enhanced nav links */
@@ -2665,30 +2777,27 @@ form[action*="register"] {
 .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px; /* Increased gap between logo and text */
 }
 
 .logo-icon {
-    position: relative;
-    width: 36px;
-    height: 36px;
-    background-color: var(--terracotta);
+    width: 50px; /* Increased from 40px */
+    height: 50px; /* Increased from 40px */
+    background-image: url('SmokyPetLogoWhite.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    box-shadow: none; /* Removed shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Remove the heart symbol */
 .logo-icon::before {
-    content: '♥';
-    color: white;
-    font-size: 18px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    content: '';
 }
 
 .logo-icon::after {
@@ -2696,58 +2805,59 @@ form[action*="register"] {
     position: absolute;
     top: -3px;
     right: -3px;
-    width: 14px;
-    height: 14px;
-    background-color: var(--sage-green);
-    border-radius: 50%;
-    border: 2px solid var(--deep-forest);
 }
 
 .logo-text {
+    font-family: 'Quicksand', sans-serif;
     font-weight: 700;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     color: white;
     letter-spacing: 0.5px;
     position: relative;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: letter-spacing 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .logo-text .highlight {
-    color: var(--terracotta);
+    color: white;
     position: relative;
+    display: inline-block;
+    font-weight: 800;
 }
 
 .site-title:hover .logo-icon {
-    transform: rotate(15deg) scale(1.1);
+    transform: none;
+    box-shadow: none;
 }
 
 .site-title:hover .logo-icon::after {
-    transform: scale(1.2);
+    transform: none;
 }
 
 .site-title:hover .logo-text {
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 /* Paw print after the logo text */
 .logo-text::after {
     content: '';
     position: absolute;
-    width: 12px;
-    height: 12px;
-    background-color: var(--terracotta);
-    border-radius: 50%;
-    right: -18px;
-    bottom: 5px;
-    box-shadow: -5px -5px 0 -3px var(--terracotta), 
-                5px -5px 0 -3px var(--terracotta), 
-                0 -9px 0 -2px var(--terracotta);
-    opacity: 0;
-    transform: scale(0.5);
+    width: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    height: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    background-color: transparent;  /* Changed from var(--terracotta) to transparent */
+    border-radius: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: none;
+    opacity: 0;  /* Keep it hidden */
+    transform: none;
 }
 
 .site-title:hover .logo-text::after {
-    opacity: 1;
-    transform: scale(1);
+    opacity: 0;  /* Keep it hidden on hover */
+    transform: none;
 }
 
 /* New paw logo */
@@ -3651,34 +3761,90 @@ nav {
 }
 
 /* Enhanced logo styling */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Increased gap between logo and text */
+}
+
 .logo-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--terracotta) 0%, #a05e3f 100%);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), 
-                inset 0 1px 1px rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 50px; /* Increased from 40px */
+    height: 50px; /* Increased from 40px */
+    background-image: url('SmokyPetLogoWhite.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none; /* Removed shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Remove the heart symbol */
+.logo-icon::before {
+    content: '';
+}
+
+.logo-icon::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
 }
 
 .logo-text {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: white;
+    letter-spacing: 0.5px;
+    position: relative;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: letter-spacing 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .logo-text .highlight {
+    color: white;
     position: relative;
     display: inline-block;
+    font-weight: 800;
 }
 
-.logo-text .highlight::after {
+.site-title:hover .logo-icon {
+    transform: none;
+    box-shadow: none;
+}
+
+.site-title:hover .logo-icon::after {
+    transform: none;
+}
+
+.site-title:hover .logo-text {
+    letter-spacing: 0.5px;
+}
+
+/* Paw print after the logo text */
+.logo-text::after {
     content: '';
     position: absolute;
+    width: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    height: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    background-color: transparent;  /* Changed from var(--terracotta) to transparent */
+    border-radius: 0;
+    right: 0;
     bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--terracotta), transparent);
-    opacity: 0.7;
-    border-radius: 3px;
+    box-shadow: none;
+    opacity: 0;  /* Keep it hidden */
+    transform: none;
+}
+
+.site-title:hover .logo-text::after {
+    opacity: 0;  /* Keep it hidden on hover */
+    transform: none;
 }
 
 /* Enhanced nav links */
@@ -4151,34 +4317,90 @@ nav {
 }
 
 /* Enhanced logo styling */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Increased gap between logo and text */
+}
+
 .logo-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--terracotta) 0%, #a05e3f 100%);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), 
-                inset 0 1px 1px rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 50px; /* Increased from 40px */
+    height: 50px; /* Increased from 40px */
+    background-image: url('SmokyPetLogoWhite.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none; /* Removed shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Remove the heart symbol */
+.logo-icon::before {
+    content: '';
+}
+
+.logo-icon::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
 }
 
 .logo-text {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: white;
+    letter-spacing: 0.5px;
+    position: relative;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: letter-spacing 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .logo-text .highlight {
+    color: white;
     position: relative;
     display: inline-block;
+    font-weight: 800;
 }
 
-.logo-text .highlight::after {
+.site-title:hover .logo-icon {
+    transform: none;
+    box-shadow: none;
+}
+
+.site-title:hover .logo-icon::after {
+    transform: none;
+}
+
+.site-title:hover .logo-text {
+    letter-spacing: 0.5px;
+}
+
+/* Paw print after the logo text */
+.logo-text::after {
     content: '';
     position: absolute;
+    width: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    height: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    background-color: transparent;  /* Changed from var(--terracotta) to transparent */
+    border-radius: 0;
+    right: 0;
     bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--terracotta), transparent);
-    opacity: 0.7;
-    border-radius: 3px;
+    box-shadow: none;
+    opacity: 0;  /* Keep it hidden */
+    transform: none;
+}
+
+.site-title:hover .logo-text::after {
+    opacity: 0;  /* Keep it hidden on hover */
+    transform: none;
 }
 
 /* Enhanced nav links */
@@ -5114,34 +5336,90 @@ nav {
 }
 
 /* Enhanced logo styling */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Increased gap between logo and text */
+}
+
 .logo-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--terracotta) 0%, #a05e3f 100%);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), 
-                inset 0 1px 1px rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 50px; /* Increased from 40px */
+    height: 50px; /* Increased from 40px */
+    background-image: url('SmokyPetLogoWhite.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none; /* Removed shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Remove the heart symbol */
+.logo-icon::before {
+    content: '';
+}
+
+.logo-icon::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
 }
 
 .logo-text {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: white;
+    letter-spacing: 0.5px;
+    position: relative;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: letter-spacing 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .logo-text .highlight {
+    color: white;
     position: relative;
     display: inline-block;
+    font-weight: 800;
 }
 
-.logo-text .highlight::after {
+.site-title:hover .logo-icon {
+    transform: none;
+    box-shadow: none;
+}
+
+.site-title:hover .logo-icon::after {
+    transform: none;
+}
+
+.site-title:hover .logo-text {
+    letter-spacing: 0.5px;
+}
+
+/* Paw print after the logo text */
+.logo-text::after {
     content: '';
     position: absolute;
+    width: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    height: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    background-color: transparent;  /* Changed from var(--terracotta) to transparent */
+    border-radius: 0;
+    right: 0;
     bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--terracotta), transparent);
-    opacity: 0.7;
-    border-radius: 3px;
+    box-shadow: none;
+    opacity: 0;  /* Keep it hidden */
+    transform: none;
+}
+
+.site-title:hover .logo-text::after {
+    opacity: 0;  /* Keep it hidden on hover */
+    transform: none;
 }
 
 /* Enhanced nav links */
@@ -6639,30 +6917,27 @@ form[action*="register"] {
 .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px; /* Increased gap between logo and text */
 }
 
 .logo-icon {
-    position: relative;
-    width: 36px;
-    height: 36px;
-    background-color: var(--terracotta);
+    width: 50px; /* Increased from 40px */
+    height: 50px; /* Increased from 40px */
+    background-image: url('SmokyPetLogoWhite.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    box-shadow: none; /* Removed shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Remove the heart symbol */
 .logo-icon::before {
-    content: '♥';
-    color: white;
-    font-size: 18px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    content: '';
 }
 
 .logo-icon::after {
@@ -6670,58 +6945,59 @@ form[action*="register"] {
     position: absolute;
     top: -3px;
     right: -3px;
-    width: 14px;
-    height: 14px;
-    background-color: var(--sage-green);
-    border-radius: 50%;
-    border: 2px solid var(--deep-forest);
 }
 
 .logo-text {
+    font-family: 'Quicksand', sans-serif;
     font-weight: 700;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     color: white;
     letter-spacing: 0.5px;
     position: relative;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: letter-spacing 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .logo-text .highlight {
-    color: var(--terracotta);
+    color: white;
     position: relative;
+    display: inline-block;
+    font-weight: 800;
 }
 
 .site-title:hover .logo-icon {
-    transform: rotate(15deg) scale(1.1);
+    transform: none;
+    box-shadow: none;
 }
 
 .site-title:hover .logo-icon::after {
-    transform: scale(1.2);
+    transform: none;
 }
 
 .site-title:hover .logo-text {
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 /* Paw print after the logo text */
 .logo-text::after {
     content: '';
     position: absolute;
-    width: 12px;
-    height: 12px;
-    background-color: var(--terracotta);
-    border-radius: 50%;
-    right: -18px;
-    bottom: 5px;
-    box-shadow: -5px -5px 0 -3px var(--terracotta), 
-                5px -5px 0 -3px var(--terracotta), 
-                0 -9px 0 -2px var(--terracotta);
-    opacity: 0;
-    transform: scale(0.5);
+    width: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    height: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    background-color: transparent;  /* Changed from var(--terracotta) to transparent */
+    border-radius: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: none;
+    opacity: 0;  /* Keep it hidden */
+    transform: none;
 }
 
 .site-title:hover .logo-text::after {
-    opacity: 1;
-    transform: scale(1);
+    opacity: 0;  /* Keep it hidden on hover */
+    transform: none;
 }
 
 /* New paw logo */
@@ -7625,34 +7901,90 @@ nav {
 }
 
 /* Enhanced logo styling */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Increased gap between logo and text */
+}
+
 .logo-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--terracotta) 0%, #a05e3f 100%);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), 
-                inset 0 1px 1px rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 50px; /* Increased from 40px */
+    height: 50px; /* Increased from 40px */
+    background-image: url('SmokyPetLogoWhite.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none; /* Removed shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Remove the heart symbol */
+.logo-icon::before {
+    content: '';
+}
+
+.logo-icon::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
 }
 
 .logo-text {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: white;
+    letter-spacing: 0.5px;
+    position: relative;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: letter-spacing 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .logo-text .highlight {
+    color: white;
     position: relative;
     display: inline-block;
+    font-weight: 800;
 }
 
-.logo-text .highlight::after {
+.site-title:hover .logo-icon {
+    transform: none;
+    box-shadow: none;
+}
+
+.site-title:hover .logo-icon::after {
+    transform: none;
+}
+
+.site-title:hover .logo-text {
+    letter-spacing: 0.5px;
+}
+
+/* Paw print after the logo text */
+.logo-text::after {
     content: '';
     position: absolute;
+    width: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    height: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    background-color: transparent;  /* Changed from var(--terracotta) to transparent */
+    border-radius: 0;
+    right: 0;
     bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--terracotta), transparent);
-    opacity: 0.7;
-    border-radius: 3px;
+    box-shadow: none;
+    opacity: 0;  /* Keep it hidden */
+    transform: none;
+}
+
+.site-title:hover .logo-text::after {
+    opacity: 0;  /* Keep it hidden on hover */
+    transform: none;
 }
 
 /* Enhanced nav links */
@@ -9169,30 +9501,27 @@ form[action*="register"] {
 .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px; /* Increased gap between logo and text */
 }
 
 .logo-icon {
-    position: relative;
-    width: 36px;
-    height: 36px;
-    background-color: var(--terracotta);
+    width: 50px; /* Increased from 40px */
+    height: 50px; /* Increased from 40px */
+    background-image: url('SmokyPetLogoWhite.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    box-shadow: none; /* Removed shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Remove the heart symbol */
 .logo-icon::before {
-    content: '♥';
-    color: white;
-    font-size: 18px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    content: '';
 }
 
 .logo-icon::after {
@@ -9200,58 +9529,59 @@ form[action*="register"] {
     position: absolute;
     top: -3px;
     right: -3px;
-    width: 14px;
-    height: 14px;
-    background-color: var(--sage-green);
-    border-radius: 50%;
-    border: 2px solid var(--deep-forest);
 }
 
 .logo-text {
+    font-family: 'Quicksand', sans-serif;
     font-weight: 700;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     color: white;
     letter-spacing: 0.5px;
     position: relative;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: letter-spacing 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .logo-text .highlight {
-    color: var(--terracotta);
+    color: white;
     position: relative;
+    display: inline-block;
+    font-weight: 800;
 }
 
 .site-title:hover .logo-icon {
-    transform: rotate(15deg) scale(1.1);
+    transform: none;
+    box-shadow: none;
 }
 
 .site-title:hover .logo-icon::after {
-    transform: scale(1.2);
+    transform: none;
 }
 
 .site-title:hover .logo-text {
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 /* Paw print after the logo text */
 .logo-text::after {
     content: '';
     position: absolute;
-    width: 12px;
-    height: 12px;
-    background-color: var(--terracotta);
-    border-radius: 50%;
-    right: -18px;
-    bottom: 5px;
-    box-shadow: -5px -5px 0 -3px var(--terracotta), 
-                5px -5px 0 -3px var(--terracotta), 
-                0 -9px 0 -2px var(--terracotta);
-    opacity: 0;
-    transform: scale(0.5);
+    width: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    height: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    background-color: transparent;  /* Changed from var(--terracotta) to transparent */
+    border-radius: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: none;
+    opacity: 0;  /* Keep it hidden */
+    transform: none;
 }
 
 .site-title:hover .logo-text::after {
-    opacity: 1;
-    transform: scale(1);
+    opacity: 0;  /* Keep it hidden on hover */
+    transform: none;
 }
 
 /* New paw logo */
@@ -10882,10 +11212,14 @@ form[action*="register"] {
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .delete-button:hover {
     background-color: #c0392b;
+    transform: translateY(-2px);
 }
 
 .no-pets {
@@ -11112,29 +11446,27 @@ form[action*="register"] {
 .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px; /* Increased gap between logo and text */
 }
 
 .logo-icon {
-    position: relative;
-    width: 36px;
-    height: 36px;
-    background-color: var(--terracotta);
+    width: 50px; /* Increased from 40px */
+    height: 50px; /* Increased from 40px */
+    background-image: url('SmokyPetLogoWhite.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: none; /* Removed shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Remove the heart symbol */
 .logo-icon::before {
-    content: '♥';
-    color: white;
-    font-size: 18px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    content: '';
 }
 
 .logo-icon::after {
@@ -11142,58 +11474,59 @@ form[action*="register"] {
     position: absolute;
     top: -3px;
     right: -3px;
-    width: 14px;
-    height: 14px;
-    background-color: var(--sage-green);
-    border-radius: 50%;
-    border: 2px solid var(--deep-forest);
 }
 
 .logo-text {
+    font-family: 'Quicksand', sans-serif;
     font-weight: 700;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     color: white;
     letter-spacing: 0.5px;
     position: relative;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: letter-spacing 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .logo-text .highlight {
-    color: var(--terracotta);
+    color: white;
     position: relative;
+    display: inline-block;
+    font-weight: 800;
 }
 
 .site-title:hover .logo-icon {
-    transform: rotate(15deg) scale(1.1);
+    transform: none;
+    box-shadow: none;
 }
 
 .site-title:hover .logo-icon::after {
-    transform: scale(1.2);
+    transform: none;
 }
 
 .site-title:hover .logo-text {
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 /* Paw print after the logo text */
 .logo-text::after {
     content: '';
     position: absolute;
-    width: 12px;
-    height: 12px;
-    background-color: var(--terracotta);
-    border-radius: 50%;
-    right: -18px;
-    bottom: 5px;
-    box-shadow: -5px -5px 0 -3px var(--terracotta), 
-                5px -5px 0 -3px var(--terracotta), 
-                0 -9px 0 -2px var(--terracotta);
-    opacity: 0;
-    transform: scale(0.5);
+    width: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    height: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    background-color: transparent;  /* Changed from var(--terracotta) to transparent */
+    border-radius: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: none;
+    opacity: 0;  /* Keep it hidden */
+    transform: none;
 }
 
 .site-title:hover .logo-text::after {
-    opacity: 1;
-    transform: scale(1);
+    opacity: 0;  /* Keep it hidden on hover */
+    transform: none;
 }
 
 /* New paw logo */
@@ -13067,30 +13400,27 @@ form[action*="register"] {
 .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px; /* Increased gap between logo and text */
 }
 
 .logo-icon {
-    position: relative;
-    width: 36px;
-    height: 36px;
-    background-color: var(--terracotta);
+    width: 50px; /* Increased from 40px */
+    height: 50px; /* Increased from 40px */
+    background-image: url('SmokyPetLogoWhite.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    box-shadow: none; /* Removed shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Remove the heart symbol */
 .logo-icon::before {
-    content: '♥';
-    color: white;
-    font-size: 18px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    content: '';
 }
 
 .logo-icon::after {
@@ -13098,131 +13428,59 @@ form[action*="register"] {
     position: absolute;
     top: -3px;
     right: -3px;
-    width: 14px;
-    height: 14px;
-    background-color: var(--sage-green);
-    border-radius: 50%;
-    border: 2px solid var(--deep-forest);
-    transition: all 0.3s ease;
 }
 
 .logo-text {
+    font-family: 'Quicksand', sans-serif;
     font-weight: 700;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     color: white;
     letter-spacing: 0.5px;
     position: relative;
-    transition: all 0.3s ease;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: letter-spacing 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .logo-text .highlight {
-    color: var(--terracotta);
+    color: white;
     position: relative;
+    display: inline-block;
+    font-weight: 800;
 }
 
 .site-title:hover .logo-icon {
-    transform: rotate(15deg) scale(1.1);
+    transform: none;
+    box-shadow: none;
 }
 
 .site-title:hover .logo-icon::after {
-    transform: scale(1.2);
+    transform: none;
 }
 
 .site-title:hover .logo-text {
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 /* Paw print after the logo text */
 .logo-text::after {
     content: '';
     position: absolute;
-    width: 12px;
-    height: 12px;
-    background-color: var(--terracotta);
-    border-radius: 50%;
-    right: -18px;
-    bottom: 5px;
-    box-shadow: -5px -5px 0 -3px var(--terracotta), 
-                5px -5px 0 -3px var(--terracotta), 
-                0 -9px 0 -2px var(--terracotta);
-    opacity: 0;
-    transform: scale(0.5);
-    transition: all 0.3s ease;
+    width: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    height: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    background-color: transparent;  /* Changed from var(--terracotta) to transparent */
+    border-radius: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: none;
+    opacity: 0;  /* Keep it hidden */
+    transform: none;
 }
 
 .site-title:hover .logo-text::after {
-    opacity: 1;
-    transform: scale(1);
-}
-
-/* New paw logo */
-.paw-logo {
-    position: relative;
-    width: 40px;
-    height: 40px;
-}
-
-.paw-logo .pad {
-    position: absolute;
-    background-color: var(--terracotta);
-    border-radius: 50%;
-    transition: transform 0.3s ease;
-}
-
-.paw-logo .pad.main {
-    width: 20px;
-    height: 20px;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.paw-logo .pad.top-left {
-    width: 12px;
-    height: 12px;
-    top: 4px;
-    left: 6px;
-}
-
-.paw-logo .pad.top-right {
-    width: 12px;
-    height: 12px;
-    top: 4px;
-    right: 6px;
-}
-
-.paw-logo .pad.bottom-left {
-    width: 12px;
-    height: 12px;
-    bottom: 12px;
-    left: 2px;
-}
-
-.paw-logo .pad.bottom-right {
-    width: 12px;
-    height: 12px;
-    bottom: 12px;
-    right: 2px;
-}
-
-.site-title:hover .paw-logo .pad.top-left {
-    transform: translate(-2px, -2px);
-}
-
-.site-title:hover .paw-logo .pad.top-right {
-    transform: translate(2px, -2px);
-}
-
-.site-title:hover .paw-logo .pad.bottom-left {
-    transform: translate(-2px, 2px);
-}
-
-.site-title:hover .paw-logo .pad.bottom-right {
-    transform: translate(2px, 2px);
-}
-
-.site-title:hover .paw-logo .pad.main {
-    transform: translateX(-50%) scale(1.1);
+    opacity: 0;  /* Keep it hidden on hover */
+    transform: none;
 }
 
 /* Slider Menu Styles */
@@ -15039,30 +15297,27 @@ form[action*="register"] {
 .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px; /* Increased gap between logo and text */
 }
 
 .logo-icon {
-    position: relative;
-    width: 36px;
-    height: 36px;
-    background-color: var(--terracotta);
+    width: 50px; /* Increased from 40px */
+    height: 50px; /* Increased from 40px */
+    background-image: url('SmokyPetLogoWhite.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    box-shadow: none; /* Removed shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Remove the heart symbol */
 .logo-icon::before {
-    content: '♥';
-    color: white;
-    font-size: 18px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    content: '';
 }
 
 .logo-icon::after {
@@ -15070,61 +15325,59 @@ form[action*="register"] {
     position: absolute;
     top: -3px;
     right: -3px;
-    width: 14px;
-    height: 14px;
-    background-color: var(--sage-green);
-    border-radius: 50%;
-    border: 2px solid var(--deep-forest);
-    transition: all 0.3s ease;
 }
 
 .logo-text {
+    font-family: 'Quicksand', sans-serif;
     font-weight: 700;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     color: white;
     letter-spacing: 0.5px;
     position: relative;
-    transition: all 0.3s ease;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: letter-spacing 0.3s ease;
+    display: flex;
+    align-items: center;
 }
 
 .logo-text .highlight {
-    color: var(--terracotta);
+    color: white;
     position: relative;
+    display: inline-block;
+    font-weight: 800;
 }
 
 .site-title:hover .logo-icon {
-    transform: rotate(15deg) scale(1.1);
+    transform: none;
+    box-shadow: none;
 }
 
 .site-title:hover .logo-icon::after {
-    transform: scale(1.2);
+    transform: none;
 }
 
 .site-title:hover .logo-text {
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 /* Paw print after the logo text */
 .logo-text::after {
     content: '';
     position: absolute;
-    width: 12px;
-    height: 12px;
-    background-color: var(--terracotta);
-    border-radius: 50%;
-    right: -18px;
-    bottom: 5px;
-    box-shadow: -5px -5px 0 -3px var(--terracotta), 
-                5px -5px 0 -3px var(--terracotta), 
-                0 -9px 0 -2px var(--terracotta);
-    opacity: 0;
-    transform: scale(0.5);
-    transition: all 0.3s ease;
+    width: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    height: 0;  /* Changed from 12px to 0 to hide the paw print completely */
+    background-color: transparent;  /* Changed from var(--terracotta) to transparent */
+    border-radius: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: none;
+    opacity: 0;  /* Keep it hidden */
+    transform: none;
 }
 
 .site-title:hover .logo-text::after {
-    opacity: 1;
-    transform: scale(1);
+    opacity: 0;  /* Keep it hidden on hover */
+    transform: none;
 }
 
 /* New paw logo */

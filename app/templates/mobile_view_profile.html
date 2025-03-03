@@ -245,7 +245,7 @@
         
         <div class="mobile-nav-actions">
             {% if 'username' in session %}
-                <a href="{{ url_for('user.profile') }}" class="mobile-nav-profile">
+                <a href="{{ url_for('main.profile') }}" class="mobile-nav-profile">
                     <i class="fas fa-user-circle"></i>
                 </a>
             {% else %}
@@ -279,7 +279,7 @@
                 <span>Find Playmates</span>
             </a>
             {% if 'username' in session %}
-                <a href="{{ url_for('pets.view_pets') }}" class="mobile-menu-item">
+                <a href="{{ url_for('pets.my_pets') }}" class="mobile-menu-item">
                     <i class="fas fa-paw"></i>
                     <span>My Pets</span>
                 </a>
@@ -287,11 +287,11 @@
                     <i class="fas fa-calendar-plus"></i>
                     <span>Schedule Playdate</span>
                 </a>
-                <a href="{{ url_for('user.profile') }}" class="mobile-menu-item active">
+                <a href="{{ url_for('main.profile') }}" class="mobile-menu-item active">
                     <i class="fas fa-user"></i>
                     <span>My Profile</span>
                 </a>
-                <a href="{{ url_for('messages.message_list') }}" class="mobile-menu-item">
+                <a href="{{ url_for('messages.inbox') }}" class="mobile-menu-item">
                     <i class="fas fa-envelope"></i>
                     <span>Messages</span>
                 </a>
@@ -312,7 +312,7 @@
         </div>
         
         <div class="mobile-menu-footer">
-            <a href="{{ url_for('user.profile', user_id=user.id) }}?mode=desktop" class="mobile-view-desktop">
+            <a href="{{ url_for('main.profile') }}?mode=desktop" class="mobile-view-desktop">
                 <i class="fas fa-desktop"></i> View Desktop Version
             </a>
         </div>
@@ -340,7 +340,7 @@
         <!-- Action buttons -->
         <div class="mobile-action-buttons">
             {% if current_user_id == user.id %}
-                <a href="{{ url_for('user.edit_profile') }}" class="mobile-action-btn secondary mobile-touch-feedback">
+                <a href="{{ url_for('main.edit_profile') }}" class="mobile-action-btn secondary mobile-touch-feedback">
                     <i class="fas fa-edit"></i> Edit Profile
                 </a>
                 <a href="{{ url_for('pets.add_pet') }}" class="mobile-action-btn primary mobile-touch-feedback">
@@ -413,7 +413,7 @@
                 </div>
                 
                 {% if user.pets|length > 3 %}
-                    <a href="{{ url_for('pets.view_pets', user_id=user.id) }}" class="mobile-see-all">
+                    <a href="{{ url_for('pets.my_pets', user_id=user.id) }}" class="mobile-see-all">
                         See all pets <i class="fas fa-chevron-right"></i>
                     </a>
                 {% endif %}

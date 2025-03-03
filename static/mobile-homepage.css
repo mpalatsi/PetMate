@@ -86,14 +86,13 @@ a {
 }
 
 .mobile-logo-text {
-    font-family: 'Quicksand', sans-serif;
-    color: white;
+    color: #333;
     font-weight: 700;
     letter-spacing: 0.5px;
 }
 
 .mobile-logo-text .highlight {
-    color: white;
+    color: var(--terracotta);
     font-weight: 800;
 }
 
