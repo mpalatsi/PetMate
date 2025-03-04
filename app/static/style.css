@@ -44,7 +44,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.8rem 1.2rem;
+    padding: 1rem 1.2rem;
     border-radius: 8px;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -61,6 +61,47 @@
     top: 0;
     height: 100%;
     width: 4px;
+}
+
+.flash-content {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex: 1;
+}
+
+.flash-content i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.flash-content span {
+    line-height: 1.4;
+}
+
+.close-flash {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0.3rem;
+    margin-left: 1rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: 24px;
+}
+
+.close-flash:hover {
+    opacity: 1;
+}
+
+.close-flash i {
+    font-size: 1rem;
 }
 
 .flash-message.error {
@@ -97,30 +138,6 @@
 
 .flash-message.warning::before {
     background-color: var(--warning);
-}
-
-.flash-content {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-}
-
-.flash-content i {
-    font-size: 1.2rem;
-}
-
-.close-flash {
-    background: transparent;
-    border: none;
-    color: inherit;
-    padding: 0.3rem;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.close-flash:hover {
-    opacity: 1;
 }
 
 @keyframes slideIn {
@@ -1063,7 +1080,7 @@ footer .container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.8rem 1.2rem;
+    padding: 1rem 1.2rem;
     border-radius: 8px;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -1080,6 +1097,47 @@ footer .container {
     top: 0;
     height: 100%;
     width: 4px;
+}
+
+.flash-content {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex: 1;
+}
+
+.flash-content i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.flash-content span {
+    line-height: 1.4;
+}
+
+.close-flash {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0.3rem;
+    margin-left: 1rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: 24px;
+}
+
+.close-flash:hover {
+    opacity: 1;
+}
+
+.close-flash i {
+    font-size: 1rem;
 }
 
 .flash-message.error {
@@ -1116,30 +1174,6 @@ footer .container {
 
 .flash-message.warning::before {
     background-color: var(--warning);
-}
-
-.flash-content {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-}
-
-.flash-content i {
-    font-size: 1.2rem;
-}
-
-.close-flash {
-    background: transparent;
-    border: none;
-    color: inherit;
-    padding: 0.3rem;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.close-flash:hover {
-    opacity: 1;
 }
 
 @keyframes slideIn {
@@ -3628,7 +3662,7 @@ button:active {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.8rem 1.2rem;
+    padding: 1rem 1.2rem;
     border-radius: 8px;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -3645,6 +3679,47 @@ button:active {
     top: 0;
     height: 100%;
     width: 4px;
+}
+
+.flash-content {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex: 1;
+}
+
+.flash-content i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.flash-content span {
+    line-height: 1.4;
+}
+
+.close-flash {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0.3rem;
+    margin-left: 1rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: 24px;
+}
+
+.close-flash:hover {
+    opacity: 1;
+}
+
+.close-flash i {
+    font-size: 1rem;
 }
 
 .flash-message.error {
@@ -3681,30 +3756,6 @@ button:active {
 
 .flash-message.warning::before {
     background-color: var(--warning);
-}
-
-.flash-content {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-}
-
-.flash-content i {
-    font-size: 1.2rem;
-}
-
-.close-flash {
-    background: transparent;
-    border: none;
-    color: inherit;
-    padding: 0.3rem;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.close-flash:hover {
-    opacity: 1;
 }
 
 @keyframes slideIn {
@@ -4184,7 +4235,7 @@ button:hover {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.8rem 1.2rem;
+    padding: 1rem 1.2rem;
     border-radius: 8px;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -4201,6 +4252,47 @@ button:hover {
     top: 0;
     height: 100%;
     width: 4px;
+}
+
+.flash-content {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex: 1;
+}
+
+.flash-content i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.flash-content span {
+    line-height: 1.4;
+}
+
+.close-flash {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0.3rem;
+    margin-left: 1rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: 24px;
+}
+
+.close-flash:hover {
+    opacity: 1;
+}
+
+.close-flash i {
+    font-size: 1rem;
 }
 
 .flash-message.error {
@@ -4237,30 +4329,6 @@ button:hover {
 
 .flash-message.warning::before {
     background-color: var(--warning);
-}
-
-.flash-content {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-}
-
-.flash-content i {
-    font-size: 1.2rem;
-}
-
-.close-flash {
-    background: transparent;
-    border: none;
-    color: inherit;
-    padding: 0.3rem;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.close-flash:hover {
-    opacity: 1;
 }
 
 @keyframes slideIn {
@@ -4683,7 +4751,7 @@ button:hover {
 }
 
 .features h2:after, .how-it-works h2:after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -10px;
     left: 50%;
@@ -5203,7 +5271,7 @@ footer .container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.8rem 1.2rem;
+    padding: 1rem 1.2rem;
     border-radius: 8px;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -5220,6 +5288,47 @@ footer .container {
     top: 0;
     height: 100%;
     width: 4px;
+}
+
+.flash-content {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex: 1;
+}
+
+.flash-content i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.flash-content span {
+    line-height: 1.4;
+}
+
+.close-flash {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0.3rem;
+    margin-left: 1rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: 24px;
+}
+
+.close-flash:hover {
+    opacity: 1;
+}
+
+.close-flash i {
+    font-size: 1rem;
 }
 
 .flash-message.error {
@@ -5256,30 +5365,6 @@ footer .container {
 
 .flash-message.warning::before {
     background-color: var(--warning);
-}
-
-.flash-content {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-}
-
-.flash-content i {
-    font-size: 1.2rem;
-}
-
-.close-flash {
-    background: transparent;
-    border: none;
-    color: inherit;
-    padding: 0.3rem;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.close-flash:hover {
-    opacity: 1;
 }
 
 @keyframes slideIn {
@@ -7768,7 +7853,7 @@ button:active {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.8rem 1.2rem;
+    padding: 1rem 1.2rem;
     border-radius: 8px;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -7827,10 +7912,16 @@ button:active {
     display: flex;
     align-items: center;
     gap: 0.8rem;
+    flex: 1;
 }
 
 .flash-content i {
     font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.flash-content span {
+    line-height: 1.4;
 }
 
 .close-flash {
@@ -7838,13 +7929,24 @@ button:active {
     border: none;
     color: inherit;
     padding: 0.3rem;
+    margin-left: 1rem;
     cursor: pointer;
     opacity: 0.7;
     transition: opacity 0.2s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: 24px;
 }
 
 .close-flash:hover {
     opacity: 1;
+}
+
+.close-flash i {
+    font-size: 1rem;
 }
 
 @keyframes slideIn {
@@ -12748,11 +12850,6 @@ button:active {
 .status-confirmed {
     background-color: rgba(124, 144, 130, 0.15);
     color: var(--sage-green);
-}
-
-.status-maybe {
-    background-color: rgba(139, 115, 85, 0.15);
-    color: var(--warm-brown);
 }
 
 .status-declined {
@@ -14645,11 +14742,6 @@ button:active {
 .status-confirmed {
     background-color: rgba(124, 144, 130, 0.15);
     color: var(--sage-green);
-}
-
-.status-maybe {
-    background-color: rgba(139, 115, 85, 0.15);
-    color: var(--warm-brown);
 }
 
 .status-declined {
@@ -16660,11 +16752,6 @@ button:active {
 .status-confirmed {
     background-color: rgba(124, 144, 130, 0.15);
     color: var(--sage-green);
-}
-
-.status-maybe {
-    background-color: rgba(139, 115, 85, 0.15);
-    color: var(--warm-brown);
 }
 
 .status-declined {

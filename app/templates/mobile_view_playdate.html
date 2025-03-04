@@ -451,7 +451,7 @@
             <div class="playdate-host-info">
                 <span class="host-label">Host:</span>
                 <span class="host-name">{{ playdate.host.username }}</span>
-                {% if current_user.id == playdate.host_id %}
+                {% if user.id == playdate.host_id %}
                     <span class="your-playdate-badge">Your Playdate</span>
                 {% endif %}
             </div>
@@ -467,23 +467,23 @@
             <div class="section-heading">
                 <i class="fas fa-paw"></i> Pets Attending
             </div>
-            <div class="avatars-scrollable">
-                <div class="avatar-row">
+            <div class="pet-avatars-container">
+                <div class="pet-avatars">
                     {% if pets %}
                         {% for pet in pets %}
-                            <div class="avatar-item">
+                            <div class="pet-avatar">
                                 {% if pet.image_filename %}
-                                    <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}" class="avatar-image">
+                                    <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
                                 {% else %}
-                                    <div class="avatar-placeholder">
+                                    <div class="pet-avatar-placeholder">
                                         <i class="fas fa-paw"></i>
                                     </div>
                                 {% endif %}
-                                <span class="avatar-name">{{ pet.name }}</span>
+                                <span class="pet-name">{{ pet.name }}</span>
                             </div>
                         {% endfor %}
                     {% else %}
-                        <p class="no-items-message">No pets have been added to this playdate yet.</p>
+                        <p class="no-pets-message">No pets have been added to this playdate yet.</p>
                     {% endif %}
                 </div>
             </div>
@@ -539,10 +539,10 @@
         </div>
         
         <div class="action-buttons">
-            {% if current_user.id != playdate.host_id %}
+            {% if user.id != playdate.host_id %}
                 {% set user_has_pet_attending = false %}
                 {% for pet in pets %}
-                    {% if pet.owner_id == current_user.id %}
+                    {% if pet.owner_id == user.id %}
                         {% set user_has_pet_attending = true %}
                     {% endif %}
                 {% endfor %}
@@ -568,7 +568,7 @@
                 <i class="fas fa-images"></i> Photo Gallery
             </a>
             
-            {% if current_user.id == playdate.host_id %}
+            {% if user.id == playdate.host_id %}
                 <a href="{{ url_for('playdates.edit_playdate', playdate_id=playdate.id) }}" class="action-button">
                     <i class="fas fa-edit"></i> Edit Playdate
                 </a>
@@ -616,7 +616,7 @@
                                 <a href="{{ url_for('main.view_profile', user_id=attendee.id) }}" class="small-button">
                                     <i class="fas fa-user"></i> Profile
                                 </a>
-                                {% if attendee.id != current_user.id %}
+                                {% if attendee.id != user.id %}
                                     <a href="{{ url_for('messages.conversation', user_id=attendee.id) }}" class="small-button primary">
                                         <i class="fas fa-comment"></i> Message
                                     </a>
@@ -651,7 +651,7 @@
                 <a href="{{ url_for('main.view_profile', user_id=playdate.host.id) }}" class="small-button">
                     <i class="fas fa-user"></i> View Profile
                 </a>
-                {% if current_user.id != playdate.host_id %}
+                {% if user.id != playdate.host_id %}
                     <a href="{{ url_for('messages.conversation', user_id=playdate.host.id) }}" class="small-button primary">
                         <i class="fas fa-comment"></i> Message Host
                     </a>

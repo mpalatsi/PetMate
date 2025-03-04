@@ -4,7 +4,8 @@ from app.models.pet import Pet
 from app.models.playdate import Playdate
 from app.models.message import Message
 from app.models.review import Review
-from app.models.photo import PlaydatePhoto, GalleryPhoto
+from app.models.photo import PlaydatePhoto
+from app.models.gallery_photo import GalleryPhoto
 import os
 from config import DevelopmentConfig, ProductionConfig, TestingConfig
 

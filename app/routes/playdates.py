@@ -75,6 +75,7 @@ def create_playdate():
             location = request.form['location']
             date_str = request.form['date']
             time_str = request.form['time']
+            max_pets = int(request.form.get('max_pets', 10))  # Default to 10 if not specified
             
             # Combine date and time
             date_time_str = f"{date_str} {time_str}"
@@ -101,7 +102,8 @@ def create_playdate():
                 description=description,
                 location=location,
                 date=date_time,
-                host_id=user.id
+                host_id=user.id,
+                max_pets=max_pets  # Set the maximum number of pets
             )
             
             # Geocode the location
@@ -118,6 +120,14 @@ def create_playdate():
                 pet = Pet.query.get(pet_id)
                 if pet and pet.owner_id == user.id:
                     new_playdate.pets.append(pet)
+            
+            # Add the host to the attendees
+            new_playdate.attendees.append(user)
+            
+            # Add pet owners to attendees
+            for pet in new_playdate.pets:
+                if pet.owner not in new_playdate.attendees:
+                    new_playdate.attendees.append(pet.owner)
             
             db.session.commit()
             flash('Playdate created successfully!', 'success')

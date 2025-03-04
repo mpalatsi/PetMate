@@ -8,6 +8,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
+    name = db.Column(db.String(120))  # User's full name
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     profile_picture = db.Column(db.String(255))  # Store the filename of uploaded image
     bio = db.Column(db.Text)  # User bio

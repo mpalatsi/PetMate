@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Reviews for Playdate - PetMate{% endblock %}
+
+{% block extra_head %}
+<style>
+    .reviews-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .reviews-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .playdate-info {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+    }
+
+    .playdate-info p {
+        margin: 0.5rem 0;
+    }
+
+    .review-card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .reviewer-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .reviewer-name {
+        font-weight: 600;
+        color: var(--deep-forest);
+    }
+
+    .review-date {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .rating {
+        color: #ffd700;
+        font-size: 1.2rem;
+    }
+
+    .review-content {
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .no-reviews {
+        text-align: center;
+        padding: 2rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        color: #666;
+    }
+
+    .action-buttons {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .button {
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background-color 0.3s;
+    }
+
+    .button.primary {
+        background-color: var(--sage-green);
+        color: white;
+    }
+
+    .button.primary:hover {
+        background-color: var(--deep-forest);
+    }
+
+    .button.secondary {
+        background-color: #f8f9fa;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+
+    .button.secondary:hover {
+        background-color: #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reviews-container">
+    <div class="reviews-header">
+        <h2>Reviews for Playdate</h2>
+        <div class="playdate-info">
+            <p><strong>Date:</strong> {{ playdate.date.strftime('%B %d, %Y at %I:%M %p') }}</p>
+            <p><strong>Location:</strong> {{ playdate.location }}</p>
+            <p><strong>Host:</strong> {{ playdate.host.username }}</p>
+        </div>
+    </div>
+
+    {% if reviews %}
+        {% for review in reviews %}
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="reviewer-info">
+                        <span class="reviewer-name">{{ review.reviewer.username }}</span>
+                        <span class="review-date">{{ review.created_at.strftime('%B %d, %Y') }}</span>
+                    </div>
+                    <div class="rating">
+                        {% for _ in range(review.rating) %}★{% endfor %}
+                        {% for _ in range(5 - review.rating) %}☆{% endfor %}
+                    </div>
+                </div>
+                <div class="review-content">
+                    {% if review.comment %}
+                        {{ review.comment }}
+                    {% else %}
+                        <em>No comment provided.</em>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-reviews">
+            <p>No reviews have been submitted for this playdate yet.</p>
+        </div>
+    {% endif %}
+
+    <div class="action-buttons">
+        {% if not user_has_reviewed %}
+            <a href="{{ url_for('reviews.create_review', playdate_id=playdate.id) }}" class="button primary">
+                Write a Review
+            </a>
+        {% endif %}
+        <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="button secondary">
+            Back to Playdate
+        </a>
+    </div>
+</div>
+{% endblock %} 

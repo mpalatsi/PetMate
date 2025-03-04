@@ -8,7 +8,7 @@
     .pet-avatars-container {
         max-width: 100%;
         overflow-x: auto;
-        padding-bottom: 10px; /* Add space for possible scrollbar */
+        padding-bottom: 10px;
     }
     
     .pet-avatars {
@@ -28,17 +28,23 @@
         text-align: center;
     }
     
-    .pet-avatar img, 
-    .pet-avatar-placeholder {
+    .pet-avatar-wrapper {
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        object-fit: cover;
+        border: 2px solid white;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         margin-bottom: 5px;
+        background-color: var(--sage-green-lighter);
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        flex-shrink: 0;
     }
     
     .pet-avatar-placeholder {
-        background-color: var(--sage-green-lighter);
+        width: 100%;
+        height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -54,11 +60,11 @@
         overflow: hidden;
         text-overflow: ellipsis;
         text-align: center;
-        color: #333; /* Explicitly set text color */
-        font-weight: 500; /* Make it slightly bolder */
-        line-height: 1.2; /* Improve line height */
-        min-height: 1.2em; /* Ensure minimum height */
-        display: block; /* Ensure it displays as a block */
+        color: #333;
+        font-weight: 500;
+        line-height: 1.2;
+        min-height: 1.2em;
+        display: block;
     }
     
     /* Improve mobile responsiveness */
@@ -139,10 +145,12 @@
                                     {% for pet in playdate_data.pets %}
                                         <div class="pet-avatar">
                                             {% if pet.image_filename %}
-                                                <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                                <div class="pet-avatar-wrapper" style="background-image: url('{{ url_for('static', filename='pet_images/' + pet.image_filename) }}')"></div>
                                             {% else %}
-                                                <div class="pet-avatar-placeholder">
-                                                    <i class="fas fa-paw"></i>
+                                                <div class="pet-avatar-wrapper">
+                                                    <div class="pet-avatar-placeholder">
+                                                        <i class="fas fa-paw"></i>
+                                                    </div>
                                                 </div>
                                             {% endif %}
                                             <span class="pet-name">{{ pet.name }}</span>
@@ -189,7 +197,7 @@
                                 {% endif %}
                             {% else %}
                                 <div class="action-buttons">
-                                    <a href="{{ url_for('main.edit_playdate', playdate_id=playdate.id) }}" class="button secondary small">
+                                    <a href="{{ url_for('playdates.edit_playdate', playdate_id=playdate.id) }}" class="button secondary small">
                                         <i class="fas fa-edit"></i> Edit Playdate
                                     </a>
                                     <a href="{{ url_for('main.view_playdate', playdate_id=playdate.id) }}" class="button primary small">

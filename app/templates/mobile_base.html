@@ -9,6 +9,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Base CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pet-avatars.css') }}">
     <style>
         :root {
             --primary-color: #4A90E2;
@@ -246,10 +247,16 @@
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="flash-messages">
+                <div class="flash-messages-container">
                     {% for category, message in messages %}
-                        <div class="flash-message flash-{{ category }}">
-                            {{ message }}
+                        <div class="flash-message {{ category }}">
+                            <div class="flash-content">
+                                <i class="fas {% if category == 'error' %}fa-exclamation-circle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                            <button class="close-flash" onclick="this.parentElement.style.display='none';">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
                     {% endfor %}
                 </div>

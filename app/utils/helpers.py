@@ -26,7 +26,7 @@ def allowed_file(filename, allowed_extensions=None):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
-def save_uploaded_file(file, upload_folder, base_filename=None):
+def save_uploaded_file(file, upload_folder, base_filename=None, force_extension=None):
     """
     Save an uploaded file with a secure filename
     
@@ -34,10 +34,15 @@ def save_uploaded_file(file, upload_folder, base_filename=None):
         file: The file object from request.files
         upload_folder (str): The folder to save the file to
         base_filename (str, optional): Base name for the file (without extension)
+        force_extension (str, optional): If provided, use this extension instead of the original
     
     Returns:
         str: The filename of the saved file
     """
+    # Remove 'app/' prefix if it exists
+    if upload_folder.startswith('app/'):
+        upload_folder = upload_folder[4:]
+    
     # Create the upload folder if it doesn't exist
     os.makedirs(upload_folder, exist_ok=True)
     
@@ -45,7 +50,10 @@ def save_uploaded_file(file, upload_folder, base_filename=None):
     filename = secure_filename(file.filename)
     
     # Get the file extension
-    _, extension = os.path.splitext(filename)
+    if force_extension:
+        extension = f".{force_extension.lstrip('.')}"
+    else:
+        _, extension = os.path.splitext(filename)
     
     # Generate a unique filename if base_filename is not provided
     if not base_filename:
@@ -60,7 +68,7 @@ def save_uploaded_file(file, upload_folder, base_filename=None):
     
     return new_filename
 
-def save_base64_image(base64_data, upload_folder, base_filename=None):
+def save_base64_image(base64_data, upload_folder, base_filename=None, force_extension=None):
     """
     Save a base64 encoded image to a file
     
@@ -68,10 +76,15 @@ def save_base64_image(base64_data, upload_folder, base_filename=None):
         base64_data (str): The base64 encoded image data
         upload_folder (str): The folder to save the file to
         base_filename (str, optional): Base name for the file (without extension)
+        force_extension (str, optional): If provided, use this extension instead of the detected format
     
     Returns:
         str: The filename of the saved file
     """
+    # Remove 'app/' prefix if it exists
+    if upload_folder.startswith('app/'):
+        upload_folder = upload_folder[4:]
+    
     # Create the upload folder if it doesn't exist
     os.makedirs(upload_folder, exist_ok=True)
     
@@ -87,6 +100,10 @@ def save_base64_image(base64_data, upload_folder, base_filename=None):
     else:
         encoded = base64_data
         image_format = 'png'  # Default to PNG
+    
+    # Use forced extension if provided
+    if force_extension:
+        image_format = force_extension.lstrip('.')
     
     # Decode the base64 data
     image_data = base64.b64decode(encoded)

@@ -36,9 +36,40 @@ def create_review(playdate_id):
         flash('You have already reviewed this playdate.', 'info')
         return redirect(url_for('reviews.view_reviews', playdate_id=playdate_id))
     
+    # Determine if the current user is the host
+    is_host = (playdate.host_id == user.id)
+    
+    # If the user is the host, get list of participants to review
+    participants = []
+    if is_host:
+        # Get all attendees except the host
+        participants = [attendee for attendee in playdate.attendees if attendee.id != user.id]
+    
     if request.method == 'POST':
         rating = request.form.get('rating')
-        comments = request.form.get('comments')
+        comment = request.form.get('comment')
+        
+        if not rating:
+            flash('Please provide a rating.', 'error')
+            return render_template(
+                'create_review.html', 
+                playdate=playdate,
+                is_host=(playdate.host_id == user.id),
+                participants=participants if is_host else []
+            )
+        
+        try:
+            rating = int(rating)
+            if not (1 <= rating <= 5):
+                raise ValueError("Rating must be between 1 and 5")
+        except ValueError as e:
+            flash(str(e), 'error')
+            return render_template(
+                'create_review.html', 
+                playdate=playdate,
+                is_host=(playdate.host_id == user.id),
+                participants=participants if is_host else []
+            )
         
         # Determine who is being reviewed
         # If the current user is the host, they are reviewing a participant
@@ -52,7 +83,8 @@ def create_review(playdate_id):
                 return render_template(
                     'create_review.html', 
                     playdate=playdate,
-                    is_host=True
+                    is_host=True,
+                    participants=participants
                 )
         else:
             # Participant is reviewing the host
@@ -61,10 +93,10 @@ def create_review(playdate_id):
         # Create the review
         new_review = Review(
             reviewer_id=user.id,
-            reviewed_id=reviewed_user_id,
+            reviewed_user_id=reviewed_user_id,
             playdate_id=playdate_id,
             rating=rating,
-            comments=comments,
+            comment=comment,
             created_at=datetime.now()
         )
         
@@ -83,17 +115,8 @@ def create_review(playdate_id):
     # If the user is the host, get list of participants to review
     participants = []
     if is_host:
-        # Get unique owners of pets in the playdate
-        participant_ids = set()
-        for pet in playdate.pets:
-            if pet.owner_id != user.id:  # Exclude the host's pets
-                participant_ids.add(pet.owner_id)
-        
-        # Get user objects for all participants
-        for participant_id in participant_ids:
-            participant = User.query.get(participant_id)
-            if participant:
-                participants.append(participant)
+        # Get all attendees except the host
+        participants = [attendee for attendee in playdate.attendees if attendee.id != user.id]
     
     return render_template(
         'create_review.html', 
@@ -143,7 +166,7 @@ def user_reviews(user_id):
     reviewed_user = User.query.get_or_404(user_id)
     
     # Get all reviews where this user was reviewed
-    reviews = Review.query.filter_by(reviewed_id=user_id).all()
+    reviews = Review.query.filter_by(reviewed_user_id=user_id).all()
     
     # Calculate average rating
     total_ratings = sum(review.rating for review in reviews if review.rating)

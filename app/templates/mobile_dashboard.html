@@ -506,19 +506,21 @@
                     </div>
                     
                     {% if user.pets %}
-                        <div class="mobile-pets-preview">
-                            {% for pet in user.pets %}
-                                <div class="mobile-pet-preview">
-                                    {% if pet.image_filename %}
-                                        <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}" class="mobile-pet-image">
-                                    {% else %}
-                                        <div class="mobile-pet-placeholder">
-                                            <i class="fas fa-paw"></i>
-                                        </div>
-                                    {% endif %}
-                                    <div class="mobile-pet-name">{{ pet.name }}</div>
-                                </div>
-                            {% endfor %}
+                        <div class="pet-avatars-container">
+                            <div class="pet-avatars">
+                                {% for pet in user.pets %}
+                                    <div class="pet-avatar">
+                                        {% if pet.image_filename %}
+                                            <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                        {% else %}
+                                            <div class="pet-avatar-placeholder">
+                                                <i class="fas fa-paw"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span class="pet-name">{{ pet.name }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
                         </div>
                     {% else %}
                         <div class="mobile-empty-state">

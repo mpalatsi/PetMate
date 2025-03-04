@@ -193,49 +193,6 @@ def change_password():
     
     return render_template('change_password.html')
 
-@bp.route('/edit_profile', methods=['GET', 'POST'])
-def edit_profile():
-    if 'username' not in session:
-        return redirect(url_for('auth.login'))
-    
-    user = User.query.filter_by(username=session['username']).first()
-    
-    if request.method == 'POST':
-        # Handle profile picture upload
-        if 'profile_picture' in request.files and request.files['profile_picture'].filename:
-            file = request.files['profile_picture']
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                # Add timestamp to filename to avoid duplicates
-                filename = f"{int(time.time())}_{filename}"
-                file.save(os.path.join('app/static/profile_pictures', filename))
-                user.profile_picture = filename
-        
-        # Update basic info
-        user.bio = request.form.get('bio', '')
-        user.location = request.form.get('location', '')
-        
-        # Update new pet parent fields
-        user.pet_owner_since = request.form.get('pet_owner_since', None)
-        user.pet_experience_level = request.form.get('pet_experience_level', '')
-        
-        # Handle checkbox groups
-        preferred_meetup_types = request.form.getlist('preferred_meetup_types')
-        user.preferred_meetup_types = ','.join(preferred_meetup_types) if preferred_meetup_types else ''
-        
-        availability = request.form.getlist('availability')
-        user.availability = ','.join(availability) if availability else ''
-        
-        try:
-            db.session.commit()
-            flash('Profile updated successfully!', 'success')
-            return redirect(url_for('main.dashboard'))
-        except Exception as e:
-            db.session.rollback()
-            return render_template('edit_profile.html', user=user, error=f'Error updating profile: {str(e)}', current_year=datetime.now().year)
-    
-    return render_template('edit_profile.html', user=user, current_year=datetime.now().year)
-
 # Helper function to check allowed file extensions
 def allowed_file(filename, allowed_extensions={'png', 'jpg', 'jpeg', 'gif'}):
     return '.' in filename and \

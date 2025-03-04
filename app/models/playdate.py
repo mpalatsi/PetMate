@@ -10,6 +10,8 @@ class Playdate(db.Model):
     description = db.Column(db.Text)
     latitude = db.Column(db.Float, nullable=True)  # Store latitude coordinate
     longitude = db.Column(db.Float, nullable=True)  # Store longitude coordinate
+    status = db.Column(db.String(20), default='active')  # active, cancelled
+    max_pets = db.Column(db.Integer, default=10)  # Maximum number of pets allowed
     
     # Relationships
     host = db.relationship('User', backref='hosted_playdates', foreign_keys=[host_id])

@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, redirect, url_for, session, flash,
 from app.models.user import User
 from app.models.pet import Pet
 from app.models.playdate import Playdate
-from app.models.photo import GalleryPhoto
+from app.models.gallery_photo import GalleryPhoto
+from app.models.review import Review
 from app.models.associations import playdate_attendees
 from app import db
 from app.utils.helpers import allowed_file, save_uploaded_file, geocode_address, calculate_distance
@@ -69,11 +70,15 @@ def profile():
     recent_playdates.sort(key=lambda x: x.date, reverse=True)
     recent_playdates = recent_playdates[:5]  # Limit to 5 most recent
     
+    # Get the current user's ID for the template
+    current_user_id = user.id
+    
     return render_template(
-        'profile.html', 
+        'view_profile.html', 
         user=user, 
         pets=pets,
-        playdates=recent_playdates
+        playdates=recent_playdates,
+        current_user_id=current_user_id
     )
 
 @bp.route('/user/<int:user_id>')
@@ -127,13 +132,41 @@ def edit_profile():
         return redirect(url_for('auth.login'))
     
     user = User.query.filter_by(username=session['username']).first()
+    if user is None:
+        flash('User not found.', 'error')
+        return redirect(url_for('auth.login'))
     
     if request.method == 'POST':
         # Update basic information
-        user.name = request.form.get('name')
-        user.email = request.form.get('email')
-        user.bio = request.form.get('bio')
-        user.location = request.form.get('location')
+        name = request.form.get('name')
+        if name and name.strip():
+            user.name = name.strip()
+            
+        # Only update email if it's provided and not empty
+        email = request.form.get('email')
+        if email and email.strip():
+            user.email = email
+            
+        # Only update bio if it's provided
+        bio = request.form.get('bio')
+        if bio is not None:  # Allow empty string to clear the bio
+            user.bio = bio
+            
+        # Only update location if it's provided
+        location = request.form.get('location')
+        if location is not None:  # Allow empty string to clear the location
+            user.location = location
+        
+        # Update pet parent fields
+        user.pet_owner_since = request.form.get('pet_owner_since', None)
+        user.pet_experience_level = request.form.get('pet_experience_level', '')
+        
+        # Handle checkbox groups
+        preferred_meetup_types = request.form.getlist('preferred_meetup_types')
+        user.preferred_meetup_types = ','.join(preferred_meetup_types) if preferred_meetup_types else ''
+        
+        availability = request.form.getlist('availability')
+        user.availability = ','.join(availability) if availability else ''
         
         # Handle profile picture upload
         if 'profile_picture' in request.files and request.files['profile_picture'].filename:
@@ -153,8 +186,16 @@ def edit_profile():
         except Exception as e:
             db.session.rollback()
             flash(f'Error updating profile: {str(e)}', 'error')
+            return render_template('edit_profile.html', 
+                                user=user, 
+                                error=str(e),
+                                current_year=int(datetime.now().year),
+                                google_maps_api_key=os.environ.get('GOOGLE_MAPS_API_KEY', ''))
     
-    return render_template('edit_profile.html', user=user)
+    return render_template('edit_profile.html', 
+                         user=user,
+                         current_year=int(datetime.now().year),
+                         google_maps_api_key=os.environ.get('GOOGLE_MAPS_API_KEY', ''))
 
 @bp.route('/gallery')
 def gallery():
@@ -670,6 +711,15 @@ def view_playdate(playdate_id):
         # Format the data for the template
         attendees = [{'user': user, 'status': status} for user, status in attendees_info]
     
+    # Check if the user has already reviewed this playdate
+    existing_review = Review.query.filter_by(
+        reviewer_id=user.id,
+        playdate_id=playdate_id
+    ).first()
+    
+    # Get current datetime for template
+    now = datetime.now()
+    
     # Check if we should display the mobile version
     user_agent = request.headers.get('User-Agent', '').lower()
     is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
@@ -688,34 +738,53 @@ def view_playdate(playdate_id):
         photos=photos,
         pets=pets,
         attendees=attendees,
-        is_host=(playdate.host_id == user.id)
+        is_host=(playdate.host_id == user.id),
+        now=now,
+        user_has_reviewed=existing_review is not None
     )
 
 @bp.route('/playdates/<int:playdate_id>/join', methods=['GET', 'POST'])
 def join_playdate(playdate_id):
     if 'username' not in session:
+        flash('Please log in to join a playdate.', 'error')
         return redirect(url_for('auth.login'))
     
     user = User.query.filter_by(username=session['username']).first()
     playdate = Playdate.query.get_or_404(playdate_id)
     
+    # Check if the playdate exists
+    if not playdate:
+        flash('This playdate does not exist.', 'error')
+        return redirect(url_for('main.view_playdates'))
+    
+    # Check if the playdate is in the future
+    if playdate.date < datetime.now():
+        flash('You cannot join this playdate as it has already occurred.', 'error')
+        return redirect(url_for('main.view_playdate', playdate_id=playdate_id))
+    
+    # Check if the playdate has been cancelled
+    if playdate.status == 'cancelled':
+        flash('You cannot join this playdate as it has been cancelled by the host.', 'error')
+        return redirect(url_for('main.view_playdate', playdate_id=playdate_id))
+    
     # Check if the user is already the host
     if playdate.host_id == user.id:
-        flash('You are the host of this playdate.', 'info')
+        flash('You cannot join this playdate as you are the host.', 'info')
         return redirect(url_for('main.view_playdate', playdate_id=playdate_id))
     
     # Check if any of the user's pets are already in the playdate
-    for pet in playdate.pets:
-        if pet.owner_id == user.id:
-            flash('You are already participating in this playdate.', 'info')
-            return redirect(url_for('main.view_playdate', playdate_id=playdate_id))
+    user_participating_pets = [pet for pet in playdate.pets if pet.owner_id == user.id]
+    if user_participating_pets:
+        pet_names = ', '.join([pet.name for pet in user_participating_pets])
+        flash(f'You are already participating in this playdate with your pet(s): {pet_names}.', 'info')
+        return redirect(url_for('main.view_playdate', playdate_id=playdate_id))
     
     # Get user's pets for selection
     user_pets = Pet.query.filter_by(owner_id=user.id).all()
     
     if not user_pets:
-        flash('You need to add a pet before joining a playdate.', 'error')
-        return redirect(url_for('main.view_playdate', playdate_id=playdate_id))
+        flash('You need to add at least one pet to your profile before joining a playdate.', 'error')
+        return redirect(url_for('pets.add_pet'))
     
     if request.method == 'POST':
         # Get selected pets
@@ -741,19 +810,38 @@ def join_playdate(playdate_id):
                 user_pets=user_pets
             )
         
+        # Check if adding these pets would exceed the maximum
+        current_pet_count = len(playdate.pets)
+        selected_pets_count = len(selected_pet_ids)
+        max_pets = playdate.max_pets if playdate.max_pets is not None else 10  # Default to 10 if None
+        if current_pet_count + selected_pets_count > max_pets:
+            remaining_spots = max(0, max_pets - current_pet_count)
+            if remaining_spots == 0:
+                flash(f'Sorry, this playdate is full. The maximum number of pets ({max_pets}) has been reached.', 'error')
+            else:
+                flash(f'Sorry, you can only add {remaining_spots} more pet(s) to this playdate. You selected {selected_pets_count} pets.', 'error')
+            return redirect(url_for('main.view_playdate', playdate_id=playdate_id))
+        
         try:
             # Add selected pets to the playdate
+            added_pets = []
             for pet_id in selected_pet_ids:
                 pet = Pet.query.get(pet_id)
                 if pet and pet.owner_id == user.id:
                     playdate.pets.append(pet)
+                    added_pets.append(pet.name)
+            
+            # Add the user to the attendees list if not already there
+            if user not in playdate.attendees:
+                playdate.attendees.append(user)
             
             db.session.commit()
-            flash('Successfully joined the playdate!', 'success')
+            pet_names = ', '.join(added_pets)
+            flash(f'Successfully joined the playdate with {pet_names}!', 'success')
             return redirect(url_for('main.view_playdate', playdate_id=playdate_id))
         except Exception as e:
             db.session.rollback()
-            flash(f'Error joining playdate: {str(e)}', 'error')
+            flash(f'An error occurred while joining the playdate: {str(e)}', 'error')
     
     # Check if we should display the mobile version
     user_agent = request.headers.get('User-Agent', '').lower()
@@ -770,67 +858,6 @@ def join_playdate(playdate_id):
         playdate=playdate,
         user=user,
         user_pets=user_pets
-    )
-
-@bp.route('/playdates/<int:playdate_id>/edit', methods=['GET', 'POST'])
-def edit_playdate(playdate_id):
-    if 'username' not in session:
-        return redirect(url_for('auth.login'))
-    
-    user = User.query.filter_by(username=session['username']).first()
-    playdate = Playdate.query.get_or_404(playdate_id)
-    
-    # Check if user is the host
-    if playdate.host_id != user.id:
-        flash('Only the host can edit a playdate.', 'error')
-        return redirect(url_for('main.view_playdate', playdate_id=playdate_id))
-    
-    # Get user's pets for the selection form
-    user_pets = Pet.query.filter_by(owner_id=user.id).all()
-    
-    # Get the current pets selected for this playdate
-    selected_pet_ids = [pet.id for pet in playdate.pets]
-    
-    # Format the date for the datetime-local input
-    formatted_date = playdate.date.strftime('%Y-%m-%dT%H:%M')
-    
-    if request.method == 'POST':
-        try:
-            # Update playdate information
-            playdate.description = request.form.get('description', '')
-            playdate.location = request.form.get('location', '')
-            
-            # Update date and time
-            if 'date' in request.form:
-                date_str = request.form.get('date')
-                playdate.date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
-            
-            # Update pets
-            # Clear current pets
-            playdate.pets = []
-            
-            # Add the selected pets
-            selected_pets = request.form.getlist('selected_pets')
-            for pet_id in selected_pets:
-                pet = Pet.query.get(pet_id)
-                if pet and pet.owner_id == user.id:
-                    playdate.pets.append(pet)
-            
-            db.session.commit()
-            flash('Playdate updated successfully!', 'success')
-            return redirect(url_for('main.view_playdate', playdate_id=playdate.id))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error updating playdate: {str(e)}', 'error')
-    
-    return render_template(
-        'edit_playdate.html', 
-        playdate=playdate,
-        user=user, 
-        user_pets=user_pets,
-        selected_pet_ids=selected_pet_ids,
-        formatted_date=formatted_date,
-        google_maps_api_key=os.environ.get('GOOGLE_MAPS_API_KEY', '')
     )
 
 @bp.route('/playdates/<int:playdate_id>/leave', methods=['POST'])
@@ -857,6 +884,10 @@ def leave_playdate(playdate_id):
         for pet in list(playdate.pets):
             if pet.owner_id == user.id:
                 playdate.pets.remove(pet)
+        
+        # Remove user from attendees list
+        if user in playdate.attendees:
+            playdate.attendees.remove(user)
         
         db.session.commit()
         flash('You have successfully left the playdate.', 'success')

@@ -4,63 +4,6 @@
 
 {% block extra_head %}
 <style>
-    /* Fix for pet avatars display in search results */
-    .pet-avatars-container {
-        max-width: 100%;
-        overflow-x: auto;
-        padding-bottom: 10px;
-    }
-    
-    .pet-avatars {
-        display: flex;
-        flex-wrap: nowrap;
-        gap: 15px;
-        padding: 5px 0;
-        min-height: 80px;
-    }
-    
-    .pet-avatar {
-        flex: 0 0 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 80px;
-        text-align: center;
-    }
-    
-    .pet-avatar img, 
-    .pet-avatar-placeholder {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-bottom: 5px;
-    }
-    
-    .pet-avatar-placeholder {
-        background-color: var(--sage-green-lighter);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--sage-green);
-    }
-    
-    .pet-name {
-        font-size: 0.85rem;
-        width: 100%;
-        padding: 0 2px;
-        margin-top: 3px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-align: center;
-        color: #333;
-        font-weight: 500;
-        line-height: 1.2;
-        min-height: 1.2em;
-        display: block;
-    }
-    
     /* Responsive styling */
     @media (max-width: 768px) {
         .search-result-content {
@@ -69,10 +12,6 @@
         
         .search-result-pets {
             margin-bottom: 15px;
-        }
-        
-        .pet-avatar {
-            width: 70px;
         }
     }
 </style>

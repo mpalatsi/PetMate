@@ -27,7 +27,7 @@ def create_app(config_class=Config):
     Returns:
         Flask application instance
     """
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='../static', static_url_path='/static')
     app.config.from_object(config_class)
     
     # Initialize extensions with the app
@@ -124,5 +124,6 @@ from app.models.pet import Pet
 from app.models.playdate import Playdate
 from app.models.message import Message
 from app.models.review import Review
-from app.models.photo import PlaydatePhoto, GalleryPhoto
+from app.models.photo import PlaydatePhoto
+from app.models.gallery_photo import GalleryPhoto
 from app.models.playdate_message import PlaydateMessage 

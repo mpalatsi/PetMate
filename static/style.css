@@ -19210,9 +19210,9 @@ button:active {
 .profile-section h4 {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.1rem;
     color: var(--deep-forest);
-    margin: 0 0 1rem 0;
+    margin: 0 0 0.5rem 0;
     font-size: 1.2rem;
 }
 

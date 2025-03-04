@@ -49,8 +49,16 @@
 
 .search-form-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr;
     gap: 1.5rem;
+}
+
+.form-group {
+    background: var(--bg-white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(124, 144, 130, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .search-form-actions {
@@ -94,6 +102,10 @@
     .search-form-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
+    }
+    
+    .form-group {
+        padding: 1rem;
     }
     
     .playdate-actions {

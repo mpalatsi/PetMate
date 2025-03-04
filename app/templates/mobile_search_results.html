@@ -411,19 +411,21 @@
                             
                             <div class="mobile-result-pets">
                                 <h5><i class="fas fa-paw"></i> Pets attending:</h5>
-                                <div class="mobile-pet-avatars">
-                                    {% for pet in result.playdate.pets %}
-                                        <div class="mobile-pet-avatar">
-                                            {% if pet.image_filename %}
-                                                <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
-                                            {% else %}
-                                                <div class="mobile-pet-avatar-placeholder">
-                                                    <i class="fas fa-paw"></i>
-                                                </div>
-                                            {% endif %}
-                                            <span class="mobile-pet-name">{{ pet.name }}</span>
-                                        </div>
-                                    {% endfor %}
+                                <div class="pet-avatars-container">
+                                    <div class="pet-avatars">
+                                        {% for pet in result.playdate.pets %}
+                                            <div class="pet-avatar">
+                                                {% if pet.image_filename %}
+                                                    <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                                {% else %}
+                                                    <div class="pet-avatar-placeholder">
+                                                        <i class="fas fa-paw"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <span class="pet-name">{{ pet.name }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
                                 </div>
                             </div>
                             

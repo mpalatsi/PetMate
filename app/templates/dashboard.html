@@ -453,28 +453,6 @@
                 </div>
             </div>
             
-            <div class="profile-section">
-                <h4><i class="fas fa-paw"></i> My Pets</h4>
-                {% if user.pets %}
-                    <div class="profile-pets-preview">
-                        {% for pet in user.pets %}
-                            <div class="pet-preview">
-                                {% if pet.image_filename %}
-                                    <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
-                                {% else %}
-                                    <div class="pet-avatar-placeholder">
-                                        <i class="fas fa-paw"></i>
-                                    </div>
-                                {% endif %}
-                                <span>{{ pet.name }}</span>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="no-pets-message">You haven't added any pets yet. <a href="{{ url_for('pets.add_pet') }}">Add your first pet!</a></p>
-                {% endif %}
-            </div>
-            
             {% if upcoming_playdates is defined and upcoming_playdates %}
             <div class="profile-section">
                 <h4><i class="fas fa-calendar-check"></i> Upcoming Playdates</h4>

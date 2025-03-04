@@ -338,7 +338,7 @@
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <p class="no-pets">No pets have been added to this playdate yet.</p>
+                            <p class="no-pets-message">No pets have been added to this playdate yet.</p>
                         {% endif %}
                     </div>
                 </div>
@@ -432,7 +432,7 @@
                     <i class="fas fa-arrow-left"></i> Back to Playdates
                 </a>
                 
-                {% if current_user.id == playdate.host_id %}
+                {% if user.id == playdate.host_id %}
                     <a href="{{ url_for('playdates.edit_playdate', playdate_id=playdate.id) }}" class="button secondary">
                         <i class="fas fa-edit"></i> Edit Playdate
                     </a>
@@ -451,6 +451,12 @@
                 <a href="{{ url_for('playdates.playdate_photos', playdate_id=playdate.id) }}" class="button">
                     <i class="fas fa-images"></i> Photo Gallery
                 </a>
+
+                {% if playdate.date < now and not user_has_reviewed %}
+                    <a href="{{ url_for('reviews.create_review', playdate_id=playdate.id) }}" class="button primary">
+                        <i class="fas fa-star"></i> Write Review
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>

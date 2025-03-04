@@ -40,16 +40,29 @@ def add_pet():
         age = request.form['age']
         size = request.form['size']
         temperament = request.form['temperament']
+        
+        # Handle image upload - try cropped image first, then direct file upload
+        image_filename = None
         cropped_image_data = request.form.get('cropped_image')
         
-        # Handle image upload
-        image_filename = None
-        if cropped_image_data:
+        if cropped_image_data and cropped_image_data.startswith('data:image'):
+            # Handle cropped image data
             image_filename = save_base64_image(
                 cropped_image_data, 
-                'app/static/pet_images', 
-                f"{name}_cropped"
+                'static/pet_images', 
+                f"{name}_cropped",
+                force_extension='jpg'
             )
+        elif 'pet_image' in request.files and request.files['pet_image'].filename:
+            # Handle direct file upload
+            file = request.files['pet_image']
+            if file and allowed_file(file.filename, {'jpg', 'jpeg', 'png', 'gif'}):
+                image_filename = save_uploaded_file(
+                    file, 
+                    'static/pet_images', 
+                    f"{name}_direct",
+                    force_extension='jpg'
+                )
 
         new_pet = Pet(
             name=name,
@@ -61,53 +74,70 @@ def add_pet():
             owner_id=user.id,
             image_filename=image_filename
         )
-
-        try:
-            db.session.add(new_pet)
-            db.session.commit()
-            flash('Pet added successfully!', 'success')
-            return redirect(url_for('pets.my_pets'))
-        except Exception as e:
-            db.session.rollback()
-            return render_template('add_pet.html', error=f'Error adding pet: {str(e)}')
-
+        
+        db.session.add(new_pet)
+        db.session.commit()
+        
+        flash('Pet added successfully!', 'success')
+        return redirect(url_for('pets.my_pets'))
+    
     return render_template('add_pet.html')
 
 @bp.route('/edit/<int:pet_id>', methods=['GET', 'POST'])
 def edit_pet(pet_id):
     if 'username' not in session:
         return redirect(url_for('auth.login'))
-    
-    # Get the current user
-    current_user = User.query.filter_by(username=session['username']).first()
-    
-    # Get the pet from the database
-    pet = Pet.query.filter_by(id=pet_id).first()
-    
-    # Check if pet exists and belongs to the current user
-    if not pet or pet.owner_id != current_user.id:
-        flash('Pet not found or you do not have permission to edit this pet.', 'error')
+
+    user = User.query.filter_by(username=session['username']).first()
+    pet = Pet.query.get_or_404(pet_id)
+
+    # Check if pet belongs to current user
+    if pet.owner_id != user.id:
+        flash('You can only edit your own pets.', 'error')
         return redirect(url_for('pets.my_pets'))
-    
+
     if request.method == 'POST':
-        # Update pet information
-        pet.name = request.form.get('name')
-        pet.species = request.form.get('species')
-        pet.breed = request.form.get('breed')
-        pet.age = request.form.get('age')
-        pet.size = request.form.get('size')
-        pet.temperament = request.form.get('temperament')
+        old_name = pet.name
+        new_name = request.form['name']
+        
+        # Update pet details
+        pet.name = new_name
+        pet.species = request.form['species']
+        pet.breed = request.form['breed']
+        pet.age = request.form['age']
+        pet.size = request.form['size']
+        pet.temperament = request.form['temperament']
         
         # Handle image upload if provided
         if 'pet_image' in request.files and request.files['pet_image'].filename:
             image = request.files['pet_image']
             if image and allowed_file(image.filename):
+                # Delete old image if it exists
+                if pet.image_filename:
+                    old_image_path = os.path.join('static/pet_images', pet.image_filename)
+                    try:
+                        os.remove(old_image_path)
+                    except OSError:
+                        pass  # Ignore if file doesn't exist
+                
+                # Save new image
                 image_filename = save_uploaded_file(
                     image, 
-                    'app/static/pet_images', 
-                    f"{pet.id}_{pet.name}.jpg"
+                    'static/pet_images', 
+                    f"{pet.id}_{new_name}",
+                    force_extension='jpg'
                 )
                 pet.image_filename = image_filename
+        # If name changed and there's an existing image, rename it
+        elif old_name != new_name and pet.image_filename:
+            old_image_path = os.path.join('static/pet_images', pet.image_filename)
+            new_image_filename = f"{pet.id}_{new_name}.jpg"
+            new_image_path = os.path.join('static/pet_images', new_image_filename)
+            try:
+                os.rename(old_image_path, new_image_path)
+                pet.image_filename = new_image_filename
+            except OSError:
+                pass  # Ignore if file doesn't exist or can't be renamed
         
         # Save changes to database
         db.session.commit()
@@ -130,7 +160,7 @@ def delete_pet(pet_id):
             # Delete pet's image file if it exists
             if pet.image_filename:
                 try:
-                    image_path = os.path.join('app/static/pet_images', pet.image_filename)
+                    image_path = os.path.join('static/pet_images', pet.image_filename)
                     if os.path.exists(image_path):
                         os.remove(image_path)
                 except Exception as e:

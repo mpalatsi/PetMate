@@ -3,6 +3,8 @@
 {% block title %}Edit Profile - PetMate{% endblock %}
 
 {% block extra_head %}
+<!-- Add Google Places API -->
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places"></script>
 <style>
     /* Enhanced profile form styling */
     .container.profile-container {
@@ -248,6 +250,26 @@
             grid-template-columns: 1fr;
         }
     }
+    
+    /* Google Places Autocomplete styles */
+    .pac-container {
+        border-radius: 8px;
+        margin-top: 5px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .pac-item {
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+    
+    .pac-item:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .pac-item-selected {
+        background-color: #f0f0f0;
+    }
 </style>
 {% endblock %}
 
@@ -290,7 +312,7 @@
                 
                 <div class="form-group">
                     <label for="location">Location:</label>
-                    <input type="text" id="location" name="location" value="{{ user.location }}" placeholder="City, neighborhood, or general area">
+                    <input type="text" id="location" name="location" value="{{ user.location }}" placeholder="Start typing your location...">
                     <p class="form-helper">This helps other pet owners find playdates near you</p>
                 </div>
             </div>
@@ -299,8 +321,13 @@
                 <h3>Pet Parent Profile</h3>
                 
                 <div class="form-group">
-                    <label for="pet_owner_since">Pet Owner Since (Year):</label>
-                    <input type="number" id="pet_owner_since" name="pet_owner_since" value="{{ user.pet_owner_since }}" min="1950" max="{{ current_year }}" placeholder="e.g., 2015">
+                    <label for="pet_owner_since">Pet Owner Since:</label>
+                    <select id="pet_owner_since" name="pet_owner_since">
+                        <option value="">Select year</option>
+                        {% for year in range(current_year|int, 1950, -1) %}
+                            <option value="{{ year }}" {% if user.pet_owner_since == year|string %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 
                 <div class="form-group">
@@ -383,4 +410,28 @@
         </form>
     </div>
 </div>
+
+<script>
+    // Initialize Google Places Autocomplete
+    function initPlacesAutocomplete() {
+        const input = document.getElementById('location');
+        const options = {
+            types: ['(cities)'], // Restrict to cities only
+            fields: ['formatted_address', 'geometry', 'name'],
+        };
+        
+        const autocomplete = new google.maps.places.Autocomplete(input, options);
+        
+        // Update the input value when a place is selected
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+            if (place.formatted_address) {
+                input.value = place.formatted_address;
+            }
+        });
+    }
+    
+    // Call the initialization function when the page loads
+    window.addEventListener('load', initPlacesAutocomplete);
+</script>
 {% endblock %} 

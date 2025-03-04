@@ -173,8 +173,19 @@
         margin-right: 0.5rem;
     }
     
+    .profile-pets-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+    
     .pet-preview {
-        width: 100px;
+        width: 120px;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         transition: transform 0.3s ease;
     }
     
@@ -185,8 +196,45 @@
     .pet-preview img, .pet-avatar-placeholder {
         width: 80px;
         height: 80px;
+        border-radius: 50%;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         border: 3px solid white;
+        margin-bottom: 0.8rem;
+    }
+    
+    .pet-preview .pet-name {
+        font-size: 0.95rem;
+        color: var(--text-dark);
+        text-align: center;
+        width: 100%;
+        word-wrap: break-word;
+        line-height: 1.2;
+        padding: 0 0.5rem;
+    }
+    
+    .pet-avatar-placeholder {
+        background-color: var(--bg-sage-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--sage-green);
+        font-size: 1.5rem;
+    }
+    
+    .no-pets-message {
+        color: var(--text-muted);
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .no-pets-message a {
+        color: var(--sage-green);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .no-pets-message a:hover {
+        text-decoration: underline;
     }
     
     .tag {
@@ -466,12 +514,12 @@
                                         <i class="fas fa-paw"></i>
                                     </div>
                                 {% endif %}
-                                <span>{{ pet.name }}</span>
+                                <span class="pet-name">{{ pet.name }}</span>
                             </div>
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p class="no-pets-message">You haven't added any pets yet. <a href="{{ url_for('add_pet') }}">Add your first pet!</a></p>
+                    <p class="no-pets-message">You haven't added any pets yet. <a href="{{ url_for('pets.add_pet') }}">Add your first pet!</a></p>
                 {% endif %}
             </div>
             

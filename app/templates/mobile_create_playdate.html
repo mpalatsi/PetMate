@@ -430,6 +430,12 @@
                         <input type="time" id="time" name="time" class="mobile-form-input" required>
                     </div>
                 </div>
+                
+                <div class="mobile-form-group">
+                    <label for="max_pets" class="mobile-form-label">Maximum number of pets:</label>
+                    <input type="number" id="max_pets" name="max_pets" class="mobile-form-input" min="1" value="5" required>
+                    <span class="mobile-form-hint">Set the maximum number of pets that can join this playdate</span>
+                </div>
             </div>
             
             <div class="mobile-form-container">
@@ -470,12 +476,6 @@
                 </div>
                 
                 {% if user_pets %}
-                    <div class="mobile-form-group">
-                        <label for="max_pets" class="mobile-form-label">Maximum number of pets:</label>
-                        <input type="number" id="max_pets" name="max_pets" min="1" value="5" class="mobile-form-input">
-                        <span class="mobile-form-hint">Maximum number of pets that can join this playdate</span>
-                    </div>
-                    
                     <button type="submit" class="mobile-cta-button mobile-cta-button-large mobile-touch-feedback">
                         <i class="fas fa-calendar-plus"></i> Create Playdate
                     </button>
