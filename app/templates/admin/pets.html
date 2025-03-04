@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}Pet Management - PetMate Admin{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Complete inline admin styles - no external CSS dependency */
+.admin-container {
+    padding: 25px;
+    max-width: 1200px;
+    margin: 30px auto;
+    background-color: #F5F1E8;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Quicksand', sans-serif;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #7C9082;
+    padding-bottom: 15px;
+}
+
+.admin-header h1 {
+    color: #2C4A3B;
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.back-link {
+    background-color: #7C9082;
+    color: white !important;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.back-link:hover {
+    background-color: #2C4A3B;
+}
+
+/* Admin sections */
+.admin-section {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.admin-section h2 {
+    color: #2C4A3B;
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #F5F1E8;
+}
+
+/* Filter controls */
+.filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-input,
+.filter-select {
+    padding: 10px 16px;
+    border: 1px solid #E8E8E8;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #2C4A3B;
+    transition: all 0.2s ease;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-input:focus,
+.filter-select:focus {
+    outline: none;
+    border-color: #7C9082;
+    box-shadow: 0 0 0 3px rgba(124, 144, 130, 0.2);
+}
+
+.filter-select {
+    background-color: white;
+    min-width: 150px;
+}
+
+/* Tables */
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #F5F1E8;
+}
+
+.admin-table th {
+    background-color: rgba(124, 144, 130, 0.1);
+    font-weight: 600;
+    color: #2C4A3B;
+}
+
+.admin-table tr:hover {
+    background-color: rgba(124, 144, 130, 0.05);
+}
+
+.actions {
+    white-space: nowrap;
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-active {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: #2e7d32;
+}
+
+.status-suspended {
+    background-color: rgba(243, 156, 18, 0.15);
+    color: #b7791f;
+}
+
+.status-banned {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: #c0392b;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.btn-small {
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.btn-primary {
+    background-color: #7C9082;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background-color: #2C4A3B;
+}
+
+.btn-warning {
+    background-color: #F39C12;
+    color: white !important;
+}
+
+.btn-warning:hover {
+    background-color: #E67E22;
+}
+
+.btn-success {
+    background-color: #4CAF50;
+    color: white !important;
+}
+
+.btn-success:hover {
+    background-color: #3D9140;
+}
+
+.btn-secondary {
+    background-color: #6C757D;
+    color: white !important;
+}
+
+.btn-secondary:hover {
+    background-color: #5A6268;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.page-link {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: white;
+    border: 1px solid #E8E8E8;
+    border-radius: 6px;
+    color: #2C4A3B;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.page-link:hover {
+    background-color: #F5F1E8;
+    color: #2C4A3B;
+}
+
+.page-info {
+    color: #7C9082;
+    font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .admin-container {
+        margin: 15px;
+        padding: 15px;
+    }
+    
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .filters {
+        flex-direction: column;
+    }
+    
+    .admin-table th, 
+    .admin-table td {
+        padding: 8px 10px;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Pet Management</h1>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="admin-section">
+        <div class="filters">
+            <input type="text" id="petSearch" placeholder="Search pets..." class="search-input">
+            <select id="speciesFilter" class="filter-select">
+                <option value="">All Species</option>
+                <option value="dog">Dogs</option>
+                <option value="cat">Cats</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Species</th>
+                        <th>Breed</th>
+                        <th>Age</th>
+                        <th>Owner</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pet in pets.items %}
+                    <tr>
+                        <td>{{ pet.name }}</td>
+                        <td>{{ pet.species }}</td>
+                        <td>{{ pet.breed }}</td>
+                        <td>{{ pet.age }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.user_details', user_id=pet.owner.id) }}">
+                                {{ pet.owner.username }}
+                            </a>
+                        </td>
+                        <td class="actions">
+                            <a href="{{ url_for('admin.pet_details', pet_id=pet.id) }}" class="btn btn-small btn-primary">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            {% if pets.has_prev %}
+            <a href="{{ url_for('admin.pets_management', page=pets.prev_num) }}" class="page-link">&laquo; Previous</a>
+            {% endif %}
+            
+            <span class="page-info">
+                Page {{ pets.page }} of {{ pets.pages }}
+            </span>
+            
+            {% if pets.has_next %}
+            <a href="{{ url_for('admin.pets_management', page=pets.next_num) }}" class="page-link">Next &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Search and filter functionality
+document.getElementById('petSearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    filterTable(searchTerm, document.getElementById('speciesFilter').value);
+});
+
+document.getElementById('speciesFilter').addEventListener('change', function(e) {
+    const searchTerm = document.getElementById('petSearch').value.toLowerCase();
+    filterTable(searchTerm, e.target.value);
+});
+
+function filterTable(searchTerm, species) {
+    const rows = document.querySelectorAll('.admin-table tbody tr');
+    
+    rows.forEach(row => {
+        const petName = row.cells[0].textContent.toLowerCase();
+        const petSpecies = row.cells[1].textContent.toLowerCase();
+        const petBreed = row.cells[2].textContent.toLowerCase();
+        const ownerName = row.cells[4].textContent.toLowerCase();
+        
+        const matchesSearch = petName.includes(searchTerm) || 
+                              petBreed.includes(searchTerm) ||
+                              ownerName.includes(searchTerm);
+        const matchesSpecies = species === '' || petSpecies === species;
+        
+        row.style.display = matchesSearch && matchesSpecies ? '' : 'none';
+    });
+}
+</script>
+{% endblock %} 

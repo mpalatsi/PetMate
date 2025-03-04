@@ -3,20 +3,27 @@ from datetime import datetime
 from app.models.associations import playdate_pets
 
 class Pet(db.Model):
+    __tablename__ = 'pets'
+    
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
-    species = db.Column(db.String(50), nullable=False)  # dog, cat, etc.
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    species = db.Column(db.String(50), nullable=False)
     breed = db.Column(db.String(100))
     age = db.Column(db.Integer)
-    size = db.Column(db.String(20))  # small, medium, large
-    temperament = db.Column(db.String(200))  # friendly, shy, energetic, etc.
-    image_filename = db.Column(db.String(255))  # Store the filename of uploaded image
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    size = db.Column(db.String(20))  # Small, Medium, Large
+    gender = db.Column(db.String(20))
+    image_filename = db.Column(db.String(255))
+    bio = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # The backref to owner is defined in the User model
-    # Define relationship to playdates through the association table
-    playdates = db.relationship('Playdate', secondary=playdate_pets, backref='pets')
+    # Personality traits and preferences
+    energy_level = db.Column(db.String(20))  # Low, Medium, High
+    friendliness = db.Column(db.String(20))  # Shy, Moderate, Outgoing
+    training_level = db.Column(db.String(20))  # Basic, Intermediate, Advanced
+    special_needs = db.Column(db.Text)
+    preferred_playmates = db.Column(db.String(255))  # e.g., "small dogs, cats"
     
     def __repr__(self):
         return f'<Pet {self.name}>' 

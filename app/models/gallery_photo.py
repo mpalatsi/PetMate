@@ -2,19 +2,17 @@ from app import db
 from datetime import datetime
 
 class GalleryPhoto(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    pet_id = db.Column(db.Integer, db.ForeignKey('pet.id'), nullable=True)  # Optional link to a specific pet
-    filename = db.Column(db.String(255), nullable=False)
-    title = db.Column(db.String(100), nullable=True)
-    description = db.Column(db.Text, nullable=True)
-    likes = db.Column(db.Integer, default=0)
-    is_public = db.Column(db.Boolean, default=True)
-    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    __tablename__ = 'gallery_photos'
     
-    # Relationships
-    uploader = db.relationship('User', backref='gallery_photos')
-    pet = db.relationship('Pet', backref='gallery_photos')
+    id = db.Column(db.Integer, primary_key=True)
+    pet_id = db.Column(db.Integer, db.ForeignKey('pets.id', ondelete='CASCADE'), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+    caption = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationship
+    pet = db.relationship('Pet', backref=db.backref('gallery_photos', lazy=True, cascade='all, delete-orphan'))
     
     def __repr__(self):
-        return f'<GalleryPhoto {self.id}: {self.title or "Untitled"}>' 
+        return f'<GalleryPhoto {self.filename}>' 

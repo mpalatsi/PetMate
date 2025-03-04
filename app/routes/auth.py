@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, session, request, flash
+from flask_login import login_user, logout_user, login_required
 from app.models.user import User
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -55,10 +56,10 @@ def register():
         # Create a new user object
         new_user = User(
             username=username,
-            password=generate_password_hash(password),
             email=email,
             profile_picture=profile_picture
         )
+        new_user.set_password(password)
         
         try:
             db.session.add(new_user)
@@ -98,18 +99,28 @@ def register():
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
+    print("Login route called")
     # Check if we should display the mobile version
     user_agent = request.user_agent.string
     is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
     mode = request.args.get('mode', None)  # Check for manual override
     
     if request.method == 'POST':
+        print("POST request received")
         username = request.form['username']
         password = request.form['password']
+        print(f"Login attempt for username: {username}")
         
         user = User.query.filter_by(username=username).first()
+        print(f"User found: {user is not None}")
         
-        if user and check_password_hash(user.password, password):
+        if user:
+            print(f"User attributes: {dir(user)}")
+            print(f"User password_hash: {user.password_hash}")
+        
+        if user and user.check_password(password):
+            print("Password check successful")
+            login_user(user)
             session['username'] = username
             session['user_id'] = user.id
             
@@ -119,13 +130,16 @@ def login():
             
             return redirect(url_for('main.dashboard'))
         else:
+            print("Login failed")
             flash('Invalid username or password')
     
     return render_template('mobile_login.html' if is_mobile and mode != 'desktop' else 'login.html')
 
 @bp.route('/logout')
 def logout():
+    logout_user()
     session.pop('username', None)
+    session.pop('user_id', None)
     flash('You have been logged out.', 'info')
     return redirect(url_for('main.index'))
 
@@ -177,7 +191,7 @@ def change_password():
         new_password = request.form['new_password']
         confirm_password = request.form['confirm_password']
         
-        if not check_password_hash(user.password, current_password):
+        if not user.check_password(current_password):
             flash('Current password is incorrect.', 'error')
             return render_template('change_password.html')
         
@@ -185,7 +199,7 @@ def change_password():
             flash('New passwords do not match.', 'error')
             return render_template('change_password.html')
         
-        user.password = generate_password_hash(new_password)
+        user.set_password(new_password)
         db.session.commit()
         
         flash('Password changed successfully.', 'success')

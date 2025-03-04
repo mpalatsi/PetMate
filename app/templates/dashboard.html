@@ -370,11 +370,13 @@
                 {% endif %}
             </div>
             <div class="profile-name-info">
-                <h3>{{ username }}</h3>
+                <h3>{{ user.name or user.username }}</h3>
                 <div class="profile-meta">
+                    {% if user.created_at %}
                     <p class="profile-joined">Member since {{ user.created_at.strftime('%B %Y') }}</p>
-                    {% if user.location is defined and user.location %}
-                        <p class="profile-location"><i class="fas fa-map-marker-alt"></i> {{ user.location }}</p>
+                    {% endif %}
+                    {% if user.location %}
+                    <p class="profile-location"><i class="fas fa-map-marker-alt"></i> {{ user.location }}</p>
                     {% endif %}
                 </div>
             </div>

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Admin CSS Test - PetMate Admin{% endblock %}
+
+{% block content %}
+<div class="admin-container" style="margin-top: 20px;">
+    <div class="admin-header">
+        <h1>Admin CSS Test Page</h1>
+        <a href="{{ url_for('main.index') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Site
+        </a>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Test Card 1</div>
+            <div class="stat-number">42</div>
+            <a href="#" class="stat-link">View details &rarr;</a>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-label">Test Card 2</div>
+            <div class="stat-number">123</div>
+            <a href="#" class="stat-link">View details &rarr;</a>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h2>Test Section</h2>
+        <p>This is a test to check if the admin CSS is working properly.</p>
+        
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
+                        <th>Column 3</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Data 1</td>
+                        <td>Data 2</td>
+                        <td><span class="status-badge status-active">active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Data 3</td>
+                        <td>Data 4</td>
+                        <td><span class="status-badge status-suspended">suspended</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="admin-section">
+        <h2>Test Buttons</h2>
+        <div class="quick-actions">
+            <a href="#" class="action-button">
+                <i class="fas fa-users"></i> Test Button 1
+            </a>
+            <a href="#" class="action-button">
+                <i class="fas fa-paw"></i> Test Button 2
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Test page loaded');
+    console.log('Checking if admin.css is loaded:');
+    const stylesheets = document.styleSheets;
+    for (let i = 0; i < stylesheets.length; i++) {
+        console.log(stylesheets[i].href);
+    }
+});
+</script>
+{% endblock %} 

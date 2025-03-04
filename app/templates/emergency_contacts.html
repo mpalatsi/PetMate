@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Contacts - PetMate{% endblock %}
+
+{% block content %}
+<div class="container safety-container">
+    <h2>Emergency Contacts</h2>
+    
+    <div class="safety-intro">
+        <p>Emergency contacts will be notified in case of incidents during playdates. At least one primary contact is required.</p>
+    </div>
+
+    {% if emergency_contacts %}
+        <div class="contacts-list">
+            {% for contact in emergency_contacts %}
+                <div class="contact-card {% if contact.is_primary %}primary-contact{% endif %}">
+                    <div class="contact-info">
+                        <h3>{{ contact.name }}</h3>
+                        <p><i class="fas fa-phone"></i> {{ contact.phone }}</p>
+                        <p><i class="fas fa-user-friends"></i> {{ contact.relationship }}</p>
+                        {% if contact.is_primary %}
+                            <span class="primary-badge">Primary Contact</span>
+                        {% endif %}
+                    </div>
+                    <div class="contact-actions">
+                        <button 
+                            class="button secondary small" 
+                            data-contact-id="{{ contact.id }}"
+                            type="button"
+                        >
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button 
+                            class="button danger small" 
+                            data-contact-id="{{ contact.id }}"
+                            type="button"
+                        >
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-contacts">
+            <p>You haven't added any emergency contacts yet.</p>
+            <p>Please add at least one primary emergency contact.</p>
+        </div>
+    {% endif %}
+
+    <div class="add-contact-section">
+        <h3>Add New Contact</h3>
+        <form method="POST" action="{{ url_for('safety.add_emergency_contact') }}" class="contact-form">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" required pattern="[0-9]{10}">
+                <div class="form-helper">Enter 10-digit phone number without spaces or dashes</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="relationship">Relationship</label>
+                <input type="text" id="relationship" name="relationship" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="is_primary" id="is_primary">
+                    Set as primary emergency contact
+                </label>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="button primary">
+                    <i class="fas fa-plus"></i> Add Contact
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="edit-contact-modal" class="modal">
+    <div class="modal-content">
+        <h3>Edit Emergency Contact</h3>
+        <form id="edit-contact-form" method="POST" class="contact-form">
+            <div class="form-group">
+                <label for="edit-name">Full Name</label>
+                <input type="text" id="edit-name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-phone">Phone Number</label>
+                <input type="tel" id="edit-phone" name="phone" required pattern="[0-9]{10}">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-relationship">Relationship</label>
+                <input type="text" id="edit-relationship" name="relationship" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="is_primary" id="edit-is-primary">
+                    Set as primary emergency contact
+                </label>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="button primary">Save Changes</button>
+                <button type="button" class="button secondary" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Add event listeners after DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers for edit buttons
+    document.querySelectorAll('.button.secondary').forEach(button => {
+        button.addEventListener('click', function() {
+            editContact(this.dataset.contactId);
+        });
+    });
+
+    // Add click handlers for delete buttons
+    document.querySelectorAll('.button.danger').forEach(button => {
+        button.addEventListener('click', function() {
+            deleteContact(this.dataset.contactId);
+        });
+    });
+});
+
+function editContact(contactId) {
+    fetch(`/api/emergency-contacts/${contactId}`)
+        .then(response => response.json())
+        .then(contact => {
+            document.getElementById('edit-name').value = contact.name;
+            document.getElementById('edit-phone').value = contact.phone;
+            document.getElementById('edit-relationship').value = contact.relationship;
+            document.getElementById('edit-is-primary').checked = contact.is_primary;
+            document.getElementById('edit-contact-form').action = `/safety/emergency-contacts/${contactId}/edit`;
+            document.getElementById('edit-contact-modal').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching contact:', error);
+            alert('Failed to load contact information. Please try again.');
+        });
+}
+
+function closeEditModal() {
+    document.getElementById('edit-contact-modal').style.display = 'none';
+}
+
+function deleteContact(contactId) {
+    if (confirm('Are you sure you want to delete this emergency contact?')) {
+        fetch(`/safety/emergency-contacts/${contactId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                window.location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting contact:', error);
+            alert('Failed to delete contact. Please try again.');
+        });
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    if (event.target == document.getElementById('edit-contact-modal')) {
+        closeEditModal();
+    }
+}
+</script>
+{% endblock %} 

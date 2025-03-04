@@ -1,35 +1,26 @@
 from app import db
 from datetime import datetime
-from app.models.associations import playdate_pets, playdate_attendees
+from app.models.associations import playdate_attendees, playdate_pets
 
 class Playdate(db.Model):
+    __tablename__ = 'playdates'
+    
     id = db.Column(db.Integer, primary_key=True)
-    host_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    date = db.Column(db.DateTime, nullable=False)
-    location = db.Column(db.String(200), nullable=False)
+    host_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-    latitude = db.Column(db.Float, nullable=True)  # Store latitude coordinate
-    longitude = db.Column(db.Float, nullable=True)  # Store longitude coordinate
-    status = db.Column(db.String(20), default='active')  # active, cancelled
-    max_pets = db.Column(db.Integer, default=10)  # Maximum number of pets allowed
+    location = db.Column(db.String(200), nullable=False)
+    date = db.Column(db.DateTime, nullable=False)
+    duration = db.Column(db.Integer)  # Duration in minutes
+    max_attendees = db.Column(db.Integer)
+    status = db.Column(db.String(20), default='scheduled')  # scheduled, in_progress, completed, cancelled
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    host = db.relationship('User', backref='hosted_playdates', foreign_keys=[host_id])
-    
-    # Fix the attendees relationship by explicitly defining the join conditions
-    attendees = db.relationship(
-        'User',
-        secondary=playdate_attendees,
-        backref=db.backref('attending_playdates', lazy='dynamic'),
-        primaryjoin=(id == playdate_attendees.c.playdate_id),
-        secondaryjoin=('User.id == playdate_attendees.c.user_id')
-    )
-
-    # Relationship to playdate photos
-    photos = db.relationship('PlaydatePhoto', backref='playdate', lazy=True, cascade="all, delete-orphan")
-    
-    # Relationship to reviews
-    reviews = db.relationship('Review', backref='playdate', lazy=True)
+    host = db.relationship('User', foreign_keys=[host_id])
+    attendees = db.relationship('User', secondary=playdate_attendees)
+    pets = db.relationship('Pet', secondary=playdate_pets, backref=db.backref('playdates', lazy=True))
     
     def __repr__(self):
-        return f'<Playdate {self.id}: {self.location} on {self.date}>' 
+        return f'<Playdate {self.id}: {self.title}>' 

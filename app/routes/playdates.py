@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, session, reques
 from app.models.user import User
 from app.models.pet import Pet
 from app.models.playdate import Playdate
-from app.models.photo import PlaydatePhoto
+from app.models.playdate_photo import PlaydatePhoto
 from app.models.playdate_message import PlaydateMessage
 from app import db
 from app.utils.helpers import allowed_file, save_uploaded_file, geocode_address

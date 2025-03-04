@@ -404,11 +404,13 @@
                 {% else %}
                     <img src="{{ url_for('static', filename='profile_pictures/default_user.png') }}" alt="Default Profile Picture" class="mobile-profile-image">
                 {% endif %}
-                <h2 class="mobile-profile-name">{{ username }}</h2>
+                <h2 class="mobile-profile-name">{{ user.name or user.username }}</h2>
                 <div class="mobile-profile-meta">
+                    {% if user.created_at %}
                     <p><i class="fas fa-calendar"></i> Member since {{ user.created_at.strftime('%B %Y') }}</p>
-                    {% if user.location is defined and user.location %}
-                        <p><i class="fas fa-map-marker-alt"></i> {{ user.location }}</p>
+                    {% endif %}
+                    {% if user.location %}
+                    <p><i class="fas fa-map-marker-alt"></i> {{ user.location }}</p>
                     {% endif %}
                 </div>
             </div>

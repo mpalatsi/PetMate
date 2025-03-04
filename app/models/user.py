@@ -2,17 +2,27 @@ from app import db
 from datetime import datetime
 from app.models.associations import playdate_attendees
 from flask import session
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
-class User(db.Model):
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+    
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
+    password_hash = db.Column(db.String(128))
     name = db.Column(db.String(120))  # User's full name
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     profile_picture = db.Column(db.String(255))  # Store the filename of uploaded image
     bio = db.Column(db.Text)  # User bio
     location = db.Column(db.String(200))  # User location
+    
+    # Admin and account status fields
+    is_admin = db.Column(db.Boolean, default=False)
+    account_status = db.Column(db.String(20), default='active')  # active, suspended, banned
+    last_login = db.Column(db.DateTime)
+    account_notes = db.Column(db.Text)  # Admin notes about the user
     
     # Pet owner specific fields
     preferred_meetup_types = db.Column(db.String(255))  # e.g., "parks,beaches,dog runs"
@@ -20,17 +30,62 @@ class User(db.Model):
     pet_owner_since = db.Column(db.Integer)  # Year they became a pet owner
     pet_experience_level = db.Column(db.String(50))  # e.g., "beginner", "intermediate", "expert"
     
-    # Add property for compatibility with code that expects password_hash
-    @property
-    def password_hash(self):
-        return self.password
-        
-    @password_hash.setter
-    def password_hash(self, value):
-        self.password = value
-    
-    # Define the relationship to the Pet model
+    # Relationships
     pets = db.relationship('Pet', backref='owner', lazy=True)
+    hosted_playdates = db.relationship('Playdate', foreign_keys='Playdate.host_id', lazy=True)
+    attended_playdates = db.relationship('Playdate', secondary=playdate_attendees, lazy=True)
+    reviews_received = db.relationship('Review', 
+                                     foreign_keys='Review.reviewed_user_id',
+                                     back_populates='reviewed_user',
+                                     lazy='joined')
+    reviews_given = db.relationship('Review',
+                                  foreign_keys='Review.reviewer_id',
+                                  back_populates='reviewer',
+                                  lazy='joined')
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+        
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+    
+    def get_id(self):
+        return str(self.id)
+    
+    @property
+    def is_active(self):
+        return self.account_status == 'active'
+    
+    @property
+    def is_authenticated(self):
+        return True
+    
+    @property
+    def is_anonymous(self):
+        return False
+    
+    # Admin specific methods
+    def suspend_account(self, reason=None):
+        self.account_status = 'suspended'
+        if reason:
+            self.account_notes = f"{datetime.utcnow()}: Suspended - {reason}\n" + (self.account_notes or "")
+        db.session.commit()
+    
+    def activate_account(self, note=None):
+        self.account_status = 'active'
+        if note:
+            self.account_notes = f"{datetime.utcnow()}: Activated - {note}\n" + (self.account_notes or "")
+        db.session.commit()
+    
+    def ban_account(self, reason=None):
+        self.account_status = 'banned'
+        if reason:
+            self.account_notes = f"{datetime.utcnow()}: Banned - {reason}\n" + (self.account_notes or "")
+        db.session.commit()
+    
+    def add_admin_note(self, note):
+        self.account_notes = f"{datetime.utcnow()}: {note}\n" + (self.account_notes or "")
+        db.session.commit()
     
     def get_unread_message_count(self):
         from app.models.message import Message
@@ -73,8 +128,8 @@ class User(db.Model):
         return conversations
 
     def get_average_rating(self):
-        from app.models.review import Review
-        reviews = Review.query.filter_by(reviewed_user_id=self.id).all()
+        # Use already loaded reviews_received relationship
+        reviews = self.reviews_received
         if not reviews:
             return 0
         total = sum(review.rating for review in reviews)

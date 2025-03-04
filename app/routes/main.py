@@ -19,7 +19,7 @@ def index():
     mobile_preference = request.cookies.get('preferMobileVersion')
     
     # Check if it's a mobile device
-    user_agent = request.user_agent.string
+    user_agent = request.user_agent.string if request.user_agent else ''
     is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
     
     # If mobile and no preference set to desktop, redirect to mobile version
@@ -593,14 +593,13 @@ def dashboard():
     ).order_by(Playdate.date).limit(5).all()
     
     # Check if we should display the mobile version
-    user_agent = request.user_agent.string
+    user_agent = request.user_agent.string if request.user_agent else ''
     is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
     mode = request.args.get('mode', None)  # Check for manual override
     
     return render_template(
         'mobile_dashboard.html' if is_mobile and mode != 'desktop' else 'dashboard.html', 
-        username=username, 
-        user=user, 
+        user=user,  # Pass the User object directly
         unread_messages=unread_messages, 
         upcoming_playdates=upcoming_playdates
     )

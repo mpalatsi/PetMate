@@ -1,0 +1,509 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - PetMate Admin{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Complete inline admin styles - no external CSS dependency */
+.admin-container {
+    padding: 25px;
+    max-width: 1200px;
+    margin: 30px auto;
+    background-color: #F5F1E8;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Quicksand', sans-serif;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #7C9082;
+    padding-bottom: 15px;
+}
+
+.admin-header h1 {
+    color: #2C4A3B;
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.back-link {
+    background-color: #7C9082;
+    color: white !important;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.back-link:hover {
+    background-color: #2C4A3B;
+}
+
+/* Admin sections */
+.admin-section {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.admin-section h2 {
+    color: #2C4A3B;
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #F5F1E8;
+}
+
+/* Filter controls */
+.filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-input,
+.filter-select {
+    padding: 10px 16px;
+    border: 1px solid #E8E8E8;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #2C4A3B;
+    transition: all 0.2s ease;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-input:focus,
+.filter-select:focus {
+    outline: none;
+    border-color: #7C9082;
+    box-shadow: 0 0 0 3px rgba(124, 144, 130, 0.2);
+}
+
+.filter-select {
+    background-color: white;
+    min-width: 150px;
+}
+
+/* Tables */
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #F5F1E8;
+}
+
+.admin-table th {
+    background-color: rgba(124, 144, 130, 0.1);
+    font-weight: 600;
+    color: #2C4A3B;
+}
+
+.admin-table tr:hover {
+    background-color: rgba(124, 144, 130, 0.05);
+}
+
+.actions {
+    white-space: nowrap;
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-active {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: #2e7d32;
+}
+
+.status-suspended {
+    background-color: rgba(243, 156, 18, 0.15);
+    color: #b7791f;
+}
+
+.status-banned {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: #c0392b;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.btn-small {
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.btn-primary {
+    background-color: #7C9082;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background-color: #2C4A3B;
+}
+
+.btn-warning {
+    background-color: #F39C12;
+    color: white !important;
+}
+
+.btn-warning:hover {
+    background-color: #E67E22;
+}
+
+.btn-success {
+    background-color: #4CAF50;
+    color: white !important;
+}
+
+.btn-success:hover {
+    background-color: #3D9140;
+}
+
+.btn-secondary {
+    background-color: #6C757D;
+    color: white !important;
+}
+
+.btn-secondary:hover {
+    background-color: #5A6268;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.page-link {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: white;
+    border: 1px solid #E8E8E8;
+    border-radius: 6px;
+    color: #2C4A3B;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.page-link:hover {
+    background-color: #F5F1E8;
+    color: #2C4A3B;
+}
+
+.page-info {
+    color: #7C9082;
+    font-size: 14px;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    max-width: 500px;
+    margin: 100px auto;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: #2C4A3B;
+    font-size: 22px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #F5F1E8;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #2C4A3B;
+}
+
+.form-group textarea,
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #F5F1E8;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.form-group textarea:focus,
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #7C9082;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(124, 144, 130, 0.2);
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .admin-container {
+        margin: 15px;
+        padding: 15px;
+    }
+    
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .filters {
+        flex-direction: column;
+    }
+    
+    .admin-table th, 
+    .admin-table td {
+        padding: 8px 10px;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+    }
+    
+    .modal-content {
+        margin: 80px 15px;
+        padding: 20px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>User Management</h1>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="admin-section">
+        <div class="filters">
+            <input type="text" id="userSearch" placeholder="Search users..." class="search-input">
+            <select id="statusFilter" class="filter-select">
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="suspended">Suspended</option>
+                <option value="banned">Banned</option>
+            </select>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Joined</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                        <th>Pets</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users.items %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never' }}</td>
+                        <td>
+                            <span class="status-badge status-{{ user.account_status }}">
+                                {{ user.account_status }}
+                            </span>
+                        </td>
+                        <td>{{ user.pets|length }}</td>
+                        <td class="actions">
+                            <a href="{{ url_for('admin.user_details', user_id=user.id) }}" class="btn btn-small btn-primary">View</a>
+                            {% if user.account_status == 'active' %}
+                            <button onclick="showSuspendModal({{ user.id }})" class="btn btn-small btn-warning">Suspend</button>
+                            {% elif user.account_status == 'suspended' %}
+                            <form action="{{ url_for('admin.update_user_status', user_id=user.id) }}" method="POST" style="display: inline;">
+                                <input type="hidden" name="action" value="activate">
+                                <button type="submit" class="btn btn-small btn-success">Activate</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            {% if users.has_prev %}
+            <a href="{{ url_for('admin.user_management', page=users.prev_num) }}" class="page-link">&laquo; Previous</a>
+            {% endif %}
+            
+            <span class="page-info">
+                Page {{ users.page }} of {{ users.pages }}
+            </span>
+            
+            {% if users.has_next %}
+            <a href="{{ url_for('admin.user_management', page=users.next_num) }}" class="page-link">Next &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Suspend User Modal -->
+<div id="suspendModal" class="modal">
+    <div class="modal-content">
+        <h2>Suspend User</h2>
+        <form id="suspendForm" action="" method="POST">
+            <input type="hidden" name="action" value="suspend">
+            <div class="form-group">
+                <label for="reason">Reason for suspension:</label>
+                <textarea name="reason" id="reason" required></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-warning">Suspend User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showSuspendModal(userId) {
+    const modal = document.getElementById('suspendModal');
+    const form = document.getElementById('suspendForm');
+    form.action = `/admin/user/${userId}/update`;
+    modal.style.display = 'block';
+}
+
+function closeModal() {
+    const modal = document.getElementById('suspendModal');
+    modal.style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('suspendModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Search and filter functionality
+document.getElementById('userSearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    filterTable(searchTerm, document.getElementById('statusFilter').value);
+});
+
+document.getElementById('statusFilter').addEventListener('change', function(e) {
+    const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+    filterTable(searchTerm, e.target.value);
+});
+
+function filterTable(searchTerm, status) {
+    const rows = document.querySelectorAll('.admin-table tbody tr');
+    
+    rows.forEach(row => {
+        const username = row.cells[0].textContent.toLowerCase();
+        const email = row.cells[1].textContent.toLowerCase();
+        const userStatus = row.cells[4].textContent.trim().toLowerCase();
+        
+        const matchesSearch = username.includes(searchTerm) || email.includes(searchTerm);
+        const matchesStatus = status === '' || userStatus === status;
+        
+        row.style.display = matchesSearch && matchesStatus ? '' : 'none';
+    });
+}
+</script>
+{% endblock %} 

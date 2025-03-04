@@ -1,6 +1,7 @@
 Flask==2.3.3
 Flask-SQLAlchemy==3.1.1
 Flask-Migrate==4.0.5
+Flask-Login==0.6.3
 Werkzeug==2.3.7
 SQLAlchemy==2.0.23
 Jinja2==3.1.2
@@ -16,4 +17,6 @@ Flask-SocketIO==5.3.4
 python-socketio==5.8.0
 python-engineio==4.4.1
 eventlet==0.33.3
-requests==2.31.0 
+requests==2.31.0
+phonenumbers==8.13.31
+bcrypt==4.1.2 

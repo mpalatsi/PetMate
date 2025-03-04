@@ -5,6 +5,7 @@ from flask_socketio import SocketIO
 import os
 import logging
 from config import Config
+from flask_login import LoginManager
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -13,9 +14,15 @@ logger = logging.getLogger(__name__)
 # Initialize extensions
 db = SQLAlchemy()
 migrate = Migrate()
+login_manager = LoginManager()
 
 # Initialize SocketIO - use gevent as async_mode
 socketio = SocketIO(async_mode='gevent')
+
+@login_manager.user_loader
+def load_user(user_id):
+    from app.models.user import User
+    return User.query.get(int(user_id))
 
 def create_app(config_class=Config):
     """
@@ -27,12 +34,18 @@ def create_app(config_class=Config):
     Returns:
         Flask application instance
     """
-    app = Flask(__name__, static_folder='../static', static_url_path='/static')
+    app = Flask(__name__, static_folder='static', static_url_path='/static')
     app.config.from_object(config_class)
     
     # Initialize extensions with the app
     db.init_app(app)
     migrate.init_app(app, db)
+    login_manager.init_app(app)
+    
+    # Configure login manager
+    login_manager.login_view = 'auth.login'
+    login_manager.login_message = 'Please log in to access this page.'
+    login_manager.login_message_category = 'error'
     
     # Initialize SocketIO with full configuration after app is created
     socketio.init_app(
@@ -72,9 +85,19 @@ def create_app(config_class=Config):
     from app.routes.reviews import bp as reviews_bp
     app.register_blueprint(reviews_bp)
     
+    from app.routes.safety import bp as safety_bp
+    app.register_blueprint(safety_bp)
+    
+    from app.routes.admin import bp as admin_bp
+    app.register_blueprint(admin_bp, url_prefix='/admin')
+    
     # Register WebSocket events
     from app.routes.websockets import register_socket_events
     register_socket_events(socketio)
+    
+    # Register CLI commands
+    from app.commands import create_admin_command
+    app.cli.add_command(create_admin_command)
     
     # Register template filters
     from app.utils.helpers import format_datetime
@@ -86,11 +109,8 @@ def create_app(config_class=Config):
     
     # Define a get_current_user function for templates
     def get_current_user():
-        from flask import session
-        from app.models.user import User
-        if 'username' in session:
-            return User.query.filter_by(username=session['username']).first()
-        return None
+        from flask_login import current_user
+        return current_user
     
     # Add get_current_user to Jinja's globals
     app.jinja_env.globals.update(get_current_user=get_current_user)
@@ -100,14 +120,8 @@ def create_app(config_class=Config):
         """
         Inject the current user into all templates
         """
-        from flask import session
-        from app.models.user import User
-        
-        user = None
-        if 'username' in session:
-            user = User.query.filter_by(username=session['username']).first()
-        
-        return {'current_user': user}
+        from flask_login import current_user
+        return {'current_user': current_user}
     
     @app.context_processor
     def inject_api_keys():
@@ -116,14 +130,18 @@ def create_app(config_class=Config):
             'google_maps_api_key': app.config['GOOGLE_MAPS_API_KEY']
         }
     
-    return app
-
-# Import models to ensure they are registered with SQLAlchemy
-from app.models.user import User
-from app.models.pet import Pet
-from app.models.playdate import Playdate
-from app.models.message import Message
-from app.models.review import Review
-from app.models.photo import PlaydatePhoto
-from app.models.gallery_photo import GalleryPhoto
-from app.models.playdate_message import PlaydateMessage 
+    # Import all models in the correct order
+    with app.app_context():
+        from app.models.user import User
+        from app.models.pet import Pet
+        from app.models.playdate import Playdate
+        from app.models.message import Message
+        from app.models.review import Review
+        from app.models.playdate_photo import PlaydatePhoto
+        from app.models.gallery_photo import GalleryPhoto
+        from app.models.playdate_message import PlaydateMessage
+        from app.models.emergency_contact import EmergencyContact
+        from app.models.incident_report import IncidentReport
+        from app.models.user_verification import UserVerification
+    
+    return app 

@@ -1,0 +1,218 @@
+/* Safety Features Styling */
+.safety-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: var(--bg-white);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.safety-container h2 {
+    color: var(--deep-forest);
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.safety-container h2:after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: var(--sage-green);
+    border-radius: 2px;
+}
+
+.safety-intro {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Emergency Contacts */
+.contacts-list {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.contact-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(124, 144, 130, 0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.contact-card.primary-contact {
+    border-left: 4px solid var(--sage-green);
+}
+
+.contact-info h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--deep-forest);
+    font-size: 1.2rem;
+}
+
+.contact-info p {
+    margin: 0.25rem 0;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.contact-info i {
+    color: var(--sage-green);
+    width: 16px;
+}
+
+.primary-badge {
+    display: inline-block;
+    background-color: var(--sage-green);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.contact-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.no-contacts {
+    text-align: center;
+    padding: 3rem;
+    background-color: rgba(124, 144, 130, 0.05);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.no-contacts p {
+    margin: 0.5rem 0;
+    color: var(--text-muted);
+}
+
+/* Add Contact Form */
+.add-contact-section {
+    background-color: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(124, 144, 130, 0.15);
+}
+
+.add-contact-section h3 {
+    margin: 0 0 1.5rem 0;
+    color: var(--deep-forest);
+}
+
+.contact-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.contact-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.contact-form input[type="text"],
+.contact-form input[type="tel"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(124, 144, 130, 0.25);
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.contact-form .form-helper {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.checkbox-label {
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
+
+.form-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+/* Modal Styling */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 600px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content h3 {
+    margin: 0 0 1.5rem 0;
+    color: var(--deep-forest);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .safety-container {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .contact-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .contact-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+    }
+} 
