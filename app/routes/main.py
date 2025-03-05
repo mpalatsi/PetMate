@@ -382,7 +382,7 @@ def upload_to_gallery():
             flash(f'Error saving to database: {str(e)}', 'error')
             return redirect(request.url)
     
-    return render_template('upload_gallery_photo.html', pets=pets)
+    return render_template('upload_gallery_photo_new.html', pets=pets)
 
 @bp.route('/gallery/delete/<int:photo_id>', methods=['POST'])
 def delete_gallery_photo(photo_id):
