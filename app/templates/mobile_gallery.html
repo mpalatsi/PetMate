@@ -1,0 +1,788 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Pet Photo Gallery - PetMate{% endblock %}
+
+{% block styles %}
+<style>
+    /* Mobile-optimized gallery styles with updated colors */
+    :root {
+        --sage-green: #7C9082;
+        --cream: #F5F1E8;
+        --deep-forest: #2C4A3B;
+        --warm-brown: #A67F5D;
+        --terracotta: #D27D5C;
+    }
+    
+    /* Override header styles to match color scheme */
+    .mobile-header {
+        background-color: var(--sage-green) !important;
+        color: white !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px !important;
+    }
+    
+    .mobile-header h1 {
+        margin: 0;
+        flex-grow: 1;
+    }
+    
+    .back-button {
+        color: white !important;
+        padding: 5px !important;
+    }
+    
+    .menu-button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        padding: 5px;
+        cursor: pointer;
+    }
+    
+    /* Main Navigation Menu */
+    .main-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 9998;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+    }
+    
+    .main-menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .main-menu {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 85%;
+        height: 100%;
+        background-color: white;
+        z-index: 9999;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    
+    .main-menu.active {
+        transform: translateX(0);
+    }
+    
+    .main-menu-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .main-menu-header h3 {
+        font-size: 1.2rem;
+        color: var(--deep-forest);
+        margin: 0;
+    }
+    
+    .close-main-menu {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        color: var(--deep-forest);
+        cursor: pointer;
+    }
+    
+    .main-menu-links {
+        padding: 15px;
+    }
+    
+    .main-menu-link {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        color: var(--deep-forest);
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+    }
+    
+    .main-menu-link i {
+        margin-right: 15px;
+        font-size: 1.2rem;
+        width: 24px;
+        text-align: center;
+        color: var(--sage-green);
+    }
+    
+    .main-menu-link.active {
+        background-color: var(--cream);
+        font-weight: 600;
+    }
+    
+    .mobile-gallery-container {
+        padding: 10px 0;
+        background-color: var(--cream);
+        min-height: calc(100vh - 70px);
+    }
+    
+    .mobile-gallery-header {
+        text-align: center;
+        margin-bottom: 15px;
+        padding: 0 15px;
+    }
+    
+    .mobile-gallery-header h1 {
+        color: var(--deep-forest);
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+    }
+    
+    .mobile-gallery-header p {
+        font-size: 0.9rem;
+        color: var(--sage-green);
+        margin-bottom: 10px;
+    }
+    
+    /* Upload button */
+    .upload-button {
+        display: block;
+        background-color: var(--sage-green);
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        margin: 0 15px 15px;
+        text-align: center;
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        text-decoration: none;
+    }
+    
+    .upload-button i {
+        margin-right: 8px;
+    }
+    
+    /* Slider menu */
+    .mobile-gallery-menu-toggle {
+        display: flex;
+        align-items: center;
+        background-color: white;
+        border-radius: 8px;
+        margin: 0 15px 15px;
+        padding: 12px 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        font-weight: 600;
+        color: var(--deep-forest);
+    }
+    
+    .mobile-gallery-menu-toggle i {
+        margin-right: 10px;
+        color: var(--sage-green);
+    }
+    
+    .mobile-gallery-menu-toggle .current-filter {
+        margin-left: auto;
+        font-size: 0.9rem;
+        color: var(--sage-green);
+    }
+    
+    .mobile-gallery-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 85%;
+        height: 100%;
+        background-color: white;
+        z-index: 2000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .mobile-gallery-menu.active {
+        transform: translateX(0);
+    }
+    
+    .mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+    }
+    
+    .mobile-menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .mobile-gallery-menu-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .mobile-gallery-menu-header h3 {
+        font-size: 1.2rem;
+        color: var(--deep-forest);
+        margin: 0;
+    }
+    
+    .mobile-gallery-close-menu {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        color: var(--deep-forest);
+        cursor: pointer;
+    }
+    
+    .mobile-gallery-menu-links {
+        padding: 15px;
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+    
+    .mobile-gallery-menu-link {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        color: var(--deep-forest);
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+    }
+    
+    .mobile-gallery-menu-link i {
+        margin-right: 15px;
+        font-size: 1.2rem;
+        width: 24px;
+        text-align: center;
+        color: var(--sage-green);
+    }
+    
+    .mobile-gallery-menu-link.active {
+        background-color: var(--cream);
+        font-weight: 600;
+    }
+    
+    /* Footer override */
+    .mobile-nav {
+        background-color: white !important;
+    }
+    
+    .nav-item.active {
+        color: var(--sage-green) !important;
+    }
+    
+    /* Gallery cards with improved layout */
+    .mobile-gallery-section {
+        padding: 0 15px;
+        display: none;
+    }
+    
+    .mobile-gallery-section.active {
+        display: block;
+    }
+    
+    .mobile-gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .mobile-photo-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .mobile-photo-img-container {
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-top: 75%; /* 4:3 Aspect Ratio - more suitable for varied photos */
+        overflow: hidden;
+        background-color: #f0f0f0;
+    }
+    
+    .mobile-photo-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+    
+    .mobile-photo-content {
+        padding: 12px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100px; /* Ensure consistent height */
+    }
+    
+    .mobile-photo-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin: 0 0 5px;
+        color: var(--deep-forest);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .mobile-photo-desc {
+        font-size: 0.85rem;
+        color: var(--sage-green);
+        margin: 0 0 10px;
+        flex-grow: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        min-height: 2.6rem; /* Ensure consistent height for descriptions */
+    }
+    
+    .mobile-photo-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        font-size: 0.75rem;
+        color: var(--warm-brown);
+    }
+    
+    .mobile-photo-date {
+        display: flex;
+        align-items: center;
+    }
+    
+    .mobile-photo-date i {
+        margin-right: 4px;
+        color: var(--terracotta);
+    }
+    
+    /* Action buttons */
+    .mobile-photo-actions {
+        padding: 8px 12px;
+        background-color: var(--cream);
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .mobile-action-btn {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        color: var(--deep-forest);
+        background: none;
+        border: none;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+    
+    .mobile-action-btn i {
+        margin-right: 5px;
+    }
+    
+    .mobile-view-btn {
+        color: var(--sage-green);
+        font-weight: 600;
+    }
+    
+    /* Empty state */
+    .mobile-empty-state {
+        text-align: center;
+        padding: 30px 20px;
+        background-color: white;
+        border-radius: 12px;
+        margin: 0 15px;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+    }
+    
+    .mobile-empty-state i {
+        font-size: 3rem;
+        color: var(--sage-green);
+        opacity: 0.5;
+        margin-bottom: 15px;
+    }
+    
+    .mobile-empty-state h3 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: var(--deep-forest);
+    }
+    
+    .mobile-empty-state p {
+        color: var(--sage-green);
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block header %}
+<header class="mobile-header">
+    <button class="back-button" onclick="history.back()">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+    <h1>Pet Photo Gallery</h1>
+    <button class="menu-button" id="main-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+</header>
+
+<!-- Main Navigation Menu -->
+<div class="main-menu-overlay" id="main-menu-overlay"></div>
+<div class="main-menu" id="main-menu">
+    <div class="main-menu-header">
+        <h3>Menu</h3>
+        <button class="close-main-menu" id="close-main-menu">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="main-menu-links">
+        <a href="{{ url_for('main.index') }}" class="main-menu-link">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('main.search') }}" class="main-menu-link">
+            <i class="fas fa-search"></i> Find Playmates
+        </a>
+        <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
+            <i class="fas fa-paw"></i> My Pets
+        </a>
+        <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
+            <i class="fas fa-calendar-plus"></i> Schedule Playdate
+        </a>
+        <a href="{{ url_for('main.gallery') }}" class="main-menu-link active">
+            <i class="fas fa-images"></i> Photo Gallery
+        </a>
+        {% if 'username' in session %}
+            <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
+                <i class="fas fa-user"></i> My Profile
+            </a>
+            <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
+                <i class="fas fa-envelope"></i> Messages
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        {% else %}
+            <a href="{{ url_for('auth.login') }}" class="main-menu-link">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="{{ url_for('auth.register') }}" class="main-menu-link">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mobile-gallery-container">
+    <div class="mobile-gallery-header">
+        <p>Share and explore pet photos from our community</p>
+    </div>
+    
+    <a href="{{ url_for('main.upload_to_gallery') }}" class="upload-button">
+        <i class="fas fa-cloud-upload-alt"></i> Upload New Photo
+    </a>
+    
+    <div class="mobile-gallery-menu-toggle" id="gallery-menu-toggle">
+        <i class="fas fa-filter"></i>
+        <span>Filter Photos</span>
+        <span class="current-filter" id="current-filter">All Photos</span>
+    </div>
+    
+    <!-- Slider Menu -->
+    <div class="mobile-menu-overlay" id="gallery-menu-overlay"></div>
+    <div class="mobile-gallery-menu" id="gallery-menu">
+        <div class="mobile-gallery-menu-header">
+            <h3>Photo Filters</h3>
+            <button class="mobile-gallery-close-menu" id="close-gallery-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-gallery-menu-links">
+            <a href="#" class="mobile-gallery-menu-link active" data-filter="all">
+                <i class="fas fa-images"></i> All Photos
+            </a>
+            <a href="#" class="mobile-gallery-menu-link" data-filter="personal">
+                <i class="fas fa-user"></i> My Photos
+            </a>
+            <a href="#" class="mobile-gallery-menu-link" data-filter="public">
+                <i class="fas fa-globe"></i> Public Photos
+            </a>
+        </div>
+    </div>
+    
+    <!-- All Photos Section -->
+    <div id="all-photos" class="mobile-gallery-section active">
+        {% if all_photos|length > 0 %}
+            <div class="mobile-gallery-grid">
+                {% for photo in all_photos %}
+                    <div class="mobile-photo-card">
+                        <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}">
+                            <div class="mobile-photo-img-container">
+                                <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" alt="{{ photo.title or 'Untitled' }}" class="mobile-photo-img">
+                            </div>
+                        </a>
+                        <div class="mobile-photo-content">
+                            <h3 class="mobile-photo-title">{{ photo.title or 'Untitled' }}</h3>
+                            <p class="mobile-photo-desc">{{ photo.description|truncate(60) or 'No description provided.' }}</p>
+                            <div class="mobile-photo-meta">
+                                <span>By {{ photo.uploader.username }}</span>
+                                <span class="mobile-photo-date">
+                                    <i class="far fa-calendar-alt"></i> {{ photo.created_at.strftime('%b %d') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mobile-photo-actions">
+                            <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="mobile-action-btn mobile-view-btn">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="mobile-empty-state">
+                <i class="fas fa-images"></i>
+                <h3>No Photos Yet</h3>
+                <p>Be the first to upload a pet photo!</p>
+                <a href="{{ url_for('main.upload_to_gallery') }}" class="upload-button">
+                    <i class="fas fa-cloud-upload-alt"></i> Upload Photo
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Personal Photos Section -->
+    <div id="personal-photos" class="mobile-gallery-section">
+        {% if personal_photos|length > 0 %}
+            <div class="mobile-gallery-grid">
+                {% for photo in personal_photos %}
+                    <div class="mobile-photo-card">
+                        <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}">
+                            <div class="mobile-photo-img-container">
+                                <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" alt="{{ photo.title or 'Untitled' }}" class="mobile-photo-img">
+                            </div>
+                        </a>
+                        <div class="mobile-photo-content">
+                            <h3 class="mobile-photo-title">{{ photo.title or 'Untitled' }}</h3>
+                            <p class="mobile-photo-desc">{{ photo.description|truncate(60) or 'No description provided.' }}</p>
+                            <div class="mobile-photo-meta">
+                                {% if photo.is_public %}
+                                    <span><i class="fas fa-globe"></i> Public</span>
+                                {% else %}
+                                    <span><i class="fas fa-lock"></i> Private</span>
+                                {% endif %}
+                                <span class="mobile-photo-date">
+                                    <i class="far fa-calendar-alt"></i> {{ photo.created_at.strftime('%b %d') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mobile-photo-actions">
+                            <a href="{{ url_for('main.edit_gallery_photo', photo_id=photo.id) }}" class="mobile-action-btn">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="mobile-action-btn mobile-view-btn">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="mobile-empty-state">
+                <i class="fas fa-images"></i>
+                <h3>No Personal Photos</h3>
+                <p>You haven't uploaded any photos yet.</p>
+                <a href="{{ url_for('main.upload_to_gallery') }}" class="upload-button">
+                    <i class="fas fa-cloud-upload-alt"></i> Upload Photo
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Public Photos Section -->
+    <div id="public-photos" class="mobile-gallery-section">
+        {% if public_photos|length > 0 %}
+            <div class="mobile-gallery-grid">
+                {% for photo in public_photos %}
+                    <div class="mobile-photo-card">
+                        <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}">
+                            <div class="mobile-photo-img-container">
+                                <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" alt="{{ photo.title or 'Untitled' }}" class="mobile-photo-img">
+                            </div>
+                        </a>
+                        <div class="mobile-photo-content">
+                            <h3 class="mobile-photo-title">{{ photo.title or 'Untitled' }}</h3>
+                            <p class="mobile-photo-desc">{{ photo.description|truncate(60) or 'No description provided.' }}</p>
+                            <div class="mobile-photo-meta">
+                                <span>By {{ photo.uploader.username }}</span>
+                                <span class="mobile-photo-date">
+                                    <i class="far fa-calendar-alt"></i> {{ photo.created_at.strftime('%b %d') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mobile-photo-actions">
+                            <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="mobile-action-btn mobile-view-btn">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="mobile-empty-state">
+                <i class="fas fa-images"></i>
+                <h3>No Public Photos</h3>
+                <p>There are no public photos available.</p>
+                <a href="{{ url_for('main.upload_to_gallery') }}" class="upload-button">
+                    <i class="fas fa-cloud-upload-alt"></i> Upload Photo
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Gallery page initialized');
+        
+        // Main navigation menu functionality
+        const mainMenuToggle = document.getElementById('main-menu-toggle');
+        const closeMainMenu = document.getElementById('close-main-menu');
+        const mainMenu = document.getElementById('main-menu');
+        const mainMenuOverlay = document.getElementById('main-menu-overlay');
+        
+        // Open main menu
+        if (mainMenuToggle) {
+            mainMenuToggle.addEventListener('click', function() {
+                console.log('Main menu toggle clicked');
+                mainMenu.classList.add('active');
+                mainMenuOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            });
+        }
+        
+        // Close main menu
+        function closeMainNavigationMenu() {
+            console.log('Closing main menu');
+            mainMenu.classList.remove('active');
+            mainMenuOverlay.classList.remove('active');
+            document.body.style.overflow = ''; // Enable scrolling
+        }
+        
+        if (closeMainMenu) {
+            closeMainMenu.addEventListener('click', closeMainNavigationMenu);
+        }
+        
+        if (mainMenuOverlay) {
+            mainMenuOverlay.addEventListener('click', closeMainNavigationMenu);
+        }
+        
+        // Filter menu functionality
+        const menuToggle = document.getElementById('gallery-menu-toggle');
+        const closeMenu = document.getElementById('close-gallery-menu');
+        const galleryMenu = document.getElementById('gallery-menu');
+        const menuOverlay = document.getElementById('gallery-menu-overlay');
+        const currentFilter = document.getElementById('current-filter');
+        const menuLinks = document.querySelectorAll('.mobile-gallery-menu-link');
+        const sections = document.querySelectorAll('.mobile-gallery-section');
+        
+        // Open filter menu
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                console.log('Filter menu toggle clicked');
+                galleryMenu.classList.add('active');
+                menuOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            });
+        }
+        
+        // Close filter menu
+        function closeGalleryMenu() {
+            console.log('Closing filter menu');
+            galleryMenu.classList.remove('active');
+            menuOverlay.classList.remove('active');
+            document.body.style.overflow = ''; // Enable scrolling
+        }
+        
+        if (closeMenu) {
+            closeMenu.addEventListener('click', closeGalleryMenu);
+        }
+        
+        if (menuOverlay) {
+            menuOverlay.addEventListener('click', closeGalleryMenu);
+        }
+        
+        // Handle filter selection
+        menuLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Filter link clicked:', this.textContent.trim());
+                const filterId = this.getAttribute('data-filter');
+                
+                // Update active menu link
+                menuLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update current filter text
+                if (currentFilter) {
+                    currentFilter.textContent = this.textContent.trim();
+                }
+                
+                // Update active section
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === filterId + '-photos') {
+                        section.classList.add('active');
+                    }
+                });
+                
+                // Close the menu
+                closeGalleryMenu();
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+{% block footer %}
+<!-- We're overriding the default footer to provide a custom implementation -->
+{% endblock %} 

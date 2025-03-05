@@ -278,15 +278,15 @@
             <i class="fas fa-search"></i>
             <span>Search</span>
         </a>
-        <a href="{{ url_for('main.my_pets') }}" class="nav-item {% if request.endpoint == 'main.my_pets' %}active{% endif %}">
+        <a href="{{ url_for('pets.my_pets') }}" class="nav-item {% if request.endpoint == 'pets.my_pets' %}active{% endif %}">
             <i class="fas fa-paw"></i>
             <span>My Pets</span>
         </a>
-        <a href="{{ url_for('main.messages') }}" class="nav-item {% if request.endpoint == 'main.messages' %}active{% endif %}">
+        <a href="{{ url_for('messages.inbox') }}" class="nav-item {% if request.endpoint == 'messages.inbox' %}active{% endif %}">
             <i class="fas fa-envelope"></i>
             <span>Messages</span>
         </a>
-        <a href="{{ url_for('main.view_profile', username=session.username) }}" class="nav-item {% if request.endpoint == 'main.view_profile' and username == session.username %}active{% endif %}">
+        <a href="{{ url_for('main.view_profile', user_id=session.user_id) }}" class="nav-item {% if request.endpoint == 'main.view_profile' and user_id == session.user_id %}active{% endif %}">
             <i class="fas fa-user"></i>
             <span>Profile</span>
         </a>

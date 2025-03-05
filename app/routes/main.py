@@ -271,16 +271,101 @@ def new_gallery():
     if user is None:
         flash('Your session appears to be invalid. Please log in again.', 'error')
         return redirect(url_for('auth.login'))
+
+    # Check if we should display mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent.lower() for device in ['iphone', 'android', 'mobile', 'tablet'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
+    # Redirect to mobile gallery if on a mobile device and not manually requesting desktop version
+    if is_mobile and mode != 'desktop':
+        return redirect(url_for('main.mobile_gallery'))
     
     # Update session with correct user info
-    session['username'] = user.username
     session['user_id'] = user.id
+    session['username'] = user.username
     
-    # Get all gallery photos
-    photos = GalleryPhoto.query.order_by(GalleryPhoto.created_at.desc()).all()
+    # Fetch all photos (visible to this user)
+    all_photos = []
     
-    # Render the gallery template
-    return render_template('new_gallery.html', photos=photos, user=user)
+    # Personal photos (owned by the user)
+    personal_photos = GalleryPhoto.query.filter_by(user_id=user.id).order_by(GalleryPhoto.created_at.desc()).all()
+    
+    # Public photos (visible to everyone)
+    public_photos = GalleryPhoto.query.filter_by(is_public=True).order_by(GalleryPhoto.created_at.desc()).all()
+    
+    # Combine and deduplicate photos
+    all_photos = personal_photos.copy()
+    for photo in public_photos:
+        if photo not in all_photos:
+            all_photos.append(photo)
+    
+    # Sort combined photos by upload date (newest first)
+    all_photos.sort(key=lambda x: x.created_at, reverse=True)
+    
+    # Get user's pets for the "Add to Pet" feature
+    user_pets = Pet.query.filter_by(owner_id=user.id).all()
+    
+    return render_template('new_gallery.html', 
+                           all_photos=all_photos,
+                           personal_photos=personal_photos,
+                           public_photos=public_photos,
+                           user=user,
+                           user_pets=user_pets,
+                           current_user=user)
+
+@bp.route('/mobile-gallery')
+def mobile_gallery():
+    """Mobile-optimized implementation of the gallery."""
+    user = None
+    
+    # Try to get the user from session username
+    if 'username' in session:
+        username = session.get('username')
+        user = User.query.filter_by(username=username).first()
+    
+    # If not found, try with user_id
+    if user is None and 'user_id' in session:
+        user_id = session.get('user_id')
+        try:
+            user_id_int = int(user_id)
+            user = User.query.get(user_id_int)
+        except (ValueError, TypeError):
+            pass
+    
+    # If no user is found, redirect to login
+    if user is None:
+        flash('Your session appears to be invalid. Please log in again.', 'error')
+        return redirect(url_for('auth.login'))
+    
+    # Update session with correct user info
+    session['user_id'] = user.id
+    session['username'] = user.username
+    
+    # Fetch all photos (visible to this user)
+    all_photos = []
+    
+    # Personal photos (owned by the user)
+    personal_photos = GalleryPhoto.query.filter_by(user_id=user.id).order_by(GalleryPhoto.created_at.desc()).all()
+    
+    # Public photos (visible to everyone)
+    public_photos = GalleryPhoto.query.filter_by(is_public=True).order_by(GalleryPhoto.created_at.desc()).all()
+    
+    # Combine and deduplicate photos
+    all_photos = personal_photos.copy()
+    for photo in public_photos:
+        if photo not in all_photos:
+            all_photos.append(photo)
+    
+    # Sort combined photos by upload date (newest first)
+    all_photos.sort(key=lambda x: x.created_at, reverse=True)
+    
+    return render_template('mobile_gallery.html', 
+                           all_photos=all_photos,
+                           personal_photos=personal_photos,
+                           public_photos=public_photos,
+                           user=user,
+                           current_user=user)
 
 @bp.route('/gallery/upload', methods=['GET', 'POST'])
 def upload_to_gallery():
@@ -493,6 +578,33 @@ def edit_gallery_photo(photo_id):
     pets = Pet.query.filter_by(owner_id=user.id).all()
     
     return render_template('edit_gallery_photo.html', photo=photo, pets=pets)
+
+@bp.route('/gallery/photo/<int:photo_id>')
+def view_gallery_photo(photo_id):
+    """View a single gallery photo."""
+    if 'username' not in session:
+        flash('Please log in to view this photo', 'error')
+        return redirect(url_for('auth.login'))
+    
+    user = User.query.filter_by(username=session['username']).first()
+    
+    # Get the photo
+    photo = GalleryPhoto.query.get_or_404(photo_id)
+    
+    # Check if the user has permission to view this photo
+    if not photo.is_public and photo.user_id != user.id:
+        flash('You do not have permission to view this photo', 'error')
+        return redirect(url_for('main.gallery'))
+    
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent.lower() for device in ['iphone', 'android', 'mobile', 'tablet'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
+    # Choose template based on device type
+    template = 'mobile_view_gallery_photo.html' if is_mobile and mode != 'desktop' else 'view_gallery_photo.html'
+    
+    return render_template(template, photo=photo, current_user=user)
 
 @bp.route('/search')
 def search():

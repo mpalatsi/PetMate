@@ -1,0 +1,237 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}{{ photo.title or "Untitled Photo" }} - PetMate{% endblock %}
+
+{% block styles %}
+<style>
+    /* Mobile-optimized photo view */
+    .mobile-photo-view {
+        padding: 10px 15px;
+        background-color: #f8f9fa;
+        min-height: calc(100vh - 70px);
+    }
+    
+    .mobile-photo-container {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        margin-bottom: 15px;
+    }
+    
+    .mobile-photo-header {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .mobile-photo-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+    
+    .mobile-photo-image-container {
+        position: relative;
+        width: 100%;
+        background-color: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .mobile-photo-image {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+        object-fit: contain;
+    }
+    
+    .mobile-photo-info {
+        padding: 15px;
+    }
+    
+    .mobile-photo-meta {
+        margin-bottom: 15px;
+    }
+    
+    .mobile-meta-block {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .mobile-meta-block:last-child {
+        border-bottom: none;
+    }
+    
+    .mobile-meta-label {
+        color: #777;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 5px;
+    }
+    
+    .mobile-user-info {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .mobile-user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 10px;
+    }
+    
+    .mobile-pet-info {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .mobile-pet-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 10px;
+    }
+    
+    .mobile-photo-description {
+        margin-top: 15px;
+    }
+    
+    .mobile-photo-description p {
+        margin: 0;
+        line-height: 1.5;
+        color: #333;
+        font-size: 0.95rem;
+    }
+    
+    /* Action buttons */
+    .mobile-action-toolbar {
+        padding: 12px;
+        display: flex;
+        justify-content: space-around;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    }
+    
+    .mobile-toolbar-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
+        color: #555;
+        text-align: center;
+        background-color: transparent;
+        border: none;
+        text-decoration: none;
+    }
+    
+    .mobile-toolbar-btn i {
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+        color: var(--primary-color);
+    }
+    
+    .mobile-toolbar-btn span {
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block header_title %}Photo Details{% endblock %}
+
+{% block content %}
+<div class="mobile-photo-view">
+    <div class="mobile-photo-container">
+        <div class="mobile-photo-header">
+            <h1 class="mobile-photo-title">{{ photo.title or "Untitled Photo" }}</h1>
+        </div>
+        
+        <div class="mobile-photo-image-container">
+            <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" alt="{{ photo.title or 'Pet photo' }}" class="mobile-photo-image">
+        </div>
+        
+        <div class="mobile-photo-info">
+            <div class="mobile-photo-meta">
+                <div class="mobile-meta-block">
+                    <div class="mobile-meta-label">Uploaded by</div>
+                    <a href="{{ url_for('main.view_profile', user_id=photo.uploader.id) }}" class="mobile-user-info">
+                        {% if photo.uploader.profile_picture %}
+                            <img src="{{ url_for('static', filename='profile_pictures/' + photo.uploader.profile_picture) }}" alt="{{ photo.uploader.username }}" class="mobile-user-avatar">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='profile_pictures/default_user.png') }}" alt="{{ photo.uploader.username }}" class="mobile-user-avatar">
+                        {% endif %}
+                        <span>{{ photo.uploader.username }}</span>
+                    </a>
+                </div>
+                
+                {% if photo.pet %}
+                    <div class="mobile-meta-block">
+                        <div class="mobile-meta-label">Pet</div>
+                        <a href="{{ url_for('main.view_pet', pet_id=photo.pet.id) }}" class="mobile-pet-info">
+                            {% if photo.pet.image_filename %}
+                                <img src="{{ url_for('static', filename='pet_images/' + photo.pet.image_filename) }}" alt="{{ photo.pet.name }}" class="mobile-pet-avatar">
+                            {% else %}
+                                <div class="pet-avatar pet-avatar-{{ photo.pet.species|lower }}">
+                                    <div class="pet-avatar-inner"></div>
+                                </div>
+                            {% endif %}
+                            <span>{{ photo.pet.name }}</span>
+                        </a>
+                    </div>
+                {% endif %}
+                
+                <div class="mobile-meta-block">
+                    <div class="mobile-meta-label">Uploaded</div>
+                    <div>{{ photo.created_at.strftime('%B %d, %Y') }}</div>
+                </div>
+                
+                {% if photo.description %}
+                    <div class="mobile-photo-description">
+                        <div class="mobile-meta-label">Description</div>
+                        <p>{{ photo.description }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="mobile-action-toolbar">
+        <a href="{{ url_for('main.gallery') }}" class="mobile-toolbar-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Gallery</span>
+        </a>
+        
+        {% if photo.user_id == current_user.id %}
+            <a href="{{ url_for('main.edit_gallery_photo', photo_id=photo.id) }}" class="mobile-toolbar-btn">
+                <i class="fas fa-edit"></i>
+                <span>Edit</span>
+            </a>
+            
+            <button class="mobile-toolbar-btn" onclick="document.getElementById('delete-form').submit();">
+                <i class="fas fa-trash-alt"></i>
+                <span>Delete</span>
+            </button>
+            <form id="delete-form" action="{{ url_for('main.delete_gallery_photo', photo_id=photo.id) }}" method="POST" style="display: none;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            </form>
+        {% else %}
+            <a href="{{ url_for('main.view_profile', user_id=photo.uploader.id) }}" class="mobile-toolbar-btn">
+                <i class="fas fa-user"></i>
+                <span>View Profile</span>
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

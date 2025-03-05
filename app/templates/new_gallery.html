@@ -539,7 +539,7 @@
             <!-- Display personal photos using direct comparison -->
             <div class="gallery-grid" id="personal-photos-grid">
                 <!-- Loop through photos to insert them into the grid -->
-                {% for photo in photos %}
+                {% for photo in all_photos %}
                     {% if photo.user_id|string == user_id|string %}
                         <script>personalPhotosExist = true;</script>
                         <div class="photo-card">
@@ -646,7 +646,7 @@
         <script>
             // Photo data from server
             const allPhotos = [
-                {% for photo in photos %}
+                {% for photo in all_photos %}
                 {
                     id: {{ photo.id }},
                     title: "{{ photo.title|default('Untitled', true)|e }}",
