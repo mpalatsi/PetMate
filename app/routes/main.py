@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, session, flash, request, jsonify
+from flask import Blueprint, render_template, redirect, url_for, session, flash, request, jsonify, abort
 from app.models.user import User
 from app.models.pet import Pet
 from app.models.playdate import Playdate
@@ -200,21 +200,101 @@ def edit_profile():
 @bp.route('/gallery')
 def gallery():
     if 'username' not in session:
+        flash('Please log in to view the gallery', 'error')
         return redirect(url_for('auth.login'))
     
     user = User.query.filter_by(username=session['username']).first()
     
-    # Get all gallery photos
-    photos = GalleryPhoto.query.order_by(GalleryPhoto.uploaded_at.desc()).all()
+    # If user not found in database, redirect to login
+    if user is None:
+        flash('User session invalid. Please log in again.', 'error')
+        session.clear()  # Clear the invalid session
+        return redirect(url_for('auth.login'))
     
-    return render_template('gallery.html', photos=photos, user=user)
+    # Get all gallery photos
+    photos = GalleryPhoto.query.order_by(GalleryPhoto.created_at.desc()).all()
+    
+    # Debug first few photos
+    print("\nDetailed photo info for first 3 photos:")
+    for i, photo in enumerate(photos[:3]):
+        print(f"Photo {i+1}:")
+        print(f"  - ID: {photo.id}")
+        print(f"  - User ID: {photo.user_id} (type: {type(photo.user_id).__name__})")
+        print(f"  - Filename: {photo.filename}")
+        print(f"  - Is Public: {photo.is_public}")
+        print(f"  - Title: {photo.title}")
+    
+    # Debug info about current user and photo ownership
+    print(f"Current user ID: {user.id}")
+    print(f"Total photos: {len(photos)}")
+    print(f"User's photos: {len([p for p in photos if p.user_id == user.id])}")
+    print(f"Public photos: {len([p for p in photos if p.is_public])}")
+    print(f"Private photos: {len([p for p in photos if not p.is_public])}")
+    print(f"User's private photos: {len([p for p in photos if p.user_id == user.id and not p.is_public])}")
+    
+    # Print details about each photo in the database
+    for photo in photos:
+        print(f"Photo ID: {photo.id}, user_id: {photo.user_id}, filename: {photo.filename}, is_public: {photo.is_public}")
+    
+    # Redirect to new gallery (comment this line if you want to keep using the old gallery)
+    return redirect(url_for('main.new_gallery'))
+    
+    # Uncomment this line if you want to keep using the old gallery
+    # return render_template('gallery.html', photos=photos, user=user)
+
+@bp.route('/new-gallery')
+def new_gallery():
+    """New implementation of the gallery with improved UI and functionality."""
+    user = None
+    
+    # Try to get the user from session username
+    if 'username' in session:
+        username = session.get('username')
+        user = User.query.filter_by(username=username).first()
+    
+    # If not found, try with user_id
+    if user is None and 'user_id' in session:
+        user_id = session.get('user_id')
+        try:
+            user_id_int = int(user_id)
+            user = User.query.get(user_id_int)
+        except (ValueError, TypeError):
+            pass
+    
+    # Try to find by admin status if needed
+    if user is None:
+        # Look for admin user as a fallback
+        if session.get('is_admin') or 'admin' in session.get('username', '').lower():
+            user = User.query.filter_by(is_admin=True).first()
+    
+    # If no user is found, redirect to login
+    if user is None:
+        flash('Your session appears to be invalid. Please log in again.', 'error')
+        return redirect(url_for('auth.login'))
+    
+    # Update session with correct user info
+    session['username'] = user.username
+    session['user_id'] = user.id
+    
+    # Get all gallery photos
+    photos = GalleryPhoto.query.order_by(GalleryPhoto.created_at.desc()).all()
+    
+    # Render the gallery template
+    return render_template('new_gallery.html', photos=photos, user=user)
 
 @bp.route('/gallery/upload', methods=['GET', 'POST'])
 def upload_to_gallery():
     if 'username' not in session:
+        flash('Please log in to upload photos', 'error')
         return redirect(url_for('auth.login'))
     
     user = User.query.filter_by(username=session['username']).first()
+    
+    # If user not found in database, redirect to login
+    if user is None:
+        flash('User session invalid. Please log in again.', 'error')
+        session.clear()  # Clear the invalid session
+        return redirect(url_for('auth.login'))
     
     # Get user's pets for the form
     pets = Pet.query.filter_by(owner_id=user.id).all()
@@ -239,6 +319,17 @@ def upload_to_gallery():
         pet_id = request.form.get('pet_id')
         is_public = request.form.get('is_public') == 'on'
         
+        # Ensure the destination directory exists
+        upload_dir = 'app/static/pet_images/gallery_photos'
+        if not os.path.exists(upload_dir):
+            try:
+                os.makedirs(upload_dir)
+                print(f"Created directory: {upload_dir}")
+            except Exception as e:
+                print(f"Error creating directory {upload_dir}: {str(e)}")
+                flash(f"Error creating upload directory: {str(e)}", 'error')
+                return redirect(request.url)
+                
         uploaded_count = 0
         for file in files:
             if file and file.filename:  # Check if file has a filename
@@ -252,18 +343,23 @@ def upload_to_gallery():
                     timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')
                     filename = save_uploaded_file(
                         file, 
-                        'app/static/pet_images/gallery_photos', 
+                        upload_dir, 
                         f"user_{user.id}_{timestamp}"
                     )
                     
+                    # Explicitly print the file path and check if it exists
+                    file_path = os.path.join(upload_dir, filename)
+                    print(f"Saved file to: {file_path}")
+                    print(f"File exists: {os.path.exists(file_path)}")
+                    
+                    # Create a new photo with proper field names
                     photo = GalleryPhoto(
                         filename=filename,
                         user_id=user.id,
-                        pet_id=pet_id if pet_id else None,
+                        pet_id=pet_id if pet_id and pet_id.strip() else None,
                         title=title,
                         description=description,
-                        is_public=is_public,
-                        uploaded_at=datetime.now()
+                        is_public=is_public
                     )
                     db.session.add(photo)
                     uploaded_count += 1
@@ -304,9 +400,15 @@ def delete_gallery_photo(photo_id):
         # Delete the file from the filesystem
         if photo.filename:
             try:
-                file_path = os.path.join('app/static/gallery', photo.filename)
+                file_path = os.path.join('app/static/pet_images/gallery_photos', photo.filename)
+                print(f"Attempting to delete file: {file_path}")
+                print(f"File exists before deletion: {os.path.exists(file_path)}")
+                
                 if os.path.exists(file_path):
                     os.remove(file_path)
+                    print(f"File deleted successfully: {file_path}")
+                else:
+                    print(f"Warning: File not found for deletion: {file_path}")
             except Exception as e:
                 print(f"Error deleting photo file: {e}")
         
@@ -334,12 +436,30 @@ def toggle_gallery_photo_visibility(photo_id):
         return redirect(url_for('main.gallery'))
     
     try:
-        # Toggle the is_public flag
-        photo.is_public = not photo.is_public
+        # Debug info before change
+        print(f"TOGGLE VISIBILITY - Before: Photo ID {photo.id}, is_public: {photo.is_public}, type: {type(photo.is_public)}")
+        
+        # Toggle the is_public flag - explicitly convert to boolean to avoid type issues
+        current_status = bool(photo.is_public)
+        photo.is_public = not current_status
+        
+        # Debug info after change
+        print(f"TOGGLE VISIBILITY - After: Photo ID {photo.id}, is_public: {photo.is_public}, type: {type(photo.is_public)}")
+        
+        # Explicitly flush to ensure the change is registered
+        db.session.flush()
+        
+        # Commit the change
         db.session.commit()
-        flash('Photo visibility updated successfully!', 'success')
+        
+        # Verify the change was committed
+        db.session.refresh(photo)
+        print(f"TOGGLE VISIBILITY - After commit: Photo ID {photo.id}, is_public: {photo.is_public}, type: {type(photo.is_public)}")
+        
+        flash(f"Photo visibility updated successfully! It is now {'public' if photo.is_public else 'private'}.", 'success')
     except Exception as e:
         db.session.rollback()
+        print(f"ERROR in toggle_visibility: {str(e)}")
         flash(f'Error updating photo visibility: {str(e)}', 'error')
     
     return redirect(url_for('main.gallery'))
@@ -638,7 +758,6 @@ def view_playdates():
     formatted_playdates = []
     for playdate in all_playdates:
         is_host = playdate.host_id == user.id
-        attendance_status = "confirmed" if is_host else "confirmed"  # Default status
         
         # Get pets for this playdate
         pets = playdate.pets
@@ -646,7 +765,6 @@ def view_playdates():
         formatted_playdates.append({
             "playdate": playdate,
             "is_host": is_host,
-            "attendance_status": attendance_status,
             "pets": pets
         })
     
@@ -693,13 +811,10 @@ def view_playdate(playdate_id):
     # Get the pets attending this playdate
     pets = playdate.pets.all() if hasattr(playdate.pets, 'all') else playdate.pets
     
-    # Get attendees with their status
     attendees = []
     if hasattr(playdate, 'attendees'):
-        # Query the association table to get status information
         attendees_info = db.session.query(
             User, 
-            playdate_attendees.c.status
         ).join(
             playdate_attendees, 
             User.id == playdate_attendees.c.user_id
@@ -708,7 +823,6 @@ def view_playdate(playdate_id):
         ).all()
         
         # Format the data for the template
-        attendees = [{'user': user, 'status': status} for user, status in attendees_info]
     
     # Check if the user has already reviewed this playdate
     existing_review = Review.query.filter_by(
@@ -762,7 +876,6 @@ def join_playdate(playdate_id):
         return redirect(url_for('main.view_playdate', playdate_id=playdate_id))
     
     # Check if the playdate has been cancelled
-    if playdate.status == 'cancelled':
         flash('You cannot join this playdate as it has been cancelled by the host.', 'error')
         return redirect(url_for('main.view_playdate', playdate_id=playdate_id))
     

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, session, request, flash
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from app.models.user import User
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -99,39 +99,50 @@ def register():
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    print("Login route called")
+    print("Login route called with method:", request.method)
+    
     # Check if we should display the mobile version
     user_agent = request.user_agent.string
     is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
     mode = request.args.get('mode', None)  # Check for manual override
     
     if request.method == 'POST':
-        print("POST request received")
         username = request.form['username']
         password = request.form['password']
-        print(f"Login attempt for username: {username}")
+        remember = 'remember' in request.form
         
+        # Try to find the user
         user = User.query.filter_by(username=username).first()
-        print(f"User found: {user is not None}")
         
-        if user:
-            print(f"User attributes: {dir(user)}")
-            print(f"User password_hash: {user.password_hash}")
-        
+        # If user exists and password is correct
         if user and user.check_password(password):
-            print("Password check successful")
-            login_user(user)
-            session['username'] = username
-            session['user_id'] = user.id
+            # Check account status
+            if user.account_status != 'active':
+                flash(f'This account is {user.account_status}. Please contact support for assistance.', 'error')
+                return render_template('mobile_login.html' if is_mobile and mode != 'desktop' else 'login.html')
             
-            # Set last login time
-            user.last_login = datetime.utcnow()
+            # Update last login time
+            user.last_login = datetime.now()
             db.session.commit()
             
-            return redirect(url_for('main.dashboard'))
+            login_user(user, remember=remember)
+            
+            # Save username in session for template checks
+            session['username'] = user.username
+            
+            # Check if this was an admin-reset password (check account notes)
+            if user.account_notes and "Password reset by admin" in user.account_notes:
+                flash('Your password was reset by an administrator. Please change your password immediately for security reasons.', 'warning')
+                return redirect(url_for('auth.change_password'))
+            
+            # Determine where to redirect after login
+            next_page = request.args.get('next')
+            if not next_page or next_page == '/':
+                next_page = url_for('main.index')
+            
+            return redirect(next_page)
         else:
-            print("Login failed")
-            flash('Invalid username or password')
+            flash('Invalid username or password', 'error')
     
     return render_template('mobile_login.html' if is_mobile and mode != 'desktop' else 'login.html')
 
@@ -180,32 +191,48 @@ def reset_password(token):
     return render_template('reset_password.html', token=token)
 
 @bp.route('/change_password', methods=['GET', 'POST'])
+@login_required
 def change_password():
-    if 'username' not in session:
-        return redirect(url_for('auth.login'))
-    
-    user = User.query.filter_by(username=session['username']).first()
+    user_agent = request.user_agent.string
+    is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
+    mode = request.args.get('mode', None)
     
     if request.method == 'POST':
-        current_password = request.form['current_password']
-        new_password = request.form['new_password']
-        confirm_password = request.form['confirm_password']
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
         
-        if not user.check_password(current_password):
-            flash('Current password is incorrect.', 'error')
-            return render_template('change_password.html')
+        # Validate current password
+        if not current_user.check_password(current_password):
+            flash('Current password is incorrect', 'error')
+            return render_template('mobile_change_password.html' if is_mobile and mode != 'desktop' else 'change_password.html')
         
+        # Check that new passwords match
         if new_password != confirm_password:
-            flash('New passwords do not match.', 'error')
-            return render_template('change_password.html')
+            flash('New passwords do not match', 'error')
+            return render_template('mobile_change_password.html' if is_mobile and mode != 'desktop' else 'change_password.html')
         
-        user.set_password(new_password)
+        # Check password complexity requirements
+        if len(new_password) < 8:
+            flash('Password must be at least 8 characters long', 'error')
+            return render_template('mobile_change_password.html' if is_mobile and mode != 'desktop' else 'change_password.html')
+        
+        # Update password
+        current_user.set_password(new_password)
+        
+        # Clear admin reset message from account_notes if it exists
+        if current_user.account_notes and "Password reset by admin" in current_user.account_notes:
+            # Find and remove only the reset message line, preserving other notes
+            notes_lines = current_user.account_notes.split('\n\n')
+            filtered_notes = [note for note in notes_lines if "Password reset by admin" not in note]
+            current_user.account_notes = '\n\n'.join(filtered_notes) if filtered_notes else None
+        
         db.session.commit()
         
-        flash('Password changed successfully.', 'success')
+        flash('Password has been changed successfully', 'success')
         return redirect(url_for('main.profile'))
     
-    return render_template('change_password.html')
+    return render_template('mobile_change_password.html' if is_mobile and mode != 'desktop' else 'change_password.html')
 
 # Helper function to check allowed file extensions
 def allowed_file(filename, allowed_extensions={'png', 'jpg', 'jpeg', 'gif'}):

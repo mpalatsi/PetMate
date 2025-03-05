@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Debug User Object{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Debug User Object</h1>
+    
+    <h2>User Type Information</h2>
+    <pre>User is {{ user is string and 'String' or 'Not a string' }}</pre>
+    <pre>User type: {{ user.__class__.__name__ }}</pre>
+    
+    <h2>User Details</h2>
+    {% if user is defined %}
+        <p>User is defined</p>
+        <pre>{{ user }}</pre>
+        {% if user.account_status is defined %}
+            <p>Account status is defined: {{ user.account_status }}</p>
+        {% else %}
+            <p>Account status is not defined</p>
+        {% endif %}
+    {% else %}
+        <p>User is not defined</p>
+    {% endif %}
+    
+    <h2>Context</h2>
+    <pre>
+    User ID: {{ user_id }}
+    User is string: {{ user is string }}
+    User is not string: {{ user is not string }}
+    User account_status: {% if user is not string %}{{ user.account_status }}{% else %}N/A{% endif %}
+    </pre>
+</div>
+{% endblock %} 

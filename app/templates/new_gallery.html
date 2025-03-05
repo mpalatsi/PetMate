@@ -1,0 +1,850 @@
+{% extends "base.html" %}
+
+{% block title %}Pet Photo Gallery - PetMate{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Main layout styles */
+    .gallery-container {
+        padding: 40px;
+        background-color: #f8f9fa;
+        min-height: 80vh;
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+    
+    .gallery-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .gallery-header h1 {
+        color: var(--sage-green);
+        font-weight: 700;
+        margin-bottom: 10px;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .gallery-header h1:after {
+        content: '';
+        display: block;
+        width: 60%;
+        height: 3px;
+        background-color: var(--sage-green);
+        margin: 10px auto 0;
+    }
+
+    /* Navigation tabs */
+    .gallery-nav {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+        gap: 15px;
+    }
+    
+    .gallery-tab {
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #f5f5f5;
+        color: #444;
+        border: 2px solid #e0e0e0;
+        font-size: 1.1rem;
+        min-width: 160px;
+        text-align: center;
+    }
+    
+    .gallery-tab.active {
+        background-color: var(--sage-green);
+        color: white;
+        border-color: var(--sage-green);
+    }
+    
+    .gallery-tab:hover:not(.active) {
+        border-color: var(--sage-green);
+        background-color: white;
+        color: var(--sage-green);
+    }
+    
+    .gallery-section {
+        display: none;
+    }
+    
+    .gallery-section.active {
+        display: block;
+        animation: fadeIn 0.4s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Photo grid layout */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 35px;
+    }
+    
+    .photo-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .photo-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+    
+    .photo-img-container {
+        position: relative;
+        overflow: hidden;
+        height: 220px;
+    }
+    
+    .photo-img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .photo-card:hover .photo-img-container img {
+        transform: scale(1.05);
+    }
+
+    /* Photo card content */
+    .photo-content {
+        padding: 16px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .photo-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0 0 8px;
+        color: #333;
+    }
+    
+    .photo-description {
+        margin-bottom: 12px;
+        color: #666;
+        flex-grow: 1;
+        line-height: 1.5;
+        font-size: 0.9rem;
+    }
+    
+    .photo-meta {
+        display: flex;
+        justify-content: space-between;
+        color: #777;
+        font-size: 0.85rem;
+        margin-top: auto;
+        padding-top: 10px;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .photo-meta .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .photo-meta i {
+        color: var(--sage-green);
+    }
+
+    /* Action buttons - Improved styling */
+    .photo-actions {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        display: flex;
+        gap: 8px;
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 8px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #444;
+        font-size: 1rem;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+        background-color: #f8f8f8;
+    }
+    
+    .action-btn.delete-btn {
+        color: white;
+        background-color: #dc3545;
+    }
+    
+    .action-btn.delete-btn:hover {
+        background: #ff4d5e;
+    }
+    
+    .action-btn.edit-btn {
+        color: white;
+        background-color: #0d6efd;
+    }
+    
+    .action-btn.edit-btn:hover {
+        background: #3385ff;
+    }
+    
+    .action-btn.visibility-btn {
+        color: white;
+        background-color: #6610f2;
+    }
+    
+    .action-btn.visibility-btn:hover {
+        background: #8540f5;
+    }
+
+    /* Private photo badge - Better integration with metadata */
+    .private-badge {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: white;
+        font-weight: 600;
+        font-size: 0.75rem;
+        background-color: #dc3545;
+        padding: 3px 6px;
+        border-radius: 4px;
+    }
+    
+    .photo-meta .private-badge i {
+        color: white;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 12px;
+        margin: 30px auto;
+        max-width: 500px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .empty-state i {
+        font-size: 50px;
+        color: var(--sage-green);
+        margin-bottom: 20px;
+        opacity: 0.8;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    .empty-state p {
+        color: #666;
+        margin-bottom: 25px;
+        max-width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Toggle button for public gallery */
+    .toggle-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .toggle-private {
+        background-color: var(--sage-green);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .toggle-private:hover {
+        background-color: var(--sage-green-dark, #4a7c59);
+    }
+    
+    .toggle-private.showing-private {
+        background-color: #6c757d;
+    }
+    
+    .toggle-private.showing-private:hover {
+        background-color: #5a6268;
+    }
+
+    /* Lightbox */
+    .lightbox {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        display: none;
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .lightbox.active {
+        display: flex;
+        animation: lightboxFadeIn 0.3s ease;
+    }
+    
+    @keyframes lightboxFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .lightbox-content {
+        position: relative;
+        max-width: 90%;
+        max-height: 90vh;
+    }
+    
+    .lightbox-img {
+        max-height: 90vh;
+        max-width: 100%;
+        object-fit: contain;
+        border-radius: 4px;
+    }
+    
+    .lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .lightbox-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+    }
+    
+    .lightbox-caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 15px;
+        text-align: center;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+        .gallery-container {
+            padding: 30px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .gallery-container {
+            padding: 20px;
+        }
+        
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .photo-img-container {
+            height: 180px;
+        }
+        
+        .photo-content {
+            padding: 15px;
+        }
+        
+        .photo-title {
+            font-size: 1.1rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .gallery-container {
+            padding: 15px;
+        }
+        
+        .gallery-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .gallery-nav {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .gallery-tab {
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+
+    /* Upload button */
+    .upload-btn {
+        background-color: var(--sage-green);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-size: 1rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        margin-top: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .upload-btn:hover {
+        background-color: var(--sage-green-dark, #4a7c59);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Loading indicator */
+    .loading {
+        text-align: center;
+        padding: 40px;
+    }
+    
+    .loading-spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 4px solid var(--sage-green);
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Owner badge for public gallery */
+    .owner-badge {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: white;
+        font-weight: 600;
+        font-size: 0.75rem;
+        background-color: var(--sage-green);
+        padding: 3px 6px;
+        border-radius: 4px;
+    }
+    
+    .photo-meta .owner-badge i {
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container gallery-container">
+    <div class="gallery-header">
+        <h1>Pet Photo Gallery</h1>
+        <p>Share and explore pet photos from our community</p>
+        <a href="{{ url_for('main.upload_to_gallery') }}" class="upload-btn">
+            <i class="fas fa-upload"></i> Upload New Photo
+        </a>
+    </div>
+    
+    <div class="gallery-nav">
+        <div class="gallery-tab active" data-tab="personal">My Photos</div>
+        <div class="gallery-tab" data-tab="public">Public Gallery</div>
+    </div>
+    
+    <!-- Personal Photos Section -->
+    <div id="personal-photos" class="gallery-section active">
+        {% set user_id = '' %}
+        {% set is_valid_user = false %}
+        
+        <!-- User validation with fallbacks -->
+        {% if user is defined and user is not none %}
+            {% if user is not string and user.__class__.__name__ == 'User' %}
+                {% set user_id = user.id|string %}
+                {% set is_valid_user = true %}
+            {% elif session and session.user_id %}
+                {% set user_id = session.user_id|string %}
+                {% set is_valid_user = true %}
+            {% endif %}
+        {% endif %}
+        
+        <!-- Only process photos if we have a valid user -->
+        {% if is_valid_user %}
+            <!-- Use JavaScript instead of Jinja's set statement in loops -->
+            <script>
+                // Will be populated in the loop below
+                let personalPhotosExist = false;
+            </script>
+            
+            <!-- Display personal photos using direct comparison -->
+            <div class="gallery-grid" id="personal-photos-grid">
+                <!-- Loop through photos to insert them into the grid -->
+                {% for photo in photos %}
+                    {% if photo.user_id|string == user_id|string %}
+                        <script>personalPhotosExist = true;</script>
+                        <div class="photo-card">
+                            <div class="photo-img-container">
+                                <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" 
+                                     alt="{{ photo.title or 'Pet photo' }}" 
+                                     class="gallery-photo"
+                                     data-photo-id="{{ photo.id }}"
+                                     data-title="{{ photo.title or 'Untitled' }}"
+                                     data-description="{{ photo.description or '' }}">
+                                
+                                <!-- Photo actions -->
+                                <div class="photo-actions">
+                                    <form method="GET" action="{{ url_for('main.edit_gallery_photo', photo_id=photo.id) }}" style="margin: 0;">
+                                        <button type="submit" class="action-btn edit-btn" title="Edit photo">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </form>
+                                    
+                                    <form method="POST" action="{{ url_for('main.toggle_gallery_photo_visibility', photo_id=photo.id) }}" style="margin: 0;">
+                                        <button type="submit" class="action-btn visibility-btn" title="{{ 'Make Public' if not photo.is_public else 'Make Private' }}">
+                                            <i class="fas {{ 'fa-eye' if not photo.is_public else 'fa-eye-slash' }}"></i>
+                                        </button>
+                                    </form>
+                                    
+                                    <form method="POST" action="{{ url_for('main.delete_gallery_photo', photo_id=photo.id) }}" style="margin: 0;">
+                                        <button type="submit" class="action-btn delete-btn" 
+                                                onclick="return confirm('Are you sure you want to delete this photo? This action cannot be undone.')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <div class="photo-content">
+                                <h3 class="photo-title">{{ photo.title or 'Untitled' }}</h3>
+                                <p class="photo-description">{{ photo.description or 'No description provided.' }}</p>
+                                
+                                <div class="photo-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span>{{ photo.created_at.strftime('%b %d, %Y') }}</span>
+                                    </div>
+                                    
+                                    {% if photo.pet %}
+                                        <div class="meta-item">
+                                            <i class="fas fa-paw"></i>
+                                            <span>{{ photo.pet.name }}</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Add private badge to metadata section -->
+                                    {% if not photo.is_public %}
+                                        <div class="meta-item private-badge">
+                                            <i class="fas fa-lock"></i>
+                                            <span>Private</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            <!-- Empty state controlled by JavaScript -->
+            <div id="empty-personal-photos" class="empty-state" style="display: none;">
+                <i class="fas fa-images"></i>
+                <h3>No Personal Photos Yet</h3>
+                <p>Upload your pet photos to share with the community or keep them private just for you.</p>
+                <a href="{{ url_for('main.upload_to_gallery') }}" class="upload-btn">
+                    <i class="fas fa-plus"></i> Add Your First Photo
+                </a>
+            </div>
+            
+            <script>
+                // Show empty state only if no personal photos exist
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (!personalPhotosExist) {
+                        document.getElementById('empty-personal-photos').style.display = 'block';
+                    } else {
+                        console.log('Personal photos found: ' + personalPhotosExist);
+                    }
+                });
+            </script>
+        {% else %}
+            <!-- Invalid user state - redirect to login or show error -->
+            <div class="empty-state">
+                <img src="{{ url_for('static', filename='images/error.svg') }}" alt="Error">
+                <h3>Session Error</h3>
+                <p>Your user session appears to be invalid. Please try logging in again.</p>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log In</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Public Gallery Section -->
+    <div id="public-photos" class="gallery-section">
+        <!-- Public and private photos containers for JavaScript to fill -->
+        <div id="public-photos-container"></div>
+        <div id="private-photos-container" style="display: none;"></div>
+        
+        <!-- Pass photos data to JavaScript -->
+        <script>
+            // Photo data from server
+            const allPhotos = [
+                {% for photo in photos %}
+                {
+                    id: {{ photo.id }},
+                    title: "{{ photo.title|default('Untitled', true)|e }}",
+                    description: "{{ photo.description|default('No description provided.', true)|e }}",
+                    filename: "{{ photo.filename }}",
+                    isPublic: {{ 'true' if photo.is_public == True else 'false' }},
+                    userId: "{{ photo.user_id }}",
+                    {% if photo.uploader %}
+                    uploaderUsername: "{{ photo.uploader.username|e }}",
+                    {% else %}
+                    uploaderUsername: "Unknown",
+                    {% endif %}
+                    {% if photo.pet %}
+                    petName: "{{ photo.pet.name|e }}",
+                    hasPet: true,
+                    {% else %}
+                    hasPet: false,
+                    {% endif %}
+                    createdAt: "{{ photo.created_at.strftime('%b %d, %Y') if photo.created_at else 'Unknown date' }}"
+                }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ];
+            
+            const userId = "{{ user_id }}";
+            const isValidUser = {{ 'true' if is_valid_user else 'false' }};
+            
+            // Separate photos into public and private
+            const publicPhotos = allPhotos.filter(photo => photo.isPublic === true);
+            // We don't need private photos anymore since the toggle is removed
+            
+            // Update containers with collected photos
+            document.addEventListener('DOMContentLoaded', function() {
+                const publicContainer = document.getElementById('public-photos-container');
+                
+                // Generate HTML for photos
+                if (publicPhotos.length > 0) {
+                    // Create grid for public photos
+                    const publicGrid = document.createElement('div');
+                    publicGrid.className = 'gallery-grid';
+                    
+                    // Add each public photo
+                    publicPhotos.forEach(photo => {
+                        publicGrid.innerHTML += createPhotoCardHTML(photo, false);
+                    });
+                    
+                    publicContainer.appendChild(publicGrid);
+                } else {
+                    // Show empty state if no public photos
+                    publicContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-globe"></i>
+                            <h3>No Public Photos Yet</h3>
+                            <p>Be the first to share your pet photos with our community!</p>
+                            <a href="{{ url_for('main.upload_to_gallery') }}" class="upload-btn">
+                                <i class="fas fa-share-alt"></i> Share a Photo
+                            </a>
+                        </div>
+                    `;
+                }
+                
+                // Toggle button functionality removed
+                
+                // Set up lightbox functionality for dynamically created photos
+                setupLightbox();
+            });
+            
+            // Helper function to create photo card HTML
+            function createPhotoCardHTML(photo, isPrivate) {
+                return `
+                    <div class="photo-card">
+                        <div class="photo-img-container">
+                            <img src="{{ url_for('static', filename='pet_images/gallery_photos/') }}${photo.filename}" 
+                                 alt="${photo.title}" 
+                                 class="gallery-photo"
+                                 data-photo-id="${photo.id}"
+                                 data-title="${photo.title}"
+                                 data-description="${photo.description}">
+                        </div>
+                        
+                        <div class="photo-content">
+                            <h3 class="photo-title">${photo.title}</h3>
+                            <p class="photo-description">${photo.description}</p>
+                            
+                            <div class="photo-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-user"></i>
+                                    <span>${photo.uploaderUsername}</span>
+                                </div>
+                                
+                                ${photo.hasPet ? `
+                                    <div class="meta-item">
+                                        <i class="fas fa-paw"></i>
+                                        <span>${photo.petName}</span>
+                                    </div>
+                                ` : ''}
+                                
+                                ${isValidUser && photo.userId === userId ? `
+                                    <div class="meta-item owner-badge">
+                                        <i class="fas fa-user-check"></i>
+                                        <span>You</span>
+                                    </div>
+                                ` : ''}
+                                
+                                ${isPrivate ? `
+                                    <div class="meta-item private-badge">
+                                        <i class="fas fa-lock"></i>
+                                        <span>Private</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Setup lightbox for dynamic photos
+            function setupLightbox() {
+                // Update to select dynamically added photos
+                document.querySelectorAll('.gallery-photo').forEach(img => {
+                    img.addEventListener('click', () => {
+                        const lightbox = document.getElementById('photo-lightbox');
+                        const lightboxImg = lightbox.querySelector('.lightbox-img');
+                        const lightboxCaption = lightbox.querySelector('.lightbox-caption');
+                        
+                        lightboxImg.src = img.src;
+                        lightboxCaption.textContent = img.dataset.title;
+                        if (img.dataset.description) {
+                            lightboxCaption.textContent += ': ' + img.dataset.description;
+                        }
+                        lightbox.classList.add('active');
+                        document.body.style.overflow = 'hidden'; // Prevent scrolling
+                    });
+                });
+            }
+        </script>
+    </div>
+    
+    <!-- Lightbox for enlarged photos -->
+    <div id="photo-lightbox" class="lightbox">
+        <div class="lightbox-close">×</div>
+        <div class="lightbox-content">
+            <img src="" alt="Enlarged photo" class="lightbox-img">
+            <div class="lightbox-caption"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tab switching
+    document.querySelectorAll('.gallery-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all tabs and sections
+            document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding section
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab + '-photos').classList.add('active');
+        });
+    });
+    
+    // Lightbox functionality
+    const lightbox = document.getElementById('photo-lightbox');
+    const lightboxImg = lightbox.querySelector('.lightbox-img');
+    const lightboxCaption = lightbox.querySelector('.lightbox-caption');
+    const lightboxClose = lightbox.querySelector('.lightbox-close');
+    
+    // Open lightbox when clicking on gallery images
+    document.querySelectorAll('.gallery-photo').forEach(img => {
+        img.addEventListener('click', () => {
+            lightboxImg.src = img.src;
+            lightboxCaption.textContent = img.dataset.title;
+            if (img.dataset.description) {
+                lightboxCaption.textContent += ': ' + img.dataset.description;
+            }
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        });
+    });
+    
+    // Close lightbox
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', e => {
+        if (e.target === lightbox) {
+            closeLightbox();
+        }
+    });
+    
+    // Close lightbox with escape key
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+            closeLightbox();
+        }
+    });
+    
+    function closeLightbox() {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+</script>
+{% endblock %} 

@@ -39,10 +39,6 @@ def save_uploaded_file(file, upload_folder, base_filename=None, force_extension=
     Returns:
         str: The filename of the saved file
     """
-    # Remove 'app/' prefix if it exists
-    if upload_folder.startswith('app/'):
-        upload_folder = upload_folder[4:]
-    
     # Create the upload folder if it doesn't exist
     os.makedirs(upload_folder, exist_ok=True)
     

@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block title %}
-{% if user is not string %}
-User Details: {{ user.username }} - PetMate Admin
+{% if user_data %}
+User Details: {{ user_data.username }} - PetMate Admin
 {% else %}
 Unknown User - PetMate Admin
 {% endif %}
@@ -262,6 +262,15 @@ Unknown User - PetMate Admin
     background-color: #5A6268;
 }
 
+.btn-info {
+    background-color: #3498DB;
+    color: white !important;
+}
+
+.btn-info:hover {
+    background-color: #2980B9;
+}
+
 /* Admin Actions */
 .admin-actions {
     display: flex;
@@ -475,7 +484,11 @@ Unknown User - PetMate Admin
 <div class="admin-container">
     <div class="admin-header">
         <h1>
-            User Details: {% if user is not string %}{{ user.username }}{% else %}Unknown{% endif %}
+            {% if user_data %}
+            User Details: {{ user_data.username }}
+            {% else %}
+            Unknown User
+            {% endif %}
         </h1>
         <a href="{{ url_for('admin.user_management') }}" class="back-link">
             <i class="fas fa-arrow-left"></i> Back to Users
@@ -488,71 +501,51 @@ Unknown User - PetMate Admin
             <h2>User Information</h2>
             <div class="info-grid">
                 <div class="info-item">
-                    <label>Username</label>
-                    <span>{% if user is not string %}{{ user.username }}{% else %}Unknown{% endif %}</span>
+                    <label>Username:</label>
+                    <div class="value">{% if user_data %}{{ user_data.username }}{% else %}Unknown{% endif %}</div>
                 </div>
                 <div class="info-item">
-                    <label>Email</label>
-                    <span>{% if user is not string %}{{ user.email }}{% else %}Unknown{% endif %}</span>
+                    <label>Email:</label>
+                    <div class="value">{% if user_data %}{{ user_data.email }}{% else %}Unknown{% endif %}</div>
                 </div>
                 <div class="info-item">
-                    <label>Full Name</label>
-                    <span>{% if user is not string %}{{ user.name if user.name else 'Not provided' }}{% else %}Unknown{% endif %}</span>
+                    <label>Full Name:</label>
+                    <div class="value">{% if user_data and user_data.name %}{{ user_data.name }}{% else %}Not provided{% endif %}</div>
                 </div>
                 <div class="info-item">
-                    <label>Location</label>
-                    <span>{% if user is not string %}{{ user.location if user.location else 'Not provided' }}{% else %}Unknown{% endif %}</span>
+                    <label>Location:</label>
+                    <div class="value">{% if user_data and user_data.location %}{{ user_data.location }}{% else %}Not provided{% endif %}</div>
                 </div>
                 <div class="info-item">
-                    <label>Joined</label>
-                    <span>{% if user is not string %}{{ user.created_at.strftime('%Y-%m-%d') }}{% else %}Unknown{% endif %}</span>
+                    <label>Joined:</label>
+                    <div class="value">{% if user_data %}{{ user_data.created_at|datetime }}{% else %}Unknown{% endif %}</div>
                 </div>
                 <div class="info-item">
-                    <label>Last Login</label>
-                    <span>
-                        {% if user is not string %}
-                            {{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never logged in' }}
-                        {% else %}
-                            Unknown
-                        {% endif %}
-                    </span>
+                    <label>Last Login:</label>
+                    <div class="value">{% if user_data and user_data.last_login %}{{ user_data.last_login|datetime }}{% else %}Never{% endif %}</div>
                 </div>
                 <div class="info-item">
-                    <label>Account Status</label>
-                    <span class="status-badge status-{{ user.account_status if user is not string else 'unknown' }}">
-                        {% if user is not string %}{{ user.account_status }}{% else %}unknown{% endif %}
-                    </span>
+                    <label>Account Status:</label>
+                    <div class="value status-badge {% if user_data %}status-{{ user_data.account_status }}{% endif %}">
+                        {% if user_data %}{{ user_data.account_status|title }}{% else %}Unknown{% endif %}
+                    </div>
                 </div>
             </div>
         </div>
         
         <!-- User Statistics -->
         <div class="admin-section">
-            <h2>User Statistics</h2>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <label>Pets</label>
-                    <div class="stat-number">{% if user is not string %}{{ user.pets|length }}{% else %}0{% endif %}</div>
+            <h2>Statistics</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Pets:</label>
+                    <div class="value">{% if user_data %}{{ user_data.pets_count }}{% else %}0{% endif %}</div>
                 </div>
-                <div class="stat-item">
-                    <label>Hosted Playdates</label>
-                    <div class="stat-number">{% if user is not string %}{{ user.hosted_playdates|length }}{% else %}0{% endif %}</div>
+                <div class="info-item">
+                    <label>Reviews:</label>
+                    <div class="value">{% if user_data %}{{ user_data.reviews_count }}{% else %}0{% endif %}</div>
                 </div>
-                <div class="stat-item">
-                    <label>Attended Playdates</label>
-                    <div class="stat-number">{% if user is not string %}{{ user.attended_playdates|length }}{% else %}0{% endif %}</div>
-                </div>
-                <div class="stat-item">
-                    <label>Average Rating</label>
-                    <div class="stat-number">
-                        {% if user is not string %}
-                            {% set rating = user.get_average_rating() %}
-                            {{ rating if rating else 'N/A' }}
-                        {% else %}
-                            N/A
-                        {% endif %}
-                    </div>
-                </div>
+                <!-- More stats could be added here -->
             </div>
         </div>
     </div>
@@ -561,30 +554,56 @@ Unknown User - PetMate Admin
     <div class="admin-section">
         <h2>Admin Actions</h2>
         <div class="admin-actions">
-            {% if user is not string and user.account_status == 'active' %}
-            <button onclick="showActionModal('suspend')" class="btn btn-warning">
-                <i class="fas fa-ban"></i> Suspend User
-            </button>
-            <button onclick="showActionModal('ban')" class="btn btn-danger">
-                <i class="fas fa-gavel"></i> Ban User
-            </button>
-            {% elif user is not string and user.account_status == 'suspended' %}
-            <form action="{{ url_for('admin.update_user_status', user_id=user_id|default(user.id if user is not string else 4)) }}" method="POST">
-                <input type="hidden" name="action" value="activate">
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-check"></i> Reactivate User
+            {% if user_data %}
+                {% if user_data.account_status == 'active' %}
+                <button onclick="showActionModal('suspend')" class="btn btn-warning">
+                    <i class="fas fa-ban"></i> Suspend User
                 </button>
-            </form>
-            <button onclick="showActionModal('ban')" class="btn btn-danger">
-                <i class="fas fa-gavel"></i> Ban User
-            </button>
-            {% elif user is not string and user.account_status == 'banned' %}
-            <form action="{{ url_for('admin.update_user_status', user_id=user_id|default(user.id if user is not string else 4)) }}" method="POST">
-                <input type="hidden" name="action" value="activate">
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-check"></i> Reactivate User
+                <button onclick="showActionModal('ban')" class="btn btn-danger">
+                    <i class="fas fa-gavel"></i> Ban User
                 </button>
-            </form>
+                <button onclick="showActionModal('reset_password')" class="btn btn-primary">
+                    <i class="fas fa-key"></i> Reset Password
+                </button>
+                <form action="{{ url_for('admin.impersonate_user', user_id=user_id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-user-secret"></i> Impersonate User
+                    </button>
+                </form>
+                {% elif user_data.account_status == 'suspended' %}
+                <form action="{{ url_for('admin.update_user_status', user_id=user_id) }}" method="POST">
+                    <input type="hidden" name="action" value="activate">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Reactivate User
+                    </button>
+                </form>
+                <button onclick="showActionModal('ban')" class="btn btn-danger">
+                    <i class="fas fa-gavel"></i> Ban User
+                </button>
+                <button onclick="showActionModal('reset_password')" class="btn btn-primary">
+                    <i class="fas fa-key"></i> Reset Password
+                </button>
+                <form action="{{ url_for('admin.impersonate_user', user_id=user_id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-user-secret"></i> Impersonate User
+                    </button>
+                </form>
+                {% elif user_data.account_status == 'banned' %}
+                <form action="{{ url_for('admin.update_user_status', user_id=user_id) }}" method="POST">
+                    <input type="hidden" name="action" value="activate">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Reactivate User
+                    </button>
+                </form>
+                <button onclick="showActionModal('reset_password')" class="btn btn-primary">
+                    <i class="fas fa-key"></i> Reset Password
+                </button>
+                <form action="{{ url_for('admin.impersonate_user', user_id=user_id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-user-secret"></i> Impersonate User
+                    </button>
+                </form>
+                {% endif %}
             {% endif %}
             
             <button onclick="showActionModal('note')" class="btn btn-secondary">
@@ -596,9 +615,9 @@ Unknown User - PetMate Admin
     <!-- User's Pets -->
     <div class="admin-section">
         <h2>User's Pets</h2>
-        {% if user is not string and user.pets %}
+        {% if user_data and user_data.pets %}
         <div class="pets-grid">
-            {% for pet in user.pets %}
+            {% for pet in user_data.pets %}
             <div class="pet-card">
                 {% if pet.image_filename %}
                 <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
@@ -624,9 +643,9 @@ Unknown User - PetMate Admin
     <!-- Admin Notes -->
     <div class="admin-section">
         <h2>Admin Notes</h2>
-        {% if user is not string and user.admin_notes %}
+        {% if user_data and user_data.account_notes %}
         <div class="notes-container">
-            <pre class="notes-content">{{ user.admin_notes }}</pre>
+            <pre class="notes-content">{{ user_data.account_notes }}</pre>
         </div>
         {% else %}
         <div class="no-data">No admin notes for this user</div>
@@ -638,7 +657,7 @@ Unknown User - PetMate Admin
 <div id="actionModal" class="modal">
     <div class="modal-content">
         <h2 id="modalTitle">Action Title</h2>
-        <form id="actionForm" action="{{ url_for('admin.update_user_status', user_id=user_id|default(user.id if user is not string else 4)) }}" method="POST">
+        <form id="actionForm" action="{{ url_for('admin.update_user_status', user_id=user_id) }}" method="POST">
             <input type="hidden" name="action" id="actionType" value="">
             <div class="form-group">
                 <label for="actionReason">Reason:</label>
@@ -652,8 +671,60 @@ Unknown User - PetMate Admin
     </div>
 </div>
 
+<!-- Ban User Modal -->
+<div id="banModal" class="modal">
+    <div class="modal-content">
+        <h2>Ban User Account</h2>
+        <p class="modal-description">Banning a user will permanently restrict their access to PetMate. This action should be taken for severe violations of platform rules.</p>
+        <form action="{{ url_for('admin.update_user_status', user_id=user_id) }}" method="POST">
+            <input type="hidden" name="action" value="ban">
+            <div class="form-group">
+                <label for="ban-reason">Reason for ban:</label>
+                <textarea name="reason" id="ban-reason" required></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-danger">Ban User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div id="reset_passwordModal" class="modal">
+    <div class="modal-content">
+        <h2>Reset User Password</h2>
+        <p class="modal-description">This will reset the user's password to a temporary one. The user will need to change their password when they log in next time.</p>
+        <form action="{{ url_for('admin.reset_user_password', user_id=user_id) }}" method="POST">
+            <div class="form-group">
+                <p>Are you sure you want to reset the password for {% if user_data %}{{ user_data.username }}{% else %}this user{% endif %}?</p>
+                <p>This will invalidate their current password and generate a temporary one.</p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary">Reset Password</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function showActionModal(action) {
+    // Close any open modals first
+    closeAllModals();
+    
+    if (action === 'ban') {
+        const modal = document.getElementById('banModal');
+        modal.style.display = 'block';
+        return;
+    }
+    
+    if (action === 'reset_password') {
+        const modal = document.getElementById('reset_passwordModal');
+        modal.style.display = 'block';
+        return;
+    }
+    
     const modal = document.getElementById('actionModal');
     const form = document.getElementById('actionForm');
     const title = document.getElementById('modalTitle');
@@ -667,10 +738,6 @@ function showActionModal(action) {
             title.textContent = 'Suspend User';
             submitBtn.className = 'btn btn-warning';
             break;
-        case 'ban':
-            title.textContent = 'Ban User';
-            submitBtn.className = 'btn btn-danger';
-            break;
         case 'note':
             title.textContent = 'Add Admin Note';
             submitBtn.className = 'btn btn-secondary';
@@ -681,15 +748,21 @@ function showActionModal(action) {
 }
 
 function closeModal() {
-    const modal = document.getElementById('actionModal');
-    modal.style.display = 'none';
+    closeAllModals();
+}
+
+function closeAllModals() {
+    // Get all modals and close them
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.style.display = 'none';
+    });
 }
 
 // Close modal when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('actionModal');
-    if (event.target == modal) {
-        modal.style.display = 'none';
+    if (event.target.classList.contains('modal')) {
+        closeAllModals();
     }
 }
 </script>

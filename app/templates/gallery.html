@@ -288,6 +288,75 @@
     .private-badge i {
         font-size: 0.8rem;
     }
+    
+    /* Empty state styling */
+    .no-photos {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        padding: 60px 20px;
+        text-align: center;
+        margin: 30px auto;
+        max-width: 450px;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .empty-state-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .no-photos i {
+        font-size: 56px;
+        color: var(--sage-green);
+        margin-bottom: 20px;
+        opacity: 0.8;
+    }
+
+    .no-photos h3 {
+        font-size: 1.4rem;
+        color: #444;
+        margin: 0 0 15px;
+        font-weight: 600;
+    }
+
+    .no-photos p {
+        color: #777;
+        font-size: 1rem;
+        max-width: 300px;
+        margin: 0 auto;
+        line-height: 1.5;
+    }
+
+    .empty-state-action {
+        margin-top: 25px;
+    }
+
+    .empty-state-action .button {
+        padding: 12px 24px;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        background-color: var(--sage-green);
+        color: white;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .empty-state-action .button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        background-color: var(--sage-green-dark, #4a7c59);
+    }
 </style>
 {% endblock %}
 
@@ -309,7 +378,28 @@
     
     <!-- Personal Photos Section -->
     <div class="gallery-section active" id="personal-photos">
-        {% set personal_photos = photos|selectattr('user_id', 'equalto', user.id)|list %}
+        <!-- Debug information - remove display: none to see debug values -->
+        <div style="display: block; background: #f5f5f5; padding: 10px; margin-bottom: 15px; border-radius: 5px;">
+            <p>Debug - User ID: {{ user.id if user else 'Not logged in' }}</p>
+            <p>Debug - User Type: {{ user.__class__.__name__ if user else 'None' }}</p>
+            <p>Debug - All Photos Count: {{ photos|length }}</p>
+            <p>Debug - Photos with is_public=false: {{ photos|selectattr('is_public', 'equalto', false)|list|length }}</p>
+            <p>Debug - First few photos user_ids: 
+                {% for photo in photos[:5] %}
+                    {{ photo.user_id }} ({{ photo.user_id.__class__.__name__ }}), 
+                {% endfor %}
+            </p>
+        </div>
+
+        {% set personal_photos = [] %}
+        {% if user %}
+            {% for photo in photos %}
+                {% if photo.user_id|string == user.id|string %}
+                    {% set personal_photos = personal_photos + [photo] %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
         {% if personal_photos %}
             <div class="photo-gallery">
                 <div class="gallery-grid">
@@ -361,19 +451,25 @@
             </div>
         {% else %}
             <div class="no-photos">
-                <i class="fas fa-images"></i>
-                <h3>No photos yet</h3>
-                <p>Click the Upload Photo button above to add your first photo!</p>
+                <div class="empty-state-content">
+                    <i class="fas fa-images"></i>
+                    <h3>No photos yet</h3>
+                    <p>Add your first photo to showcase your pet to the community!</p>
+                </div>
             </div>
         {% endif %}
     </div>
 
     <!-- Public Photos Section -->
     <div class="gallery-section" id="public-photos">
+        <div style="margin-bottom: 20px; text-align: center;">
+            <button id="toggle-private" class="button secondary">Show All Photos (Including Private)</button>
+        </div>
+        
         {% set public_photos = photos|selectattr('is_public', 'equalto', true)|rejectattr('user_id', 'equalto', user.id)|list %}
         {% if public_photos %}
             <div class="photo-gallery">
-                <div class="gallery-grid">
+                <div class="gallery-grid" id="public-photos-grid">
                     {% for photo in public_photos %}
                         <div class="gallery-item">
                             <div class="gallery-link">
@@ -399,13 +495,46 @@
                             </div>
                         </div>
                     {% endfor %}
+
+                    <!-- Hidden private photos that will be shown when toggled -->
+                    {% set private_photos = photos|selectattr('is_public', 'equalto', false)|rejectattr('user_id', 'equalto', user.id)|list %}
+                    {% for photo in private_photos %}
+                        <div class="gallery-item private-photo" style="display: none;">
+                            <div class="gallery-link">
+                                <div class="gallery-image">
+                                    <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" alt="{{ photo.title or 'Pet photo' }}">
+                                    <div class="private-badge">
+                                        <i class="fas fa-lock"></i> Private
+                                    </div>
+                                </div>
+                                <div class="gallery-caption">
+                                    <h4>{{ photo.title or 'Untitled' }}</h4>
+                                    {% if photo.description %}
+                                        <p>{{ photo.description }}</p>
+                                    {% endif %}
+                                    <div class="photo-meta">
+                                        <span class="photo-uploader">
+                                            <i class="fas fa-user"></i> {{ photo.uploader.username }}
+                                        </span>
+                                        {% if photo.pet %}
+                                            <span class="photo-pet">
+                                                <i class="fas fa-paw"></i> {{ photo.pet.name }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         {% else %}
             <div class="no-photos">
-                <i class="fas fa-images"></i>
-                <h3>No public photos yet</h3>
-                <p>Click the Upload Photo button above to be the first to share with the community!</p>
+                <div class="empty-state-content">
+                    <i class="fas fa-images"></i>
+                    <h3>No public photos yet</h3>
+                    <p>Be the first to share your pet photos with the community!</p>
+                </div>
             </div>
         {% endif %}
     </div>
@@ -468,5 +597,27 @@
             document.body.style.overflow = ''; // Restore scrolling
         }
     });
+
+    // Toggle private photos visibility
+    const toggleButton = document.getElementById('toggle-private');
+    if (toggleButton) {
+        toggleButton.addEventListener('click', () => {
+            const privatePhotos = document.querySelectorAll('.private-photo');
+            const isShowingPrivate = toggleButton.classList.contains('showing-private');
+            
+            privatePhotos.forEach(photo => {
+                photo.style.display = isShowingPrivate ? 'none' : 'block';
+            });
+            
+            toggleButton.classList.toggle('showing-private');
+            toggleButton.textContent = isShowingPrivate 
+                ? 'Show All Photos (Including Private)' 
+                : 'Show Public Photos Only';
+            
+            // Change button style
+            toggleButton.classList.toggle('primary');
+            toggleButton.classList.toggle('secondary');
+        });
+    }
 </script>
 {% endblock %} 

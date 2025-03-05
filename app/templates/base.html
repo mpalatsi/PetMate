@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='how-it-works.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='feature-cards.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pet-avatars.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='gallery.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/flash.css') }}">
     
@@ -57,6 +58,9 @@
                 {% if 'username' in session %}
                     <div class="user-menu">
                         <span>Welcome, {{ session['username'] }}!</span>
+                        {% if session.get('is_impersonating') %}
+                        <a href="{{ url_for('admin.stop_impersonating') }}" class="btn-warning">Return to Admin</a>
+                        {% endif %}
                         <a href="{{ url_for('auth.logout') }}">Logout</a>
                     </div>
                     <button class="menu-toggle">
@@ -78,6 +82,11 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
+        {% if session.get('is_impersonating') %}
+            <a href="{{ url_for('admin.stop_impersonating') }}" class="warning-link">
+                <i class="fas fa-user-shield"></i> Return to Admin
+            </a>
+        {% endif %}
         {% if 'username' in session %}
             {% set user = session['username'] %}
             {% if user == 'admin' %}
@@ -106,7 +115,7 @@
         </a>
         <a href="{{ url_for('messages.inbox') }}">
             <i class="fas fa-envelope"></i> Messages
-            {% if current_user and current_user.get_unread_message_count() > 0 %}
+            {% if current_user.is_authenticated and current_user.get_unread_message_count() > 0 %}
                 <span class="badge">{{ current_user.get_unread_message_count() }}</span>
             {% endif %}
         </a>

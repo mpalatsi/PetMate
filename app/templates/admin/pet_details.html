@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+
+{% block title %}
+Pet Details: {% if pet %}{{ pet.name }}{% else %}Unknown{% endif %} - PetMate Admin
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>
+            Pet Details: {% if pet %}{{ pet.name }}{% else %}Unknown{% endif %}
+        </h1>
+        <a href="{{ url_for('admin.pets_management') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Pets
+        </a>
+    </div>
+    
+    {% if pet %}
+    <div class="admin-section">
+        <h2>Pet Information</h2>
+        <div class="pet-profile">
+            {% if pet.image_filename %}
+            <div class="pet-image">
+                <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+            </div>
+            {% else %}
+            <div class="pet-image placeholder">
+                <i class="fas fa-paw"></i>
+            </div>
+            {% endif %}
+            
+            <div class="pet-info-grid">
+                <div class="info-item">
+                    <label>Name:</label>
+                    <div class="value">{{ pet.name }}</div>
+                </div>
+                <div class="info-item">
+                    <label>Species:</label>
+                    <div class="value">{{ pet.species }}</div>
+                </div>
+                <div class="info-item">
+                    <label>Breed:</label>
+                    <div class="value">{{ pet.breed }}</div>
+                </div>
+                <div class="info-item">
+                    <label>Age:</label>
+                    <div class="value">{{ pet.age }}</div>
+                </div>
+                <div class="info-item">
+                    <label>Size:</label>
+                    <div class="value">{{ pet.size }}</div>
+                </div>
+                <div class="info-item">
+                    <label>Gender:</label>
+                    <div class="value">{{ pet.gender }}</div>
+                </div>
+                <div class="info-item">
+                    <label>Owner:</label>
+                    <div class="value">
+                        <a href="{{ url_for('admin.user_details', user_id=pet.owner.id) }}">
+                            {{ pet.owner.username }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="admin-section">
+        <h2>Description</h2>
+        <div class="notes-container">
+            <div class="notes-content">{{ pet.description or 'No description provided' }}</div>
+        </div>
+    </div>
+    
+    <div class="admin-section">
+        <h2>Pet Activities</h2>
+        {% if pet.attended_playdates %}
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Playdate</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for playdate in pet.attended_playdates %}
+                    <tr>
+                        <td>{{ playdate.title }}</td>
+                        <td>{{ playdate.date|datetime }}</td>
+                        <td>{{ playdate.status }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.playdate_details', playdate_id=playdate.id) }}" class="btn btn-small btn-primary">
+                                View Playdate
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-data">No playdates attended</div>
+        {% endif %}
+    </div>
+    
+    <div class="admin-section">
+        <h2>Admin Actions</h2>
+        <div class="admin-actions">
+            <form action="{{ url_for('admin.update_pet_status', pet_id=pet.id) }}" method="POST">
+                <input type="hidden" name="action" value="flag">
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-flag"></i> Flag Pet Profile
+                </button>
+            </form>
+            <a href="{{ url_for('admin.user_details', user_id=pet.owner.id) }}" class="btn btn-primary">
+                <i class="fas fa-user"></i> View Owner Profile
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="admin-section">
+        <div class="no-data">Pet not found</div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+/* Add any missing styles needed for this page */
+.admin-container {
+    padding: 25px;
+    max-width: 1200px;
+    margin: 30px auto;
+    background-color: #F5F1E8;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Quicksand', sans-serif;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #7C9082;
+    padding-bottom: 15px;
+}
+
+.admin-header h1 {
+    color: #2C4A3B;
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.back-link {
+    background-color: #7C9082;
+    color: white !important;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.admin-section {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.admin-section h2 {
+    color: #2C4A3B;
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #F5F1E8;
+}
+
+.pet-profile {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+}
+
+.pet-image {
+    width: 100%;
+    height: 300px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.pet-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pet-image.placeholder {
+    background-color: rgba(124, 144, 130, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: #7C9082;
+}
+
+.pet-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.info-item {
+    background-color: rgba(124, 144, 130, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.info-item label {
+    display: block;
+    font-size: 13px;
+    color: #7F8C8D;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.info-item .value {
+    font-weight: 500;
+    color: #2C4A3B;
+}
+
+.notes-container {
+    background-color: rgba(124, 144, 130, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #F5F1E8;
+}
+
+.notes-content {
+    white-space: pre-wrap;
+    font-family: inherit;
+    margin: 0;
+    font-size: 14px;
+    color: #2C3E50;
+    line-height: 1.6;
+}
+
+.no-data {
+    color: #7F8C8D;
+    text-align: center;
+    padding: 30px;
+    font-style: italic;
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.btn-small {
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.btn-primary {
+    background-color: #7C9082;
+    color: white !important;
+}
+
+.btn-warning {
+    background-color: #F39C12;
+    color: white !important;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #F5F1E8;
+}
+
+.admin-table th {
+    background-color: rgba(124, 144, 130, 0.1);
+    font-weight: 600;
+    color: #2C4A3B;
+}
+
+@media (max-width: 768px) {
+    .pet-profile {
+        grid-template-columns: 1fr;
+    }
+    
+    .pet-image {
+        height: 200px;
+    }
+}
+</style>
+{% endblock %} 
