@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-petmate}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-petmatepassword}
+      - POSTGRES_DB=${POSTGRES_DB:-petmate}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-petmate}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    # Build locally for development
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./:/app  # Mount the entire project directory for live code changes
+      - /app/venv  # Exclude the virtual environment directory
+      - /app/__pycache__  # Exclude Python cache
+    environment:
+      - FLASK_APP=wsgi.py
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-petmate}:${POSTGRES_PASSWORD:-petmatepassword}@db/${POSTGRES_DB:-petmate}
+      - SECRET_KEY=${SECRET_KEY:-dev-key-for-development}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+    ports:
+      - "${WEB_PORT:-5000}:5000"
+    restart: unless-stopped
+    command: python dev.py  # Use the development script
+
+volumes:
+  postgres_data: 
