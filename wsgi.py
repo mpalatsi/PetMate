@@ -3,9 +3,9 @@
 WSGI server script for running the application with gevent and websockets.
 This provides proper WebSocket support using gevent-websocket.
 """
-# Apply gevent monkey patching
-from gevent import monkey
-monkey.patch_all(thread=False)
+# Apply monkey patching BEFORE any other imports
+import gevent.monkey
+gevent.monkey.patch_all()
 
 import logging
 import os
@@ -25,11 +25,11 @@ def run_server():
     logger.info("Starting gevent server with WebSocket support...")
     
     # Development mode (default)
-    port = int(os.environ.get('PORT', 5002))
+    port = int(os.environ.get('PORT', 5000))
     host = os.environ.get('HOST', '0.0.0.0')
     
     # Check if we're in debug mode
-    debug = os.environ.get('FLASK_DEBUG', 'True').lower() in ('true', '1', 't')
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
     app.debug = debug
     
     if debug:

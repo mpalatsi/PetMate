@@ -11,14 +11,8 @@ from flask_login import LoginManager
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Try to apply monkey patching first for gevent support
-try:
-    import gevent.monkey
-    # Apply monkey patching before any other imports
-    gevent.monkey.patch_all(ssl=True, thread=True)
-    logger.info("Successfully applied gevent monkey patching")
-except ImportError:
-    logger.warning("gevent not installed. Falling back to default worker")
+# Do NOT monkey patch here - it's already done in wsgi.py
+logger.info("Using gevent for WebSocket support")
 
 # Initialize extensions
 db = SQLAlchemy()

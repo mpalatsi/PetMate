@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libjpeg-dev \
     zlib1g-dev \
+    nano \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -41,5 +42,5 @@ ENV FLASK_ENV=production
 # Expose the port the app runs on
 EXPOSE 5000
 
-# Use gunicorn with eventlet worker for WebSocket support as the entrypoint
-CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "--bind", "0.0.0.0:5000", "--timeout", "120", "wsgi:app"] 
+# Use gunicorn with gevent worker for consistency
+CMD ["gunicorn", "--worker-class", "gevent", "-w", "1", "--bind", "0.0.0.0:5000", "--timeout", "120", "wsgi:app"] 
