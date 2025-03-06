@@ -17,13 +17,15 @@ def register_socket_events(socketio):
     @socketio.on('connect')
     def handle_connect():
         """Handle client connection"""
-        logger.info(f"Client connected: {request.sid} - User: {session.get('username', 'Anonymous')}")
+        logger.info(f"WEBSOCKET: Client connected: {request.sid} - User: {session.get('username', 'Anonymous')}")
+        print(f"WEBSOCKET: Client connected: {request.sid} - User: {session.get('username', 'Anonymous')}")
         emit('connection_response', {'status': 'connected', 'sid': request.sid})
     
     @socketio.on('disconnect')
     def handle_disconnect():
         """Handle client disconnection"""
-        logger.info(f"Client disconnected: {request.sid} - User: {session.get('username', 'Anonymous')}")
+        logger.info(f"WEBSOCKET: Client disconnected: {request.sid} - User: {session.get('username', 'Anonymous')}")
+        print(f"WEBSOCKET: Client disconnected: {request.sid} - User: {session.get('username', 'Anonymous')}")
     
     @socketio.on('join_playdate_room')
     def handle_join_playdate_room(data):
@@ -33,17 +35,23 @@ def register_socket_events(socketio):
         Args:
             data: Dictionary containing playdate_id
         """
+        logger.info(f"WEBSOCKET: Join room request received: {data}")
+        print(f"WEBSOCKET: Join room request received: {data}")
+        
         playdate_id = data.get('playdate_id')
         if not playdate_id:
+            logger.error("WEBSOCKET: No playdate_id in join request")
             emit('error', {'message': 'Playdate ID is required'})
             return
         
-        if 'user_id' not in session:
+        if 'username' not in session:
+            logger.error(f"WEBSOCKET: No username in session. Session data: {session}")
             emit('error', {'message': 'You must be logged in to join a playdate chat'})
             return
         
-        user = User.query.get(session['user_id'])
+        user = User.query.filter_by(username=session['username']).first()
         if not user:
+            logger.error(f"WEBSOCKET: User not found for username: {session.get('username')}")
             emit('error', {'message': 'User not found'})
             return
         
@@ -61,7 +69,7 @@ def register_socket_events(socketio):
         }, room=room, include_self=False)
         
         # Get existing messages for this playdate
-        messages = PlaydateMessage.query.filter_by(playdate_id=playdate_id).order_by(PlaydateMessage.timestamp).all()
+        messages = PlaydateMessage.query.filter_by(playdate_id=playdate_id).order_by(PlaydateMessage.created_at).all()
         
         # Send history to the user
         formatted_messages = []
@@ -72,8 +80,8 @@ def register_socket_events(socketio):
                 'content': msg.content,
                 'sender_id': msg.sender_id,
                 'sender_username': sender.username if sender else 'Unknown',
-                'timestamp': msg.timestamp.isoformat(),
-                'formatted_time': msg.timestamp.strftime('%I:%M %p')
+                'timestamp': msg.created_at.isoformat(),
+                'formatted_time': msg.created_at.strftime('%I:%M %p')
             })
         
         emit('message_history', {'messages': formatted_messages}, room=request.sid)
@@ -90,10 +98,10 @@ def register_socket_events(socketio):
         if not playdate_id:
             return
         
-        if 'user_id' not in session:
+        if 'username' not in session:
             return
         
-        user = User.query.get(session['user_id'])
+        user = User.query.filter_by(username=session['username']).first()
         if not user:
             return
         
@@ -117,53 +125,63 @@ def register_socket_events(socketio):
             data: Dictionary containing playdate_id and message
         """
         try:
+            print(f"Message received: {data}")
+            logger.info(f"WEBSOCKET: Received message data: {data}")
+            
             playdate_id = data.get('playdate_id')
             message_content = data.get('message', '').strip()
             
             if not playdate_id:
+                logger.error("WEBSOCKET: Playdate ID is missing")
                 emit('error', {'message': 'Playdate ID is required'})
                 return
             
             if not message_content:
+                logger.error("WEBSOCKET: Message content is empty")
                 emit('error', {'message': 'Message cannot be empty'})
                 return
             
-            if 'user_id' not in session:
+            if 'username' not in session:
+                logger.error(f"WEBSOCKET: No username in session. Session data: {session}")
                 emit('error', {'message': 'You must be logged in to send messages'})
                 return
             
-            user_id = session['user_id']
-            user = User.query.get(user_id)
+            user = User.query.filter_by(username=session['username']).first()
             if not user:
+                logger.error(f"WEBSOCKET: User not found for username: {session.get('username')}")
                 emit('error', {'message': 'User not found'})
                 return
+            
+            logger.info(f"WEBSOCKET: Creating message from {user.username} for playdate {playdate_id}")
             
             # Save message to database
             new_message = PlaydateMessage(
                 playdate_id=playdate_id,
-                sender_id=user_id,
-                content=message_content,
-                timestamp=datetime.utcnow()
+                sender_id=user.id,
+                content=message_content
             )
             
             db.session.add(new_message)
             db.session.commit()
-            logger.info(f"New message saved: ID {new_message.id} from User {user.username} to Playdate {playdate_id}")
+            logger.info(f"WEBSOCKET: New message saved: ID {new_message.id} from User {user.username} to Playdate {playdate_id}")
             
             # Broadcast message to all users in the playdate room
             room = f"playdate_{playdate_id}"
             formatted_message = {
                 'id': new_message.id,
                 'content': new_message.content,
-                'sender_id': user_id,
+                'sender_id': user.id,
                 'sender_username': user.username,
-                'timestamp': new_message.timestamp.isoformat(),
-                'formatted_time': new_message.timestamp.strftime('%I:%M %p')
+                'timestamp': new_message.created_at.isoformat(),
+                'formatted_time': new_message.created_at.strftime('%I:%M %p'),
+                'created_at': new_message.created_at.isoformat()  # Adding created_at for consistency
             }
             
+            logger.info(f"WEBSOCKET: Broadcasting message to room {room}: {formatted_message}")
             emit('new_message', formatted_message, room=room)
             
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Error handling playdate message: {str(e)}")
+            logger.error(f"WEBSOCKET ERROR: {str(e)}")
+            logger.exception("WEBSOCKET Exception details:")
             emit('error', {'message': 'An error occurred while sending your message'}) 

@@ -11,13 +11,29 @@ from flask_login import LoginManager
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Try to apply monkey patching first for gevent support
+try:
+    import gevent.monkey
+    # Apply monkey patching before any other imports
+    gevent.monkey.patch_all(ssl=True, thread=True)
+    logger.info("Successfully applied gevent monkey patching")
+except ImportError:
+    logger.warning("gevent not installed. Falling back to default worker")
+
 # Initialize extensions
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
 
-# Initialize SocketIO - use gevent as async_mode
-socketio = SocketIO(async_mode='gevent')
+# Initialize SocketIO
+# Don't specify 'async_mode' here - it will be set in create_app
+socketio = SocketIO(
+    cors_allowed_origins="*", 
+    logger=True, 
+    engineio_logger=True,
+    ping_timeout=60,
+    ping_interval=25
+)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -34,8 +50,19 @@ def create_app(config_class=Config):
     Returns:
         Flask application instance
     """
-    app = Flask(__name__, static_folder='static', static_url_path='/static')
+    # Explicitly set template_folder to app/templates
+    template_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+    app = Flask(__name__, 
+                static_folder='static', 
+                static_url_path='/static',
+                template_folder=template_folder)
     app.config.from_object(config_class)
+    
+    # Print template folder location for debugging
+    print(f"Flask template folders:")
+    print(f"1. app.template_folder = {app.template_folder}")
+    print(f"2. app.jinja_loader.searchpath = {app.jinja_loader.searchpath}")
+    print(f"Current working directory: {os.getcwd()}")
     
     # Initialize extensions with the app
     db.init_app(app)
@@ -47,17 +74,31 @@ def create_app(config_class=Config):
     login_manager.login_message = 'Please log in to access this page.'
     login_manager.login_message_category = 'error'
     
-    # Initialize SocketIO with full configuration after app is created
-    socketio.init_app(
-        app, 
-        async_mode='gevent',
-        cors_allowed_origins="*", 
-        logger=True, 
-        engineio_logger=True,
-        ping_timeout=60,
-        ping_interval=25
-    )
-    logger.info(f"SocketIO initialized with async_mode: {socketio.async_mode}")
+    # Initialize SocketIO with best settings for WebSocket support
+    # First try with gevent, fall back to default if not available
+    try:
+        import gevent
+        socketio.init_app(
+            app,
+            async_mode='gevent',
+            cors_allowed_origins="*",
+            logger=True,
+            engineio_logger=True,
+            ping_timeout=60,
+            ping_interval=25
+        )
+        logger.info(f"SocketIO initialized with gevent async_mode")
+    except ImportError:
+        # Fall back to default async_mode
+        socketio.init_app(
+            app,
+            cors_allowed_origins="*",
+            logger=True,
+            engineio_logger=True,
+            ping_timeout=60,
+            ping_interval=25
+        )
+        logger.info(f"SocketIO initialized with async_mode: {socketio.async_mode}")
     
     # Create upload directories if they don't exist
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

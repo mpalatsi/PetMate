@@ -39,7 +39,7 @@ def add_pet():
         breed = request.form['breed']
         age = request.form['age']
         size = request.form['size']
-        temperament = request.form['temperament']
+        bio = request.form['temperament']  # Use the temperament form field but store it in bio
         
         # Handle image upload - try cropped image first, then direct file upload
         image_filename = None
@@ -70,7 +70,7 @@ def add_pet():
             breed=breed,
             age=age,
             size=size,
-            temperament=temperament,
+            bio=bio,  # Store temperament in bio field
             owner_id=user.id,
             image_filename=image_filename
         )
@@ -81,7 +81,12 @@ def add_pet():
         flash('Pet added successfully!', 'success')
         return redirect(url_for('pets.my_pets'))
     
-    return render_template('add_pet.html')
+    # Check if we should display the mobile version
+    user_agent = request.user_agent.string
+    is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
+    return render_template('mobile_add_pet.html' if is_mobile and mode != 'desktop' else 'add_pet.html')
 
 @bp.route('/edit/<int:pet_id>', methods=['GET', 'POST'])
 def edit_pet(pet_id):
@@ -106,12 +111,31 @@ def edit_pet(pet_id):
         pet.breed = request.form['breed']
         pet.age = request.form['age']
         pet.size = request.form['size']
-        pet.temperament = request.form['temperament']
+        pet.bio = request.form['temperament']
         
-        # Handle image upload if provided
-        if 'pet_image' in request.files and request.files['pet_image'].filename:
+        # Handle image upload - try cropped image first, then direct file upload
+        cropped_image_data = request.form.get('cropped_image')
+        
+        if cropped_image_data and cropped_image_data.startswith('data:image'):
+            # Delete old image if it exists
+            if pet.image_filename:
+                old_image_path = os.path.join('static/pet_images', pet.image_filename)
+                try:
+                    os.remove(old_image_path)
+                except OSError:
+                    pass  # Ignore if file doesn't exist
+                    
+            # Save cropped image
+            image_filename = save_base64_image(
+                cropped_image_data, 
+                'static/pet_images', 
+                f"{pet.id}_{new_name}_cropped",
+                force_extension='jpg'
+            )
+            pet.image_filename = image_filename
+        elif 'pet_image' in request.files and request.files['pet_image'].filename:
             image = request.files['pet_image']
-            if image and allowed_file(image.filename):
+            if image and allowed_file(image.filename, {'jpg', 'jpeg', 'png', 'gif'}):
                 # Delete old image if it exists
                 if pet.image_filename:
                     old_image_path = os.path.join('static/pet_images', pet.image_filename)
@@ -144,8 +168,13 @@ def edit_pet(pet_id):
         flash('Pet updated successfully!', 'success')
         return redirect(url_for('pets.my_pets'))
     
+    # Check if we should display the mobile version
+    user_agent = request.user_agent.string
+    is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
     # For GET request, display the edit form
-    return render_template('edit_pet.html', pet=pet)
+    return render_template('mobile_edit_pet.html' if is_mobile and mode != 'desktop' else 'edit_pet.html', pet=pet)
 
 @bp.route('/delete/<int:pet_id>', methods=['POST'])
 def delete_pet(pet_id):

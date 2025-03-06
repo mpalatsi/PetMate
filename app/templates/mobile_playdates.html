@@ -4,61 +4,49 @@
 
 {% block meta %}
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="color-scheme" content="light">
-<meta name="theme-color" content="#6B8E23">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#6B8E6B">
 {% endblock %}
 
 {% block styles %}
 <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile_styles.css') }}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
     :root {
-        --sage-green: #6B8E23;
-        --sage-green-light: #8FBC8F;
-        --sage-green-dark: #556B2F;
-        --sage-green-lighter: #E8F5E9;
+        --sage-green: #6B8E6B;
+        --cream: #F8F4E3;
+        --deep-forest: #2C4C2C;
+        --warm-brown: #8B5A2B;
+        --terracotta: #CD5C5C;
     }
 
     /* Force light mode */
     body {
-        background-color: #f8f8f8;
+        background-color: var(--cream);
         color: #333;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         margin: 0;
         padding: 0;
         min-height: 100vh;
     }
-
-    .mobile-page-header {
-        background-color: var(--sage-green);
-        color: white;
-        text-align: center;
-        padding: 15px 10px;
-        position: relative;
-    }
-
-    .mobile-page-title {
-        margin: 0;
-        font-size: 1.5rem;
-        font-weight: 600;
-    }
-
-    .mobile-page-description {
-        margin: 5px 0 0;
-        font-size: 0.9rem;
-        opacity: 0.9;
+    
+    .content-with-header {
+        padding-top: 10px;
+        padding-bottom: 20px;
+        margin-top: 50px;
     }
 
     .mobile-container {
-        padding: 15px;
+        padding: 0px 15px;
     }
 
     .action-buttons-top {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
     }
 
     .action-button-top {
@@ -157,7 +145,7 @@
     }
 
     .your-playdate-badge {
-        background-color: var(--sage-green-light);
+        background-color: var(--sage-green);
         color: white;
         font-size: 0.75rem;
         padding: 2px 8px;
@@ -217,7 +205,7 @@
     }
 
     .pet-avatar-placeholder {
-        background-color: var(--sage-green-lighter);
+        background-color: #E8F5E9;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -276,10 +264,10 @@
     }
 
     .action-button {
-        background-color: #f5f5f5;
+        background-color: white;
         border: 1px solid #ddd;
         border-radius: 8px;
-        padding: 10px 5px;
+        padding: 12px 10px;
         text-align: center;
         color: #555;
         font-size: 0.9rem;
@@ -296,6 +284,7 @@
         background-color: var(--sage-green);
         border-color: var(--sage-green);
         color: white;
+        font-weight: 600;
     }
 
     .action-button i {
@@ -335,6 +324,80 @@
         font-size: 1.5rem;
     }
 
+    /* Mobile Menu */
+    .mobile-slide-menu {
+        position: fixed;
+        top: 0;
+        right: -280px;
+        width: 280px;
+        height: 100%;
+        background-color: white;
+        z-index: 2000;
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+        overflow-y: auto;
+    }
+
+    .mobile-slide-menu.open {
+        right: 0;
+    }
+
+    .menu-header {
+        background-color: var(--sage-green);
+        color: white;
+        padding: 20px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .menu-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .menu-items {
+        padding: 15px 0;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #333;
+        text-decoration: none;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .menu-item:hover {
+        background-color: #f9f9f9;
+    }
+
+    .menu-item i {
+        margin-right: 15px;
+        width: 20px;
+        text-align: center;
+        color: var(--sage-green);
+    }
+
+    .menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1999;
+        display: none;
+    }
+
+    .menu-overlay.open {
+        display: block;
+    }
+
     /* Ripple effect for buttons */
     .ripple {
         position: relative;
@@ -342,58 +405,161 @@
     }
 
     .ripple:after {
-        content: "";
-        display: block;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        pointer-events: none;
-        background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
-        background-repeat: no-repeat;
-        background-position: 50%;
-        transform: scale(10, 10);
-        opacity: 0;
-        transition: transform .3s, opacity .5s;
+        display: none !important;
     }
 
-    .ripple:active:after {
-        transform: scale(0, 0);
-        opacity: .3;
-        transition: 0s;
+    /* Mobile Header Improvements */
+    .mobile-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background-color: var(--sage-green);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 15px;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .back-button {
+        color: white;
+        font-size: 1.2rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+    }
+
+    .mobile-header h1 {
+        font-size: 1.2rem;
+        margin: 0;
+        font-weight: 600;
+        flex: 1;
+        text-align: center;
+    }
+
+    .mobile-menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+    }
+
+    /* Make View Details button more prominent */
+    .view-details-btn {
+        display: block;
+        width: 100%;
+        margin-top: 15px;
+        padding: 14px 10px;
+        background-color: var(--sage-green);
+        color: white;
+        font-weight: 600;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .view-details-btn i {
+        margin-right: 8px;
+    }
+
+    /* Remove any transitions that might cause animation effects */
+    body * {
+        transition: none !important;
+        animation: none !important;
     }
 </style>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // Force light mode
-    document.documentElement.style.colorScheme = 'light';
-    
-    // Toggle mobile menu
-    function toggleMobileMenu() {
-        const mobileMenu = document.getElementById('mobileMenu');
-        mobileMenu.classList.toggle('open');
-    }
-    
-    // Add ripple effect to buttons
     document.addEventListener('DOMContentLoaded', function() {
-        const buttons = document.querySelectorAll('.action-button, .action-button-top, .floating-button');
-        buttons.forEach(button => {
-            button.classList.add('ripple');
-        });
+        // Handle mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const slideMenu = document.getElementById('slideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const menuClose = document.getElementById('menuClose');
+        
+        function toggleMenu() {
+            slideMenu.classList.toggle('open');
+            menuOverlay.classList.toggle('open');
+            document.body.style.overflow = slideMenu.classList.contains('open') ? 'hidden' : '';
+        }
+        
+        menuToggle.addEventListener('click', toggleMenu);
+        menuClose.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
     });
 </script>
 {% endblock %}
 
 {% block content %}
-<div class="mobile-page-wrapper">
-    <div class="mobile-page-header">
-        <h1 class="mobile-page-title">My Playdates</h1>
-        <p class="mobile-page-description">View and manage your upcoming pet playdates</p>
-    </div>
+<div class="mobile-header">
+    <a href="{{ url_for('main.index') }}" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1>My Playdates</h1>
+    <button id="menuToggle" class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
 
+<!-- Mobile Slide Menu -->
+<div id="menuOverlay" class="menu-overlay"></div>
+<div id="slideMenu" class="mobile-slide-menu">
+    <div class="menu-header">
+        <h3>Menu</h3>
+        <button id="menuClose" class="menu-close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="menu-items">
+        <a href="{{ url_for('main.index') }}" class="menu-item">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('main.search') }}" class="menu-item">
+            <i class="fas fa-search"></i> Find Playmates
+        </a>
+        <a href="{{ url_for('pets.my_pets') }}" class="menu-item">
+            <i class="fas fa-paw"></i> My Pets
+        </a>
+        <a href="{{ url_for('playdates.playdates') }}" class="menu-item">
+            <i class="fas fa-calendar"></i> Playdates
+        </a>
+        <a href="{{ url_for('playdates.create_playdate') }}" class="menu-item">
+            <i class="fas fa-calendar-plus"></i> Create Playdate
+        </a>
+        <a href="{{ url_for('messages.inbox') }}" class="menu-item">
+            <i class="fas fa-envelope"></i> Messages
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" class="menu-item">
+            <i class="fas fa-user"></i> My Profile
+        </a>
+        <a href="{{ url_for('auth.logout') }}" class="menu-item">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+        
+        <a href="{{ url_for('playdates.playdates') }}?mode=desktop" class="menu-item">
+            <i class="fas fa-desktop"></i> Switch to Desktop Version
+        </a>
+    </div>
+</div>
+
+<div class="content-with-header">
     <div class="mobile-container">
         <div class="action-buttons-top">
             <a href="{{ url_for('playdates.create_playdate') }}" class="action-button-top primary">
@@ -495,6 +661,11 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Add standalone view details button for better visibility -->
+                    <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="view-details-btn">
+                        <i class="fas fa-eye"></i> View Playdate Details
+                    </a>
                 {% endfor %}
             {% else %}
                 <div class="no-playdates">
@@ -509,48 +680,5 @@
     <a href="{{ url_for('playdates.create_playdate') }}" class="floating-button ripple">
         <i class="fas fa-plus"></i>
     </a>
-</div>
-
-<!-- Mobile navigation -->
-<div class="mobile-nav-toggle" onclick="toggleMobileMenu()">
-    <i class="fas fa-bars"></i>
-</div>
-
-<div id="mobileMenu" class="mobile-menu">
-    <div class="mobile-menu-header">
-        <span>Menu</span>
-        <button class="mobile-menu-close" onclick="toggleMobileMenu()">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="mobile-menu-items">
-        <a href="{{ url_for('main.index') }}" class="mobile-menu-item">
-            <i class="fas fa-home"></i> Home
-        </a>
-        <a href="{{ url_for('main.search') }}" class="mobile-menu-item">
-            <i class="fas fa-search"></i> Find Playmates
-        </a>
-        <a href="{{ url_for('pets.my_pets') }}" class="mobile-menu-item">
-            <i class="fas fa-paw"></i> My Pets
-        </a>
-        <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-menu-item">
-            <i class="fas fa-calendar-plus"></i> Schedule Playdate
-        </a>
-        <a href="{{ url_for('main.dashboard') }}" class="mobile-menu-item">
-            <i class="fas fa-user"></i> My Profile
-        </a>
-        <a href="{{ url_for('messages.messages') }}" class="mobile-menu-item">
-            <i class="fas fa-envelope"></i> Messages
-        </a>
-        <a href="{{ url_for('auth.logout') }}" class="mobile-menu-item">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-        
-        <div class="mobile-menu-footer">
-            <a href="{{ url_for('playdates.playdates') }}?mode=desktop" class="mobile-menu-item">
-                <i class="fas fa-desktop"></i> Switch to Desktop Version
-            </a>
-        </div>
-    </div>
 </div>
 {% endblock %} 

@@ -1,28 +1,29 @@
 {% extends "mobile_base.html" %}
 
-{% block title %}Playdate Details - PetMate{% endblock %}
+{% block title %}Playdate Details{% endblock %}
 
 {% block meta %}
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="color-scheme" content="light">
-<meta name="theme-color" content="#6B8E23">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#6B8E6B">
 {% endblock %}
 
 {% block styles %}
 <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile_styles.css') }}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
     :root {
-        --sage-green: #6B8E23;
-        --sage-green-light: #8FBC8F;
-        --sage-green-dark: #556B2F;
-        --sage-green-lighter: #E8F5E9;
+        --sage-green: #6B8E6B;
+        --cream: #F8F4E3;
+        --deep-forest: #2C4C2C;
+        --warm-brown: #8B5A2B;
+        --terracotta: #CD5C5C;
     }
 
-    /* Force light mode */
     body {
-        background-color: #f8f8f8;
+        background-color: var(--cream);
         color: #333;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         margin: 0;
@@ -30,37 +31,9 @@
         min-height: 100vh;
     }
 
-    .mobile-page-header {
-        background-color: var(--sage-green);
-        color: white;
-        text-align: center;
-        padding: 15px 10px;
-        position: relative;
-    }
-
-    .mobile-page-title {
-        margin: 0;
-        font-size: 1.5rem;
-        font-weight: 600;
-    }
-
-    .mobile-page-description {
-        margin: 5px 0 0;
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    .back-button {
-        position: absolute;
-        left: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        padding: 8px;
-        border-radius: 50%;
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: none;
-        cursor: pointer;
+    .content-with-header {
+        padding-top: 70px;
+        padding-bottom: 20px;
     }
 
     .mobile-container {
@@ -125,7 +98,7 @@
     }
 
     .your-playdate-badge {
-        background-color: var(--sage-green-light);
+        background-color: var(--sage-green);
         color: white;
         font-size: 0.75rem;
         padding: 2px 8px;
@@ -193,7 +166,7 @@
     }
 
     .avatar-placeholder {
-        background-color: var(--sage-green-lighter);
+        background-color: #E8F5E9;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -251,6 +224,7 @@
         touch-action: manipulation;
         position: relative;
         overflow: hidden;
+        width: 100%;
     }
 
     .action-button.primary {
@@ -267,6 +241,102 @@
 
     .action-button i {
         margin-right: 8px;
+    }
+
+    /* Fix for back button */
+    .back-button {
+        text-decoration: none;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Mobile Menu */
+    .mobile-menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mobile-slide-menu {
+        position: fixed;
+        top: 0;
+        right: -280px;
+        width: 280px;
+        height: 100%;
+        background-color: white;
+        z-index: 2000;
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+        overflow-y: auto;
+    }
+
+    .mobile-slide-menu.open {
+        right: 0;
+    }
+
+    .menu-header {
+        background-color: var(--sage-green);
+        color: white;
+        padding: 20px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .menu-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .menu-items {
+        padding: 15px 0;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #333;
+        text-decoration: none;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .menu-item:hover {
+        background-color: #f9f9f9;
+    }
+
+    .menu-item i {
+        margin-right: 15px;
+        width: 20px;
+        text-align: center;
+        color: var(--sage-green);
+    }
+
+    .menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1999;
+        display: none;
+    }
+
+    .menu-overlay.open {
+        display: block;
     }
 
     /* Attendees list */
@@ -366,73 +436,87 @@
     }
 
     .small-button.primary {
-        background-color: var(--sage-green-light);
+        background-color: var(--sage-green);
         color: white;
         border: none;
-    }
-
-    /* Ripple effect for buttons */
-    .ripple {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .ripple:after {
-        content: "";
-        display: block;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        pointer-events: none;
-        background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
-        background-repeat: no-repeat;
-        background-position: 50%;
-        transform: scale(10, 10);
-        opacity: 0;
-        transition: transform .3s, opacity .5s;
-    }
-
-    .ripple:active:after {
-        transform: scale(0, 0);
-        opacity: .3;
-        transition: 0s;
     }
 </style>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // Force light mode
-    document.documentElement.style.colorScheme = 'light';
-    
-    // Toggle mobile menu
-    function toggleMobileMenu() {
-        const mobileMenu = document.getElementById('mobileMenu');
-        mobileMenu.classList.toggle('open');
-    }
-    
-    // Add ripple effect to buttons
     document.addEventListener('DOMContentLoaded', function() {
-        const buttons = document.querySelectorAll('.action-button, .small-button, .back-button');
-        buttons.forEach(button => {
-            button.classList.add('ripple');
-        });
+        // Handle mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const slideMenu = document.getElementById('slideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const menuClose = document.getElementById('menuClose');
+        
+        function toggleMenu() {
+            slideMenu.classList.toggle('open');
+            menuOverlay.classList.toggle('open');
+            document.body.style.overflow = slideMenu.classList.contains('open') ? 'hidden' : '';
+        }
+        
+        menuToggle.addEventListener('click', toggleMenu);
+        menuClose.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
     });
 </script>
 {% endblock %}
 
 {% block content %}
-<div class="mobile-page-wrapper">
-    <div class="mobile-page-header">
-        <button class="back-button" onclick="window.location.href='{{ url_for('playdates.playdates') }}'">
-            <i class="fas fa-arrow-left"></i>
-        </button>
-        <h1 class="mobile-page-title">Playdate Details</h1>
-        <p class="mobile-page-description">View playdate information and attendees</p>
-    </div>
+<div class="mobile-header">
+    <a href="{{ url_for('playdates.playdates') }}?mode=mobile" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1>Playdate Details</h1>
+    <button id="menuToggle" class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
 
+<!-- Mobile Slide Menu -->
+<div id="menuOverlay" class="menu-overlay"></div>
+<div id="slideMenu" class="mobile-slide-menu">
+    <div class="menu-header">
+        <h3>Menu</h3>
+        <button id="menuClose" class="menu-close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="menu-items">
+        <a href="{{ url_for('main.index') }}" class="menu-item">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('main.search') }}" class="menu-item">
+            <i class="fas fa-search"></i> Find Playmates
+        </a>
+        <a href="{{ url_for('pets.my_pets') }}" class="menu-item">
+            <i class="fas fa-paw"></i> My Pets
+        </a>
+        <a href="{{ url_for('playdates.playdates') }}" class="menu-item">
+            <i class="fas fa-calendar"></i> Playdates
+        </a>
+        <a href="{{ url_for('playdates.create_playdate') }}" class="menu-item">
+            <i class="fas fa-calendar-plus"></i> Create Playdate
+        </a>
+        <a href="{{ url_for('messages.inbox') }}" class="menu-item">
+            <i class="fas fa-envelope"></i> Messages
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" class="menu-item">
+            <i class="fas fa-user"></i> My Profile
+        </a>
+        <a href="{{ url_for('auth.logout') }}" class="menu-item">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+        <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}?mode=desktop" class="menu-item">
+            <i class="fas fa-desktop"></i> Switch to Desktop Version
+        </a>
+    </div>
+</div>
+
+<div class="content-with-header">
     <div class="mobile-container">
         <div class="playdate-header-card">
             <div class="playdate-date-time">
@@ -467,23 +551,23 @@
             <div class="section-heading">
                 <i class="fas fa-paw"></i> Pets Attending
             </div>
-            <div class="pet-avatars-container">
-                <div class="pet-avatars">
+            <div class="avatars-scrollable">
+                <div class="avatar-row">
                     {% if pets %}
                         {% for pet in pets %}
-                            <div class="pet-avatar">
+                            <div class="avatar-item">
                                 {% if pet.image_filename %}
-                                    <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                    <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}" class="avatar-image">
                                 {% else %}
-                                    <div class="pet-avatar-placeholder">
+                                    <div class="avatar-placeholder">
                                         <i class="fas fa-paw"></i>
                                     </div>
                                 {% endif %}
-                                <span class="pet-name">{{ pet.name }}</span>
+                                <span class="avatar-name">{{ pet.name }}</span>
                             </div>
                         {% endfor %}
                     {% else %}
-                        <p class="no-pets-message">No pets have been added to this playdate yet.</p>
+                        <p class="no-items-message">No pets have been added to this playdate yet.</p>
                     {% endif %}
                 </div>
             </div>
@@ -581,7 +665,7 @@
                 </form>
             {% endif %}
             
-            <a href="{{ url_for('playdates.playdates') }}" class="action-button">
+            <a href="{{ url_for('playdates.playdates') }}?mode=mobile" class="action-button">
                 <i class="fas fa-arrow-left"></i> Back to Playdates
             </a>
         </div>
@@ -657,49 +741,6 @@
                     </a>
                 {% endif %}
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Mobile navigation -->
-<div class="mobile-nav-toggle" onclick="toggleMobileMenu()">
-    <i class="fas fa-bars"></i>
-</div>
-
-<div id="mobileMenu" class="mobile-menu">
-    <div class="mobile-menu-header">
-        <span>Menu</span>
-        <button class="mobile-menu-close" onclick="toggleMobileMenu()">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="mobile-menu-items">
-        <a href="{{ url_for('main.index') }}" class="mobile-menu-item">
-            <i class="fas fa-home"></i> Home
-        </a>
-        <a href="{{ url_for('main.search') }}" class="mobile-menu-item">
-            <i class="fas fa-search"></i> Find Playmates
-        </a>
-        <a href="{{ url_for('pets.my_pets') }}" class="mobile-menu-item">
-            <i class="fas fa-paw"></i> My Pets
-        </a>
-        <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-menu-item">
-            <i class="fas fa-calendar-plus"></i> Schedule Playdate
-        </a>
-        <a href="{{ url_for('main.dashboard') }}" class="mobile-menu-item">
-            <i class="fas fa-user"></i> My Profile
-        </a>
-        <a href="{{ url_for('messages.messages') }}" class="mobile-menu-item">
-            <i class="fas fa-envelope"></i> Messages
-        </a>
-        <a href="{{ url_for('auth.logout') }}" class="mobile-menu-item">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-        
-        <div class="mobile-menu-footer">
-            <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}?mode=desktop" class="mobile-menu-item">
-                <i class="fas fa-desktop"></i> Switch to Desktop Version
-            </a>
         </div>
     </div>
 </div>

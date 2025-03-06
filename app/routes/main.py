@@ -10,8 +10,15 @@ from app.utils.helpers import allowed_file, save_uploaded_file, geocode_address,
 import os
 from datetime import datetime, timedelta
 from sqlalchemy import desc, and_, or_
+from app.models.message import Message
+from flask_login import login_required, current_user
 
 bp = Blueprint('main', __name__)
+
+# Helper function to detect mobile devices
+def is_mobile_device(request):
+    user_agent = request.headers.get('User-Agent', '').lower()
+    return any(device in user_agent.lower() for device in ['iphone', 'android', 'mobile', 'tablet'])
 
 @bp.route('/')
 def index():
@@ -44,9 +51,8 @@ def profile():
         return redirect(url_for('auth.login'))
     
     # Check if we should display the mobile version
-    user_agent = request.headers.get('User-Agent', '').lower()
-    is_mobile = any(device in user_agent.lower() for device in ['iphone', 'android', 'mobile', 'tablet'])
-    mode = request.args.get('mode', None)  # Check for manual override
+    is_mobile = is_mobile_device(request)
+    mode = request.args.get('mode', '')
     
     # For mobile, redirect to the view_profile route which already has mobile support
     if is_mobile and mode != 'desktop':
@@ -83,11 +89,6 @@ def profile():
 
 @bp.route('/user/<int:user_id>')
 def view_profile(user_id):
-    # Check if user is logged in
-    if 'username' not in session:
-        return redirect(url_for('auth.login'))
-    
-    # Get the user whose profile is being viewed
     user = User.query.get_or_404(user_id)
     
     # Get user's pets
@@ -109,12 +110,11 @@ def view_profile(user_id):
     recent_playdates = recent_playdates[:5]  # Limit to 5 most recent
     
     # Get the current user's ID for the template to check if viewing own profile
-    current_user_id = User.query.filter_by(username=session['username']).first().id
+    current_user_id = User.query.filter_by(username=session['username']).first().id if 'username' in session else None
     
     # Check if we should display the mobile version
-    user_agent = request.headers.get('User-Agent', '').lower()
-    is_mobile = any(device in user_agent.lower() for device in ['iphone', 'android', 'mobile', 'tablet'])
-    mode = request.args.get('mode', None)  # Check for manual override
+    is_mobile = is_mobile_device(request)
+    mode = request.args.get('mode', '')
     
     template = 'mobile_view_profile.html' if is_mobile and mode != 'desktop' else 'view_profile.html'
     
@@ -135,6 +135,10 @@ def edit_profile():
     if user is None:
         flash('User not found.', 'error')
         return redirect(url_for('auth.login'))
+    
+    # Check if the user is on a mobile device
+    is_mobile = is_mobile_device(request)
+    mode = request.args.get('mode', '')
     
     if request.method == 'POST':
         # Update basic information
@@ -186,13 +190,17 @@ def edit_profile():
         except Exception as e:
             db.session.rollback()
             flash(f'Error updating profile: {str(e)}', 'error')
-            return render_template('edit_profile.html', 
+            template = 'mobile_edit_profile.html' if is_mobile and mode != 'desktop' else 'edit_profile.html'
+            return render_template(template, 
                                 user=user, 
                                 error=str(e),
                                 current_year=int(datetime.now().year),
                                 google_maps_api_key=os.environ.get('GOOGLE_MAPS_API_KEY', ''))
     
-    return render_template('edit_profile.html', 
+    # Select the appropriate template based on device
+    template = 'mobile_edit_profile.html' if is_mobile and mode != 'desktop' else 'edit_profile.html'
+    
+    return render_template(template, 
                          user=user,
                          current_year=int(datetime.now().year),
                          google_maps_api_key=os.environ.get('GOOGLE_MAPS_API_KEY', ''))
@@ -763,77 +771,64 @@ def contact():
     return render_template('contact.html')
 
 @bp.route('/dashboard')
+@login_required
 def dashboard():
-    if 'username' not in session:
-        return redirect(url_for('auth.login'))
+    # Get user agent and mode
+    user_agent = request.headers.get('User-Agent', '')
+    mode = request.args.get('mode', '')
     
-    username = session['username']
-    user = User.query.filter_by(username=username).first()
+    # Check if mobile device based on user agent
+    is_mobile = any(device in user_agent.lower() for device in ['iphone', 'android', 'mobile'])
     
-    if not user:
-        session.pop('username', None)
-        return redirect(url_for('auth.login'))
+    # Debug prints
+    print(f"User-Agent: {user_agent}")
+    print(f"Is Mobile: {is_mobile}")
+    print(f"Mode: {mode}")
+    
+    # Determine which template to use
+    if mode == 'desktop':
+        template = 'dashboard.html'
+    elif mode == 'mobile':
+        template = 'mobile_dashboard.html'
+    elif mode == 'test':
+        template = 'mobile_dashboard_test3.html'
+    else:
+        # Default behavior based on device type
+        template = 'mobile_dashboard.html' if is_mobile else 'dashboard.html'
+    
+    print(f"Selected Template: {template}")
+    
+    # Get user data
+    user = current_user
+    user_id = user.id
     
     # Get unread messages count
-    unread_messages = user.get_unread_message_count()
+    unread_messages = Message.query.filter_by(recipient_id=user_id, is_read=False).count()
     
-    # Handle case where user doesn't have the new fields yet
-    try:
-        # Try to access the new fields
-        _ = user.preferred_meetup_types
-        _ = user.availability
-        _ = user.pet_owner_since
-        _ = user.pet_experience_level
-    except Exception as e:
-        # If there's an error, add the missing columns
-        print(f"Error accessing new fields: {e}")
-        print("Attempting to update database schema...")
-        try:
-            # Add the missing columns directly
-            with bp.app_context():
-                op = db.session.execute("""
-                    ALTER TABLE user 
-                    ADD COLUMN preferred_meetup_types VARCHAR(255);
-                """)
-                op = db.session.execute("""
-                    ALTER TABLE user 
-                    ADD COLUMN availability VARCHAR(255);
-                """)
-                op = db.session.execute("""
-                    ALTER TABLE user 
-                    ADD COLUMN pet_owner_since INTEGER;
-                """)
-                op = db.session.execute("""
-                    ALTER TABLE user 
-                    ADD COLUMN pet_experience_level VARCHAR(50);
-                """)
-                db.session.commit()
-                print("Database schema updated successfully.")
-        except Exception as migration_error:
-            print(f"Error updating schema: {migration_error}")
-            # Continue anyway, the template will handle missing attributes
-    
-    # Get upcoming playdates for the user
+    # Get upcoming playdates
     upcoming_playdates = Playdate.query.filter(
-        and_(
-            Playdate.date >= datetime.now().date(),
-            or_(
-                Playdate.host_id == user.id,
-                Playdate.pets.any(Pet.owner_id == user.id)
-            )
-        )
-    ).order_by(Playdate.date).limit(5).all()
+        or_(
+            Playdate.host_id == user_id,
+            Playdate.attendees.any(id=user_id)
+        ),
+        Playdate.status == 'accepted',
+        Playdate.date >= datetime.now()
+    ).order_by(Playdate.date).all()
     
-    # Check if we should display the mobile version
-    user_agent = request.user_agent.string if request.user_agent else ''
-    is_mobile = any(device in user_agent for device in ['Android', 'iPhone', 'iPad', 'Mobile', 'webOS'])
-    mode = request.args.get('mode', None)  # Check for manual override
+    # Get user's pets
+    pets = Pet.query.filter_by(owner_id=user_id).all()
+    
+    # Pass additional debug info to template
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     return render_template(
-        'mobile_dashboard.html' if is_mobile and mode != 'desktop' else 'dashboard.html', 
-        user=user,  # Pass the User object directly
-        unread_messages=unread_messages, 
-        upcoming_playdates=upcoming_playdates
+        template,
+        user=user,
+        pets=pets,
+        unread_messages=unread_messages,
+        upcoming_playdates=upcoming_playdates,
+        user_agent=user_agent,
+        now=now
     )
 
 @bp.route('/resources/safety-guidelines')

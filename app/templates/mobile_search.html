@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="color-scheme" content="light only">
-    <meta name="theme-color" content="#F5F1E8">
+    <meta name="theme-color" content="#6B8E6B">
     <meta name="supported-color-schemes" content="light">
     <title>Find Playdates - PetMate</title>
     
@@ -15,10 +15,15 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile-homepage.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         /* Additional styles specific to the search page */
+        .content-with-header {
+            padding-top: 70px;
+        }
+        
         .mobile-page-header {
             text-align: center;
             padding: 1.5rem 1rem;
@@ -154,6 +159,29 @@
             font-size: 0.85rem;
             color: #666;
         }
+        
+        /* Empty state styling */
+        .mobile-empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: white;
+            border-radius: 12px;
+            margin: 20px 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        /* Desktop version link styling */
+        .desktop-link a {
+            color: var(--sage-green);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: opacity 0.2s ease;
+        }
+        
+        .desktop-link a:hover {
+            opacity: 0.8;
+        }
     </style>
     
     <script>
@@ -162,62 +190,60 @@
     </script>
 </head>
 <body>
-    <!-- Mobile Navigation -->
-    <nav class="mobile-nav">
-        <div class="mobile-nav-container">
-            <a href="{{ url_for('main.index') }}" class="mobile-logo">
-                <div class="mobile-logo-icon"></div>
-                <div class="mobile-logo-text">Pet<span class="highlight">Mate</span></div>
-            </a>
-            <div class="mobile-nav-actions">
-                {% if 'username' in session %}
-                    <a href="{{ url_for('main.dashboard') }}" class="mobile-nav-link">Profile</a>
-                {% else %}
-                    <a href="{{ url_for('auth.login') }}" class="mobile-nav-link">Login</a>
-                {% endif %}
-                <button class="mobile-menu-toggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
-
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <button class="back-button" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1>Find Playmates</h1>
+        <button class="menu-button" id="main-menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+    
     <!-- Mobile Menu -->
-    <div class="mobile-menu">
-        <div class="mobile-menu-header">
-            <span>Menu</span>
-            <button class="mobile-close-menu">
+    <div class="main-menu-overlay" id="main-menu-overlay"></div>
+    <div class="main-menu" id="main-menu">
+        <div class="main-menu-header">
+            <h3>Menu</h3>
+            <button class="close-main-menu" id="close-main-menu">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <div class="mobile-menu-links">
-            <a href="{{ url_for('main.index') }}" class="mobile-menu-link">
+        <div class="main-menu-links">
+            <a href="{{ url_for('main.index') }}" class="main-menu-link">
                 <i class="fas fa-home"></i> Home
             </a>
-            <a href="{{ url_for('main.search') }}" class="mobile-menu-link">
+            <a href="{{ url_for('main.search') }}" class="main-menu-link active">
                 <i class="fas fa-search"></i> Find Playmates
             </a>
-            <a href="{{ url_for('pets.my_pets') }}" class="mobile-menu-link">
+            <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
                 <i class="fas fa-paw"></i> My Pets
             </a>
-            <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-menu-link">
+            <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
                 <i class="fas fa-calendar-plus"></i> Schedule Playdate
             </a>
             {% if 'username' in session %}
-                <a href="{{ url_for('main.dashboard') }}" class="mobile-menu-link">
-                    <i class="fas fa-user"></i> My Profile
+                <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
+                    <i class="fas fa-user"></i> My Dashboard
                 </a>
-                <a href="{{ url_for('messages.inbox') }}" class="mobile-menu-link">
+                <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
                     <i class="fas fa-envelope"></i> Messages
+                    {% if unread_messages and unread_messages > 0 %}
+                    <span class="badge">{{ unread_messages }}</span>
+                    {% endif %}
                 </a>
-                <a href="{{ url_for('auth.logout') }}" class="mobile-menu-link">
+                <a href="{{ url_for('main.gallery') }}" class="main-menu-link">
+                    <i class="fas fa-images"></i> Gallery
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             {% else %}
-                <a href="{{ url_for('auth.login') }}" class="mobile-menu-link">
+                <a href="{{ url_for('auth.login') }}" class="main-menu-link">
                     <i class="fas fa-sign-in-alt"></i> Login
                 </a>
-                <a href="{{ url_for('auth.register') }}" class="mobile-menu-link">
+                <a href="{{ url_for('auth.register') }}" class="main-menu-link">
                     <i class="fas fa-user-plus"></i> Register
                 </a>
             {% endif %}
@@ -225,9 +251,8 @@
     </div>
 
     <!-- Content -->
-    <main class="mobile-main">
+    <div class="content-with-header">
         <div class="mobile-page-header">
-            <h2>Find Playdates</h2>
             <p>Search for nearby pet playdates or find events on specific dates</p>
         </div>
         
@@ -290,26 +315,32 @@
         <p class="desktop-link" style="text-align: center; margin: 2rem 0;">
             <a href="{{ url_for('main.search') }}?mode=desktop" id="view-desktop-version">View Desktop Version</a>
         </p>
-    </main>
+    </div>
 
     <!-- Mobile-specific JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Menu toggle functionality
-            const menuToggle = document.querySelector('.mobile-menu-toggle');
-            const closeMenu = document.querySelector('.mobile-close-menu');
-            const mobileMenu = document.querySelector('.mobile-menu');
+            const menuToggle = document.getElementById('main-menu-toggle');
+            const closeMenu = document.getElementById('close-main-menu');
+            const menuOverlay = document.getElementById('main-menu-overlay');
+            const mainMenu = document.getElementById('main-menu');
             
-            if (menuToggle && closeMenu && mobileMenu) {
+            if (menuToggle && closeMenu && menuOverlay && mainMenu) {
                 menuToggle.addEventListener('click', function() {
-                    mobileMenu.classList.add('active');
+                    mainMenu.classList.add('active');
+                    menuOverlay.classList.add('active');
                     document.body.style.overflow = 'hidden'; // Prevent scrolling
                 });
                 
-                closeMenu.addEventListener('click', function() {
-                    mobileMenu.classList.remove('active');
+                function closeMainMenu() {
+                    mainMenu.classList.remove('active');
+                    menuOverlay.classList.remove('active');
                     document.body.style.overflow = ''; // Enable scrolling
-                });
+                }
+                
+                closeMenu.addEventListener('click', closeMainMenu);
+                menuOverlay.addEventListener('click', closeMainMenu);
             }
             
             // Apply ripple effect to touch elements

@@ -570,7 +570,7 @@
             <div class="gallery-grid">
                 {% for photo in photos %}
                     <div class="gallery-item">
-                        <img src="{{ url_for('static', filename='playdate_photos/' + photo.filename) }}" alt="Playdate photo" class="gallery-image" data-src="{{ url_for('static', filename='playdate_photos/' + photo.filename) }}">
+                        <img src="{{ url_for('static', filename='playdate_photos/' + photo.photo_path) }}" alt="Playdate photo" class="gallery-image" data-src="{{ url_for('static', filename='playdate_photos/' + photo.photo_path) }}">
                         {% if photo.user_id == current_user.id or playdate.host_id == current_user.id %}
                             <form class="delete-photo-form" method="POST" action="{{ url_for('playdates.delete_photo', playdate_id=playdate.id, photo_id=photo.id) }}" onsubmit="return confirm('Are you sure you want to delete this photo? This action cannot be undone.');">
                                 <button type="submit" class="delete-photo-btn" title="Delete photo">

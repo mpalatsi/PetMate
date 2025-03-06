@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#6B8E6B">
+    <title>Photo Gallery: {{ playdate.title }} - PetMate</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pet-avatars.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --sage-green: #6B8E6B;
+            --cream: #F8F4E3;
+            --deep-forest: #2C4C2C;
+            --warm-brown: #8B5A2B;
+            --terracotta: #CD5C5C;
+            --sage-green-light: #8FBC8F;
+            --sage-green-lighter: #E8F5E9;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #777;
+        }
+        
+        /* Force light mode */
+        body {
+            background-color: var(--light-gray);
+            color: #333;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .gallery-header {
+            background-color: var(--sage-green);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 10px 15px;
+        }
+        
+        .header-main {
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-button {
+            color: white;
+            text-decoration: none;
+            margin-right: 10px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        
+        .gallery-info {
+            flex: 1;
+        }
+        
+        .gallery-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin: 0;
+        }
+        
+        .gallery-subtitle {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+        
+        .header-details {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.8rem;
+        }
+        
+        .playdate-detail {
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 15px;
+        }
+        
+        .playdate-detail i {
+            margin-right: 5px;
+        }
+        
+        .gallery-content {
+            flex: 1;
+            padding: 110px 10px 80px;
+            overflow-y: auto;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin: 20px 0 15px;
+            display: flex;
+            align-items: center;
+            padding-left: 5px;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: var(--sage-green);
+        }
+        
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .photo-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: white;
+            aspect-ratio: 1 / 1;
+        }
+        
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .photo-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 8px;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .photo-item:active .photo-info {
+            opacity: 1;
+        }
+        
+        .uploader-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .uploader-name i {
+            margin-right: 5px;
+            font-size: 0.6rem;
+        }
+        
+        .upload-date {
+            opacity: 0.9;
+            font-size: 0.65rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .upload-date i {
+            margin-right: 5px;
+            font-size: 0.6rem;
+        }
+        
+        .delete-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .photo-item:active .delete-button {
+            opacity: 1;
+        }
+        
+        .upload-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .upload-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            color: #333;
+        }
+        
+        .upload-title i {
+            margin-right: 8px;
+            color: var(--sage-green);
+        }
+        
+        .upload-description {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .upload-zone {
+            border: 2px dashed var(--medium-gray);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 15px;
+            background-color: var(--light-gray);
+            transition: all 0.2s ease;
+        }
+        
+        .upload-zone:active {
+            background-color: var(--sage-green-lighter);
+            border-color: var(--sage-green-light);
+        }
+        
+        .upload-zone i {
+            font-size: 2rem;
+            color: var(--sage-green);
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .upload-zone-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #444;
+            margin-bottom: 5px;
+        }
+        
+        .upload-zone-subtext {
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+        
+        .hidden-input {
+            position: absolute;
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+        
+        .upload-button {
+            width: 100%;
+            background-color: var(--sage-green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .upload-button i {
+            margin-right: 8px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            background-color: white;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--sage-green-lighter);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+        
+        .empty-icon i {
+            font-size: 2.5rem;
+            color: var(--sage-green);
+        }
+        
+        .empty-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 10px 0;
+        }
+        
+        .empty-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+        
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .lightbox.active {
+            display: flex;
+        }
+        
+        .lightbox-img {
+            max-width: 90%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+        
+        .lightbox-info {
+            color: white;
+            padding: 15px;
+            width: 90%;
+        }
+        
+        .lightbox-uploader {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .lightbox-uploader i {
+            margin-right: 8px;
+        }
+        
+        .lightbox-date {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        /* Animation for ripple effect */
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        
+        .mobile-touch-feedback {
+            position: relative;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="gallery-header">
+        <div class="header-main">
+            <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="back-button mobile-touch-feedback">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div class="gallery-info">
+                <h1 class="gallery-title">Photo Gallery</h1>
+                <p class="gallery-subtitle">{{ playdate.title }}</p>
+            </div>
+        </div>
+        <div class="header-details">
+            <div class="playdate-detail">
+                <i class="fas fa-calendar"></i>
+                {{ playdate.date.strftime('%b %d, %Y') if playdate.date else 'Date TBD' }}
+            </div>
+            <div class="playdate-detail">
+                <i class="fas fa-clock"></i>
+                {% if playdate.time is defined and playdate.time %}
+                    {{ playdate.time.strftime('%I:%M %p') }}
+                {% elif playdate.start_time %}
+                    {{ playdate.start_time.strftime('%I:%M %p') }}
+                {% else %}
+                    Time TBD
+                {% endif %}
+            </div>
+            <div class="playdate-detail">
+                <i class="fas fa-map-marker-alt"></i>
+                {% if playdate.venue_name %}
+                    {{ playdate.venue_name }}
+                {% elif playdate.location %}
+                    {% set location_parts = playdate.location.split(',') %}
+                    {% if location_parts|length >= 3 %}
+                        {{ location_parts[2].strip() }}{% if location_parts|length >= 4 %}, {{ location_parts[3].strip().split(' ')[0] }}{% endif %}
+                    {% else %}
+                        {{ playdate.location }}
+                    {% endif %}
+                {% else %}
+                    Location TBD
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="gallery-content">
+        <div class="upload-card">
+            <h3 class="upload-title"><i class="fas fa-upload"></i> Upload Photos</h3>
+            <p class="upload-description">Share your favorite moments from this playdate with other participants.</p>
+            
+            <form method="POST" action="{{ url_for('playdates.add_photos', playdate_id=playdate.id) }}" enctype="multipart/form-data">
+                <div class="upload-zone" id="uploadZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div class="upload-zone-text">Tap to select photos</div>
+                    <div class="upload-zone-subtext">(Maximum 5 photos, 5MB each)</div>
+                    <input type="file" name="photos" multiple accept="image/*" class="hidden-input" id="photoInput">
+                </div>
+                
+                <button type="submit" class="upload-button mobile-touch-feedback">
+                    <i class="fas fa-upload"></i> Upload Photos
+                </button>
+            </form>
+        </div>
+        
+        <h3 class="section-title"><i class="fas fa-images"></i> Photos</h3>
+        
+        {% if photos %}
+            <div class="photo-grid">
+                {% for photo in photos %}
+                    <div class="photo-item" data-src="{{ url_for('static', filename='playdate_photos/' + photo.photo_path) }}" data-username="{% if photo.user %}{{ photo.user.username }}{% else %}Unknown{% endif %}" data-date="{{ photo.created_at.strftime('%B %d, %Y') }}">
+                        <img src="{{ url_for('static', filename='playdate_photos/' + photo.photo_path) }}" alt="Playdate photo">
+                        
+                        <div class="photo-info">
+                            <div class="uploader-name">
+                                <i class="fas fa-user"></i>
+                                {% if photo.user %}
+                                    {{ photo.user.username }}
+                                {% else %}
+                                    Unknown
+                                {% endif %}
+                            </div>
+                            <div class="upload-date">
+                                <i class="fas fa-calendar"></i>
+                                {{ photo.created_at.strftime('%b %d, %Y') }}
+                            </div>
+                        </div>
+                        
+                        {% if photo.user_id == current_user.id or playdate.host_id == current_user.id %}
+                            <form method="POST" action="{{ url_for('playdates.delete_photo', playdate_id=playdate.id, photo_id=photo.id) }}">
+                                <button type="submit" class="delete-button" onclick="return confirm('Delete this photo?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h4 class="empty-title">No Photos Yet</h4>
+                <p class="empty-description">Be the first to share memorable moments from this playdate!</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Lightbox for image preview -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-close" id="lightboxClose">
+            <i class="fas fa-times"></i>
+        </div>
+        <img src="" class="lightbox-img" id="lightboxImg">
+        <div class="lightbox-info">
+            <div class="lightbox-uploader">
+                <i class="fas fa-user"></i>
+                <span id="lightboxUser"></span>
+            </div>
+            <div class="lightbox-date" id="lightboxDate"></div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle upload zone
+            const uploadZone = document.getElementById('uploadZone');
+            const photoInput = document.getElementById('photoInput');
+            
+            uploadZone.addEventListener('click', function() {
+                photoInput.click();
+            });
+            
+            photoInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    let fileCount = this.files.length;
+                    document.querySelector('.upload-zone-text').textContent = `${fileCount} photo${fileCount !== 1 ? 's' : ''} selected`;
+                    uploadZone.style.borderColor = 'var(--sage-green)';
+                    uploadZone.style.backgroundColor = 'var(--sage-green-lighter)';
+                } else {
+                    document.querySelector('.upload-zone-text').textContent = 'Tap to select photos';
+                    uploadZone.style.borderColor = 'var(--medium-gray)';
+                    uploadZone.style.backgroundColor = 'var(--light-gray)';
+                }
+            });
+            
+            // Lightbox functionality
+            const photoItems = document.querySelectorAll('.photo-item');
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            const lightboxUser = document.getElementById('lightboxUser');
+            const lightboxDate = document.getElementById('lightboxDate');
+            const lightboxClose = document.getElementById('lightboxClose');
+            
+            photoItems.forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    // Don't open lightbox if clicking delete button
+                    if (e.target.closest('.delete-button')) {
+                        return;
+                    }
+                    
+                    const imgSrc = this.getAttribute('data-src');
+                    const username = this.getAttribute('data-username');
+                    const date = this.getAttribute('data-date');
+                    
+                    lightboxImg.src = imgSrc;
+                    lightboxUser.textContent = username;
+                    lightboxDate.textContent = date;
+                    lightbox.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+            
+            lightboxClose.addEventListener('click', function() {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+            
+            lightbox.addEventListener('click', function(e) {
+                if (e.target === lightbox) {
+                    lightbox.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            // Touch feedback effect
+            const touchElements = document.querySelectorAll('.mobile-touch-feedback');
+            
+            touchElements.forEach(element => {
+                element.addEventListener('touchstart', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.touches[0].clientX - rect.left;
+                    const y = e.touches[0].clientY - rect.top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

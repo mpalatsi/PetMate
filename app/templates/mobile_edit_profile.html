@@ -1,0 +1,458 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Edit Profile - PetMate{% endblock %}
+
+{% block header_title %}Edit Profile{% endblock %}
+
+{% block styles %}
+<style>
+    /* Mobile-optimized edit profile styles with updated colors */
+    :root {
+        --sage-green: #7C9082;
+        --cream: #F5F1E8;
+        --deep-forest: #2C4A3B;
+        --warm-brown: #A67F5D;
+        --terracotta: #D27D5C;
+        --rating-gold: #FFB800;
+        --light-gray: #E8E8E8;
+        --border-light: #EFEFEF;
+        --dark-text: #333333;
+    }
+    
+    /* Override header styles to match color scheme */
+    .mobile-header {
+        background-color: var(--sage-green) !important;
+        color: white !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px !important;
+    }
+    
+    .mobile-header h1 {
+        margin: 0;
+        flex-grow: 1;
+    }
+    
+    .back-button {
+        color: white !important;
+        padding: 5px !important;
+    }
+    
+    .menu-button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        padding: 5px;
+        cursor: pointer;
+    }
+    
+    /* Main content area styles */
+    .mobile-content {
+        background-color: var(--cream);
+        min-height: calc(100vh - 60px);
+        padding-bottom: 30px;
+        padding-top: 30px;
+    }
+    
+    /* Form sections */
+    .mobile-form-section {
+        background-color: white;
+        border-radius: 12px;
+        padding: 18px;
+        margin: 15px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+    }
+    
+    .mobile-form-section:first-of-type {
+        margin-top: 30px;
+    }
+    
+    .mobile-form-section h3 {
+        font-size: 1.15rem;
+        margin: 0 0 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-light);
+        color: var(--deep-forest);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .mobile-form-section h3 i {
+        color: var(--sage-green);
+    }
+    
+    /* Form groups */
+    .mobile-form-group {
+        margin-bottom: 18px;
+    }
+    
+    .mobile-form-group:last-child {
+        margin-bottom: 0;
+    }
+    
+    .mobile-form-group label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--deep-forest);
+        margin-bottom: 8px;
+    }
+    
+    .mobile-form-group input[type="text"],
+    .mobile-form-group input[type="email"],
+    .mobile-form-group input[type="number"],
+    .mobile-form-group select,
+    .mobile-form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        font-size: 1rem;
+        background-color: #f9f9f9;
+        transition: all 0.2s ease;
+    }
+    
+    .mobile-form-group input[type="text"]:focus,
+    .mobile-form-group input[type="email"]:focus,
+    .mobile-form-group input[type="number"]:focus,
+    .mobile-form-group select:focus,
+    .mobile-form-group textarea:focus {
+        outline: none;
+        border-color: var(--sage-green);
+        box-shadow: 0 0 0 3px rgba(124, 144, 130, 0.2);
+        background-color: white;
+    }
+    
+    /* Profile picture section */
+    .mobile-profile-picture-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 18px;
+        margin-top: 10px;
+    }
+    
+    .mobile-current-picture {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid white;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        margin-bottom: 15px;
+        margin-top: 5px;
+        background-color: white;
+    }
+    
+    .mobile-current-picture img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    
+    .mobile-upload-btn {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+    
+    .mobile-upload-btn input[type="file"] {
+        position: absolute;
+        font-size: 100px;
+        opacity: 0;
+        right: 0;
+        top: 0;
+        cursor: pointer;
+    }
+    
+    .mobile-upload-btn button {
+        padding: 10px 16px;
+        background-color: var(--sage-green);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+    }
+    
+    .mobile-form-helper {
+        font-size: 0.85rem;
+        color: var(--warm-brown);
+        margin-top: 8px;
+        text-align: center;
+    }
+    
+    /* Checkbox groups */
+    .mobile-checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .mobile-checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .mobile-checkbox-item input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--sage-green);
+    }
+    
+    .mobile-checkbox-item label {
+        margin: 0;
+        font-weight: normal;
+        font-size: 0.95rem;
+    }
+    
+    /* Form actions */
+    .mobile-form-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin: 25px 15px;
+    }
+    
+    .mobile-submit-btn {
+        background-color: var(--sage-green);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 15px;
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        transition: background-color 0.2s, transform 0.2s;
+    }
+    
+    .mobile-submit-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        background-color: #6b7e70;
+    }
+    
+    .mobile-cancel-btn {
+        background-color: white;
+        color: var(--deep-forest);
+        border: 1px solid var(--sage-green);
+        border-radius: 10px;
+        padding: 15px;
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        transition: background-color 0.2s, transform 0.2s;
+    }
+    
+    .mobile-cancel-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        background-color: #f9f9f9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mobile-content">
+    {% if error %}
+        <div class="error-alert">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ error }}</span>
+        </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" class="mobile-form">
+        <!-- Profile Picture Section -->
+        <div class="mobile-form-section" style="margin-top: 60px;">
+            <div class="mobile-profile-picture-section">
+                <div class="mobile-current-picture">
+                    {% if user.profile_picture %}
+                        <img src="{{ url_for('static', filename='profile_pictures/' + user.profile_picture) }}" alt="Current Profile Picture" id="profile-preview">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='profile_pictures/default_user.png') }}" alt="Default Profile Picture" id="profile-preview">
+                    {% endif %}
+                </div>
+                <div class="mobile-upload-btn">
+                    <button type="button">
+                        <i class="fas fa-camera"></i> Change Photo
+                    </button>
+                    <input type="file" id="profile_picture" name="profile_picture" accept="image/*" onchange="previewImage(this)">
+                </div>
+                <p class="mobile-form-helper">Upload a square image for best results</p>
+            </div>
+        </div>
+        
+        <!-- Basic Information Section -->
+        <div class="mobile-form-section">
+            <h3><i class="fas fa-user"></i> Basic Information</h3>
+            
+            <div class="mobile-form-group">
+                <label for="bio">About Me</label>
+                <textarea id="bio" name="bio" rows="4" placeholder="Tell others about yourself and your pets...">{{ user.bio }}</textarea>
+            </div>
+            
+            <div class="mobile-form-group">
+                <label for="location">Location</label>
+                <input type="text" id="location" name="location" value="{{ user.location }}" placeholder="Start typing your location...">
+                <p class="mobile-form-helper">This helps other pet owners find playdates near you</p>
+            </div>
+        </div>
+        
+        <!-- Pet Parent Profile Section -->
+        <div class="mobile-form-section">
+            <h3><i class="fas fa-paw"></i> Pet Parent Profile</h3>
+            
+            <div class="mobile-form-group">
+                <label for="pet_owner_since">Pet Owner Since</label>
+                <select id="pet_owner_since" name="pet_owner_since">
+                    <option value="">Select year</option>
+                    {% for year in range(current_year|int, 1950, -1) %}
+                        <option value="{{ year }}" {% if user.pet_owner_since == year|string %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="mobile-form-group">
+                <label for="pet_experience_level">Experience Level</label>
+                <select id="pet_experience_level" name="pet_experience_level">
+                    <option value="">Select your experience level</option>
+                    <option value="Beginner" {% if user.pet_experience_level == 'Beginner' %}selected{% endif %}>Beginner - New to pet ownership</option>
+                    <option value="Intermediate" {% if user.pet_experience_level == 'Intermediate' %}selected{% endif %}>Intermediate - Some experience with pets</option>
+                    <option value="Expert" {% if user.pet_experience_level == 'Expert' %}selected{% endif %}>Expert - Very experienced pet owner</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Preferred Meetup Locations Section -->
+        <div class="mobile-form-section">
+            <h3><i class="fas fa-map-marker-alt"></i> Preferred Meetup Locations</h3>
+            
+            <div class="mobile-checkbox-group">
+                {% set preferred_types = user.preferred_meetup_types.split(',') if user.preferred_meetup_types else [] %}
+                <div class="mobile-checkbox-item">
+                    <input type="checkbox" id="meetup_parks" name="preferred_meetup_types" value="Parks" {% if 'Parks' in preferred_types %}checked{% endif %}>
+                    <label for="meetup_parks">Parks</label>
+                </div>
+                <div class="mobile-checkbox-item">
+                    <input type="checkbox" id="meetup_beaches" name="preferred_meetup_types" value="Beaches" {% if 'Beaches' in preferred_types %}checked{% endif %}>
+                    <label for="meetup_beaches">Beaches</label>
+                </div>
+                <div class="mobile-checkbox-item">
+                    <input type="checkbox" id="meetup_dog_runs" name="preferred_meetup_types" value="Dog Runs" {% if 'Dog Runs' in preferred_types %}checked{% endif %}>
+                    <label for="meetup_dog_runs">Dog Runs</label>
+                </div>
+                <div class="mobile-checkbox-item">
+                    <input type="checkbox" id="meetup_trails" name="preferred_meetup_types" value="Hiking Trails" {% if 'Hiking Trails' in preferred_types %}checked{% endif %}>
+                    <label for="meetup_trails">Hiking Trails</label>
+                </div>
+                <div class="mobile-checkbox-item">
+                    <input type="checkbox" id="meetup_cafes" name="preferred_meetup_types" value="Pet-Friendly Cafes" {% if 'Pet-Friendly Cafes' in preferred_types %}checked{% endif %}>
+                    <label for="meetup_cafes">Pet-Friendly Cafes</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Availability Section -->
+        <div class="mobile-form-section">
+            <h3><i class="fas fa-clock"></i> Typically Available</h3>
+            
+            <div class="mobile-checkbox-group">
+                {% set availability_times = user.availability.split(',') if user.availability else [] %}
+                <div class="mobile-checkbox-item">
+                    <input type="checkbox" id="avail_weekday_mornings" name="availability" value="Weekday Mornings" {% if 'Weekday Mornings' in availability_times %}checked{% endif %}>
+                    <label for="avail_weekday_mornings">Weekday Mornings</label>
+                </div>
+                <div class="mobile-checkbox-item">
+                    <input type="checkbox" id="avail_weekday_afternoons" name="availability" value="Weekday Afternoons" {% if 'Weekday Afternoons' in availability_times %}checked{% endif %}>
+                    <label for="avail_weekday_afternoons">Weekday Afternoons</label>
+                </div>
+                <div class="mobile-checkbox-item">
+                    <input type="checkbox" id="avail_weekday_evenings" name="availability" value="Weekday Evenings" {% if 'Weekday Evenings' in availability_times %}checked{% endif %}>
+                    <label for="avail_weekday_evenings">Weekday Evenings</label>
+                </div>
+                <div class="mobile-checkbox-item">
+                    <input type="checkbox" id="avail_weekend_mornings" name="availability" value="Weekend Mornings" {% if 'Weekend Mornings' in availability_times %}checked{% endif %}>
+                    <label for="avail_weekend_mornings">Weekend Mornings</label>
+                </div>
+                <div class="mobile-checkbox-item">
+                    <input type="checkbox" id="avail_weekend_afternoons" name="availability" value="Weekend Afternoons" {% if 'Weekend Afternoons' in availability_times %}checked{% endif %}>
+                    <label for="avail_weekend_afternoons">Weekend Afternoons</label>
+                </div>
+                <div class="mobile-checkbox-item">
+                    <input type="checkbox" id="avail_weekend_evenings" name="availability" value="Weekend Evenings" {% if 'Weekend Evenings' in availability_times %}checked{% endif %}>
+                    <label for="avail_weekend_evenings">Weekend Evenings</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="mobile-form-actions">
+            <button type="submit" class="mobile-submit-btn">
+                <i class="fas fa-save"></i> Save Profile
+            </button>
+            <a href="{{ url_for('main.dashboard') }}" class="mobile-cancel-btn">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places"></script>
+<script>
+    // Initialize Google Places Autocomplete
+    function initPlacesAutocomplete() {
+        const input = document.getElementById('location');
+        const options = {
+            types: ['(cities)'], // Restrict to cities only
+            fields: ['formatted_address', 'geometry', 'name'],
+        };
+        
+        const autocomplete = new google.maps.places.Autocomplete(input, options);
+        
+        // Update the input value when a place is selected
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+            if (place.formatted_address) {
+                input.value = place.formatted_address;
+            }
+        });
+    }
+    
+    // Preview profile image before upload
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                document.getElementById('profile-preview').src = e.target.result;
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    // Call the initialization function when the page loads
+    window.addEventListener('load', initPlacesAutocomplete);
+</script>
+{% endblock %} 

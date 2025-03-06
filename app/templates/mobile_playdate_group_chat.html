@@ -4,17 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="color-scheme" content="light only">
-    <meta name="theme-color" content="#6B8E23">
+    <meta name="theme-color" content="#6B8E6B">
     <title>Playdate Chat: {{ playdate.title }} - PetMate</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile_styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pet-avatars.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <style>
         :root {
-            --sage-green: #6B8E23;
+            --primary-color: #4A90E2;
+            --sage-green: #6B8E6B;
+            --cream: #F8F4E3;
+            --deep-forest: #2C4C2C;
+            --warm-brown: #8B5A2B;
+            --terracotta: #CD5C5C;
             --sage-green-light: #8FBC8F;
-            --sage-green-dark: #556B2F;
             --sage-green-lighter: #E8F5E9;
         }
         
@@ -22,12 +27,14 @@
         body {
             background-color: #f5f5f5;
             color: #333;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
         .chat-header {
@@ -239,7 +246,7 @@
         .host-badge {
             display: inline-block;
             background-color: var(--sage-green-lighter);
-            color: var(--sage-green-dark);
+            color: var(--deep-forest);
             font-size: 0.7rem;
             padding: 2px 6px;
             border-radius: 10px;
@@ -398,200 +405,196 @@
             content: '';
             position: absolute;
             left: 0;
-            right: 0;
             top: 50%;
+            width: 100%;
             height: 1px;
             background-color: #e0e0e0;
-            z-index: -1;
+            z-index: 1;
         }
         
-        .date-separator span {
+        .date-text {
             background-color: #f5f5f5;
             padding: 0 10px;
             font-size: 0.8rem;
             color: #888;
+            position: relative;
+            z-index: 2;
+            display: inline-block;
+        }
+
+        /* Ripple effect */
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
         }
         
-        .desktop-link {
-            text-align: center;
-            padding: 15px 0;
-            font-size: 0.8rem;
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Mobile footer */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
         }
         
-        .desktop-link a {
-            color: var(--sage-green);
-            text-decoration: none;
-        }
-        
-        /* Placeholder for avatar if no image */
-        .participant-avatar i {
-            color: #888;
-            font-size: 1.2rem;
+        .mobile-touch-feedback {
+            position: relative;
+            overflow: hidden;
         }
     </style>
+    {% block styles %}{% endblock %}
 </head>
 <body>
-    <header class="chat-header">
+    <div class="chat-header">
         <div class="header-main">
-            <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="back-button mobile-touch-feedback">
+            <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="back-button">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <div class="chat-info">
-                <h2 class="chat-title">{{ playdate.title }}</h2>
+                <h1 class="chat-title">{{ playdate.title }}</h1>
                 <p class="chat-subtitle">Group Chat</p>
             </div>
-            <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="view-details mobile-touch-feedback">
-                <i class="fas fa-calendar-alt"></i> Details
-            </a>
-            <button class="participants-toggle mobile-touch-feedback" id="showParticipants">
+            <a href="#" class="participants-toggle" id="openParticipants">
                 <i class="fas fa-users"></i>
                 <span class="participants-count">{{ participants|length + 1 }}</span>
-            </button>
+            </a>
         </div>
         <div class="header-details">
             <div class="playdate-detail">
-                <i class="fas fa-calendar-day"></i>
-                <span>{{ playdate.date.strftime('%b %d, %Y') }}</span>
+                <i class="fas fa-calendar"></i>
+                {{ playdate.date.strftime('%b %d, %Y') if playdate.date else 'Date TBD' }}
             </div>
             <div class="playdate-detail">
                 <i class="fas fa-clock"></i>
-                <span>{{ playdate.date.strftime('%I:%M %p') }}</span>
+                {% if playdate.time is defined and playdate.time %}
+                    {{ playdate.time.strftime('%I:%M %p') }}
+                {% elif playdate.start_time %}
+                    {{ playdate.start_time.strftime('%I:%M %p') }}
+                {% else %}
+                    Time TBD
+                {% endif %}
             </div>
             <div class="playdate-detail">
                 <i class="fas fa-map-marker-alt"></i>
-                <span>{{ playdate.location|truncate(20) }}</span>
+                {{ playdate.venue_name if playdate.venue_name else 'Location TBD' }}
             </div>
         </div>
-    </header>
+    </div>
     
-    <main class="chat-content">
+    <div class="chat-content">
         <div class="messages">
-            {% if chat_history %}
-                {% set current_date = none %}
+            {% if chat_history|length == 0 %}
+                <div class="no-messages">
+                    <i class="fas fa-comments"></i>
+                    <p>No messages yet. Be the first to say hello!</p>
+                </div>
+            {% else %}
                 {% for message in chat_history %}
-                    {% set message_date = message.timestamp.strftime('%Y-%m-%d') %}
-                    
-                    {% if message_date != current_date %}
-                        {% set current_date = message_date %}
-                        <div class="date-separator">
-                            <span>{{ message.timestamp.strftime('%B %d, %Y') }}</span>
-                        </div>
-                    {% endif %}
-                    
-                    <div class="message {% if message.sender.id == current_user.id %}sent{% else %}received{% endif %}">
-                        {% if message.sender.id != current_user.id %}
-                            <div class="message-user">
-                                {{ message.sender.username }}
-                            </div>
+                    <div class="message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}">
+                        {% if message.sender_id != current_user.id %}
+                            {% set sender = User.query.get(message.sender_id) %}
+                            <div class="message-user">{{ sender.username if sender else 'Unknown' }}</div>
                         {% endif %}
-                        <div class="message-bubble">
-                            {{ message.content }}
-                        </div>
-                        <div class="message-time">
-                            {{ message.timestamp.strftime('%I:%M %p') }}
-                        </div>
+                        <div class="message-bubble">{{ message.content }}</div>
+                        <div class="message-time">{{ message.created_at.strftime('%I:%M %p') }}</div>
                     </div>
                 {% endfor %}
-            {% else %}
-                <div class="no-messages">
-                    <p>No messages yet. Start the group conversation!</p>
-                </div>
             {% endif %}
         </div>
-        
-        <div class="desktop-link">
-            <a href="{{ url_for('messages.playdate_group_chat', playdate_id=playdate.id) }}?mode=desktop">
-                <i class="fas fa-desktop"></i> View Desktop Version
-            </a>
-        </div>
-    </main>
+    </div>
     
     <div class="chat-input-container">
-        <form method="POST" action="{{ url_for('messages.playdate_group_chat', playdate_id=playdate.id) }}" id="messageForm">
-            <div class="message-form">
-                <textarea name="message" placeholder="Type a message..." required id="messageInput"></textarea>
-                <button type="submit" class="send-button mobile-touch-feedback" id="sendButton" disabled>
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
+        <form id="messageForm" class="message-form">
+            <textarea id="messageInput" placeholder="Type a message..." oninput="adjustHeight(this)" onkeyup="checkMessage()"></textarea>
+            <button type="submit" id="sendButton" class="send-button mobile-touch-feedback" disabled>
+                <i class="fas fa-paper-plane"></i>
+            </button>
         </form>
     </div>
     
-    <div class="overlay" id="overlay"></div>
-    
+    <!-- Participants Panel -->
     <div class="participants-panel" id="participantsPanel">
         <div class="panel-header">
-            <h3 class="panel-title">Participants ({{ participants|length + 1 }})</h3>
+            <h2 class="panel-title">Participants</h2>
             <button class="close-panel mobile-touch-feedback" id="closePanel">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="participants-list">
+            <!-- Host -->
             <div class="participant-item">
                 <div class="participant-avatar">
                     {% if playdate.host.profile_picture %}
-                        <img src="{{ url_for('static', filename='profile_pictures/' + playdate.host.profile_picture) }}" alt="{{ playdate.host.username }}">
+                        <img src="{{ url_for('static', filename='uploads/' + playdate.host.profile_picture) }}" alt="{{ playdate.host.username }}">
                     {% else %}
                         <i class="fas fa-user"></i>
                     {% endif %}
                 </div>
                 <div class="participant-info">
-                    <span class="participant-name">
-                        {{ playdate.host.username }}
-                        <span class="host-badge">Host</span>
-                    </span>
+                    <p class="participant-name">{{ playdate.host.username }} <span class="host-badge">Host</span></p>
                 </div>
             </div>
             
+            <!-- Participants -->
             {% for participant in participants %}
                 <div class="participant-item">
                     <div class="participant-avatar">
                         {% if participant.user.profile_picture %}
-                            <img src="{{ url_for('static', filename='profile_pictures/' + participant.user.profile_picture) }}" alt="{{ participant.user.username }}">
+                            <img src="{{ url_for('static', filename='uploads/' + participant.user.profile_picture) }}" alt="{{ participant.user.username }}">
                         {% else %}
                             <i class="fas fa-user"></i>
                         {% endif %}
                     </div>
                     <div class="participant-info">
-                        <span class="participant-name">
-                            {{ participant.user.username }}
-                        </span>
+                        <p class="participant-name">{{ participant.user.username }}</p>
                     </div>
                 </div>
             {% endfor %}
         </div>
     </div>
     
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+    
     <script>
-        // Force light mode
-        document.documentElement.style.colorScheme = 'light';
-        
         document.addEventListener('DOMContentLoaded', function() {
-            // Scroll to bottom of chat on load
-            const chatContent = document.querySelector('.chat-content');
-            chatContent.scrollTop = chatContent.scrollHeight;
+            // Auto-resize textarea
+            window.adjustHeight = function(element) {
+                element.style.height = 'auto';
+                element.style.height = (element.scrollHeight) + 'px';
+            };
             
             // Enable/disable send button based on input
-            const messageInput = document.getElementById('messageInput');
-            const sendButton = document.getElementById('sendButton');
+            window.checkMessage = function() {
+                const messageInput = document.getElementById('messageInput');
+                const sendButton = document.getElementById('sendButton');
+                sendButton.disabled = messageInput.value.trim() === '';
+            };
             
-            messageInput.addEventListener('input', function() {
-                sendButton.disabled = this.value.trim().length === 0;
-            });
-            
-            // Auto-resize textarea
-            messageInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-            
-            // Participants panel
-            const showParticipants = document.getElementById('showParticipants');
+            // Open participants panel
+            const openParticipants = document.getElementById('openParticipants');
             const participantsPanel = document.getElementById('participantsPanel');
-            const closePanel = document.getElementById('closePanel');
             const overlay = document.getElementById('overlay');
+            const closePanel = document.getElementById('closePanel');
             
-            showParticipants.addEventListener('click', function() {
+            openParticipants.addEventListener('click', function(e) {
+                e.preventDefault();
                 participantsPanel.classList.add('active');
                 overlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
@@ -642,30 +645,79 @@
             });
         });
         
-        // Add animation keyframe
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(2.5);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-        
         // Socket.io integration for real-time chat
-        const socket = io();
-        const playdateId = {{ playdate.id }};
-        
-        socket.on('connect', function() {
-            socket.emit('join', {playdate_id: playdateId});
+        const socket = io({
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 20000
         });
         
-        socket.on('message', function(data) {
+        const playdateId = "{{ playdate.id }}";
+        const currentUserId = "{{ current_user.id }}";
+        
+        socket.on('connect', function() {
+            console.log('Connected to WebSocket server');
+            // Show connection status to user
+            const messagesContainer = document.querySelector('.messages');
+            const connectionMessage = document.createElement('div');
+            connectionMessage.className = 'date-separator';
+            connectionMessage.innerHTML = '<span class="date-text">Connected to chat</span>';
+            messagesContainer.appendChild(connectionMessage);
+            
+            // Join the playdate room
+            socket.emit('join_playdate_room', {playdate_id: playdateId});
+        });
+        
+        socket.on('connect_error', function(error) {
+            console.error('Connection error:', error);
+            // Show error to user
+            const messagesContainer = document.querySelector('.messages');
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'date-separator';
+            errorMessage.innerHTML = '<span class="date-text" style="color:#CD5C5C">Connection error. Retrying...</span>';
+            messagesContainer.appendChild(errorMessage);
+        });
+        
+        socket.on('disconnect', function() {
+            console.log('Disconnected from server');
+            // Show disconnect to user
+            const messagesContainer = document.querySelector('.messages');
+            const disconnectMessage = document.createElement('div');
+            disconnectMessage.className = 'date-separator';
+            disconnectMessage.innerHTML = '<span class="date-text" style="color:#CD5C5C">Disconnected. Reconnecting...</span>';
+            messagesContainer.appendChild(disconnectMessage);
+        });
+        
+        socket.on('reconnect', function(attemptNumber) {
+            console.log('Reconnected to server after ' + attemptNumber + ' attempts');
+            // Show reconnection to user and rejoin room
+            const messagesContainer = document.querySelector('.messages');
+            const reconnectMessage = document.createElement('div');
+            reconnectMessage.className = 'date-separator';
+            reconnectMessage.innerHTML = '<span class="date-text">Reconnected to chat</span>';
+            messagesContainer.appendChild(reconnectMessage);
+            
+            // Rejoin the room
+            socket.emit('join_playdate_room', {playdate_id: playdateId});
+        });
+        
+        socket.on('error', function(data) {
+            console.error('Socket error:', data.message);
+            // Show error message to user
+            const messagesContainer = document.querySelector('.messages');
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'date-separator';
+            errorMessage.innerHTML = `<span class="date-text" style="color:#CD5C5C">Error: ${data.message}</span>`;
+            messagesContainer.appendChild(errorMessage);
+        });
+        
+        // Handle new messages
+        socket.on('new_message', function(data) {
             // Create a new message element
             const messagesContainer = document.querySelector('.messages');
-            const isCurrentUser = data.sender_id === {{ current_user.id }};
+            const isCurrentUser = data.sender_id === currentUserId;
             
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isCurrentUser ? 'sent' : 'received'}`;
@@ -673,12 +725,12 @@
             let messageHTML = '';
             
             if (!isCurrentUser) {
-                messageHTML += `<div class="message-user">${data.sender_name}</div>`;
+                messageHTML += `<div class="message-user">${data.sender_username}</div>`;
             }
             
             messageHTML += `
                 <div class="message-bubble">${data.content}</div>
-                <div class="message-time">${formatTime(new Date(data.timestamp))}</div>
+                <div class="message-time">${data.formatted_time || formatTime(new Date(data.created_at))}</div>
             `;
             
             messageDiv.innerHTML = messageHTML;
@@ -687,6 +739,45 @@
             // Scroll to the new message
             const chatContent = document.querySelector('.chat-content');
             chatContent.scrollTop = chatContent.scrollHeight;
+        });
+        
+        // Handle message history from server
+        socket.on('message_history', function(data) {
+            if (data.messages && data.messages.length > 0) {
+                // Clear "no messages" if it exists
+                const noMessages = document.querySelector('.no-messages');
+                if (noMessages) {
+                    noMessages.remove();
+                }
+                
+                const messagesContainer = document.querySelector('.messages');
+                
+                // Add each message to the UI
+                data.messages.forEach(function(message) {
+                    const isCurrentUser = message.sender_id === currentUserId;
+                    
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `message ${isCurrentUser ? 'sent' : 'received'}`;
+                    
+                    let messageHTML = '';
+                    
+                    if (!isCurrentUser) {
+                        messageHTML += `<div class="message-user">${message.sender_username}</div>`;
+                    }
+                    
+                    messageHTML += `
+                        <div class="message-bubble">${message.content}</div>
+                        <div class="message-time">${message.formatted_time || formatTime(new Date(message.created_at))}</div>
+                    `;
+                    
+                    messageDiv.innerHTML = messageHTML;
+                    messagesContainer.appendChild(messageDiv);
+                });
+                
+                // Scroll to bottom
+                const chatContent = document.querySelector('.chat-content');
+                chatContent.scrollTop = chatContent.scrollHeight;
+            }
         });
         
         // Format time for display
@@ -708,9 +799,9 @@
             const message = messageInput.value.trim();
             
             if (message) {
-                socket.emit('message', {
+                socket.emit('playdate_message', {
                     playdate_id: playdateId,
-                    content: message
+                    message: message
                 });
                 
                 messageInput.value = '';

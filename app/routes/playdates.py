@@ -70,21 +70,46 @@ def create_playdate():
     user_pets = Pet.query.filter_by(owner_id=user.id).all()
     
     if request.method == 'POST':
+        # Debug - log all form data
+        print("=" * 50)
+        print("POST request to create_playdate")
+        print("Form data:", request.form)
+        print("Files:", request.files)
+        print("=" * 50)
+        
         try:
             description = request.form['description']
+            print(f"Description: {description}")
+            
             location = request.form['location']
+            print(f"Location: {location}")
+            
             date_str = request.form['date']
+            print(f"Date: {date_str}")
+            
             time_str = request.form['time']
+            print(f"Time: {time_str}")
+            
             max_pets = int(request.form.get('max_pets', 10))  # Default to 10 if not specified
+            print(f"Max pets: {max_pets}")
             
             # Combine date and time
             date_time_str = f"{date_str} {time_str}"
-            date_time = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
+            print(f"Datetime string: {date_time_str}")
+            
+            try:
+                date_time = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
+                print(f"Parsed datetime: {date_time}")
+            except ValueError as datetime_error:
+                print(f"ERROR PARSING DATETIME: {str(datetime_error)}")
+                raise
             
             # Get the selected pets
             pet_ids = request.form.getlist('pet_ids')
+            print(f"Selected pet IDs: {pet_ids}")
             
             if not pet_ids:
+                print("ERROR: No pets selected")
                 flash('Please select at least one pet for the playdate.', 'error')
                 # Check if we should display the mobile version
                 user_agent = request.user_agent.string
@@ -99,6 +124,7 @@ def create_playdate():
             
             # Create a new playdate
             new_playdate = Playdate(
+                title=description[:50] + ('...' if len(description) > 50 else ''),  # Use description as title, truncated if needed
                 description=description,
                 location=location,
                 date=date_time,
@@ -107,35 +133,47 @@ def create_playdate():
             )
             
             # Geocode the location
+            print(f"Geocoding location: {location}")
             lat, lng = geocode_address(location)
             if lat and lng:
                 new_playdate.latitude = lat
                 new_playdate.longitude = lng
+                print(f"Location geocoded to: {lat}, {lng}")
+            else:
+                print("WARNING: Could not geocode location")
             
             db.session.add(new_playdate)
             db.session.flush()  # Get the ID without committing
+            print(f"Created playdate with ID: {new_playdate.id}")
             
             # Add the selected pets to the playdate
             for pet_id in pet_ids:
                 pet = Pet.query.get(pet_id)
                 if pet and pet.owner_id == user.id:
                     new_playdate.pets.append(pet)
+                    print(f"Added pet {pet.id} ({pet.name}) to playdate")
             
             # Add the host to the attendees
             new_playdate.attendees.append(user)
+            print(f"Added host {user.username} to playdate attendees")
             
             # Add pet owners to attendees
             for pet in new_playdate.pets:
                 if pet.owner not in new_playdate.attendees:
                     new_playdate.attendees.append(pet.owner)
+                    print(f"Added pet owner {pet.owner.username} to playdate attendees")
             
             db.session.commit()
+            print("Successfully committed playdate to database")
             flash('Playdate created successfully!', 'success')
             return redirect(url_for('playdates.view_playdate', playdate_id=new_playdate.id))
         except Exception as e:
             db.session.rollback()
+            import traceback
+            print("ERROR creating playdate:")
+            print(str(e))
+            print(traceback.format_exc())
             flash(f'Error creating playdate: {str(e)}', 'error')
-            print(f"Error creating playdate: {str(e)}")
             
             # Check if we should display the mobile version
             user_agent = request.user_agent.string
@@ -246,7 +284,7 @@ def add_photos(playdate_id):
             )
             
             photo = PlaydatePhoto(
-                filename=filename,
+                photo_path=filename,
                 user_id=user.id,
                 playdate_id=playdate_id
             )
@@ -313,8 +351,15 @@ def playdate_photos(playdate_id):
     def get_current_user():
         return user
     
+    # Detect if user is on a mobile device
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile'])
+    
+    # Choose template based on device type
+    template = 'mobile_playdate_photos.html' if is_mobile else 'playdate_photos.html'
+    
     return render_template(
-        'playdate_photos.html', 
+        template, 
         playdate=playdate, 
         user=user,
         current_user=current_user,
@@ -341,7 +386,7 @@ def delete_photo(playdate_id, photo_id):
         return redirect(url_for('playdates.playdate_photos', playdate_id=playdate_id))
     
     # Get the filename to remove the file from disk
-    filename = photo.filename
+    filename = photo.photo_path
     
     try:
         # Delete the file from the server
@@ -376,6 +421,9 @@ def playdate_group_chat(playdate_id):
         flash('Please log in to view the playdate group chat.', 'error')
         return redirect(url_for('auth.login'))
     
+    # Get the current user
+    current_user = User.query.filter_by(username=session['username']).first()
+    
     # Get the playdate
     playdate = Playdate.query.get_or_404(playdate_id)
     
@@ -387,13 +435,24 @@ def playdate_group_chat(playdate_id):
     
     # Get the chat history (most recent 50 messages)
     chat_history = PlaydateMessage.query.filter_by(playdate_id=playdate_id) \
-        .order_by(PlaydateMessage.timestamp.asc()) \
+        .order_by(PlaydateMessage.created_at.asc()) \
         .limit(50).all()
     
-    return render_template('playdate_group_chat.html', 
+    # Check if the request is from a mobile device
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+    
+    # Check if mode is explicitly specified via query parameter
+    mode = request.args.get('mode', None)
+    use_mobile = is_mobile and mode != 'desktop'
+    
+    template = 'mobile_playdate_group_chat.html' if use_mobile else 'playdate_group_chat.html'
+    
+    return render_template(template, 
                           playdate=playdate, 
                           participants=participants,
-                          chat_history=chat_history)
+                          chat_history=chat_history,
+                          current_user=current_user)
 
 @bp.route('/<int:playdate_id>/edit', methods=['GET', 'POST'])
 def edit_playdate(playdate_id):
@@ -419,6 +478,10 @@ def edit_playdate(playdate_id):
     
     # Format the date for the datetime-local input
     formatted_date = playdate.date.strftime('%Y-%m-%dT%H:%M')
+    
+    # Get Google Maps API key directly from environment
+    google_maps_api_key = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+    print(f"DEBUG - Google Maps API Key: {google_maps_api_key} (length: {len(google_maps_api_key)})")
     
     if request.method == 'POST':
         try:
@@ -461,20 +524,39 @@ def edit_playdate(playdate_id):
         except Exception as e:
             db.session.rollback()
             flash(f'Error updating playdate: {str(e)}', 'error')
+            
+            # Check mobile request
+            user_agent = request.headers.get('User-Agent', '').lower()
+            is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+            mode = request.args.get('mode', None)
+            use_mobile = is_mobile and mode != 'desktop'
+            
+            template = 'mobile_edit_playdate.html' if use_mobile else 'edit_playdate.html'
+            
             return render_template(
-                'edit_playdate.html',
+                template,
                 playdate=playdate,
                 user_pets=user_pets,
                 selected_pet_ids=selected_pet_ids,
-                formatted_date=formatted_date
+                formatted_date=formatted_date,
+                google_maps_api_key=google_maps_api_key
             )
     
+    # Check mobile request
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'android', 'mobile', 'tablet'])
+    mode = request.args.get('mode', None)
+    use_mobile = is_mobile and mode != 'desktop'
+    
+    template = 'mobile_edit_playdate.html' if use_mobile else 'edit_playdate.html'
+    
     return render_template(
-        'edit_playdate.html',
+        template,
         playdate=playdate,
         user_pets=user_pets,
         selected_pet_ids=selected_pet_ids,
-        formatted_date=formatted_date
+        formatted_date=formatted_date,
+        google_maps_api_key=google_maps_api_key
     )
 
 @bp.route('/<int:playdate_id>/delete', methods=['POST'])
@@ -498,7 +580,7 @@ def delete_playdate(playdate_id):
         photos = PlaydatePhoto.query.filter_by(playdate_id=playdate_id).all()
         for photo in photos:
             # Delete the file from the server if it exists
-            photo_path = os.path.join('app/static/playdate_photos', photo.filename)
+            photo_path = os.path.join('app/static/playdate_photos', photo.photo_path)
             if os.path.exists(photo_path):
                 os.remove(photo_path)
             db.session.delete(photo)

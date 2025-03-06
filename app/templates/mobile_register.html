@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="color-scheme" content="light only">
-    <meta name="theme-color" content="#F5F1E8">
+    <meta name="theme-color" content="#6B8E6B">
     <meta name="supported-color-schemes" content="light">
     <title>PetMate - Register</title>
     
@@ -16,8 +16,69 @@
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile-homepage.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
     
     <style>
+        /* Color variables with consistent green */
+        :root {
+            --sage-green: #6B8E6B; /* Updated to match standard green */
+            --cream: #F5F1E8;
+            --deep-forest: #2C4A3B;
+            --warm-brown: #A67F5D;
+            --terracotta: #D27D5C;
+            --light-gray: #E8E8E8;
+            --border-light: #EFEFEF;
+            --dark-text: #333333;
+        }
+        
+        /* Override header styles to match other pages */
+        .mobile-header {
+            background-color: var(--sage-green) !important;
+            color: white !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px !important;
+            z-index: 100;
+        }
+        
+        .mobile-header h1 {
+            margin: 0;
+            flex-grow: 1;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+        
+        .back-button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            padding: 5px;
+            cursor: pointer;
+        }
+        
+        /* Content adjustments to accommodate the new header */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--cream);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .mobile-main {
+            padding-top: 20px;
+        }
+        
         /* Additional styles specific to the register page */
         .mobile-auth-container {
             padding: 2rem 1.5rem;
@@ -68,7 +129,7 @@
         .mobile-form-group input:focus {
             border-color: var(--sage-green);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(124, 144, 130, 0.2);
+            box-shadow: 0 0 0 3px rgba(107, 142, 107, 0.2); /* Updated to match new green */
         }
         
         .mobile-form-group input[type="file"] {
@@ -146,6 +207,55 @@
             color: #555;
             word-break: break-all;
         }
+        
+        /* Update CTA button to use new green */
+        .mobile-cta-button {
+            background-color: var(--sage-green);
+            color: white;
+            border: none;
+            padding: 0.9rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mobile-cta-button:active {
+            background-color: #5a7a5a; /* Darker shade for tap effect */
+        }
+        
+        /* Ripple effect */
+        .ripple {
+            position: absolute;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        /* Desktop version link styling */
+        .desktop-link a {
+            color: var(--sage-green);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: opacity 0.2s ease;
+        }
+        
+        .desktop-link a:hover {
+            opacity: 0.8;
+        }
     </style>
     
     <script>
@@ -154,41 +264,37 @@
     </script>
 </head>
 <body>
-    <!-- Mobile Navigation -->
-    <nav class="mobile-nav">
-        <div class="mobile-nav-container">
-            <a href="{{ url_for('main.index') }}" class="mobile-logo">
-                <div class="mobile-logo-icon"></div>
-                <div class="mobile-logo-text">Pet<span class="highlight">Mate</span></div>
-            </a>
-            <div class="mobile-nav-actions">
-                <a href="{{ url_for('auth.login') }}" class="mobile-nav-link">Login</a>
-                <button class="mobile-menu-toggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
+    <!-- Standardized Mobile Header -->
+    <header class="mobile-header">
+        <button class="back-button" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1>Register</h1>
+        <button class="menu-button" id="main-menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
 
-    <!-- Mobile Menu -->
-    <div class="mobile-menu">
-        <div class="mobile-menu-header">
-            <span>Menu</span>
-            <button class="mobile-close-menu">
+    <!-- Main Menu -->
+    <div class="main-menu-overlay" id="main-menu-overlay"></div>
+    <div class="main-menu" id="main-menu">
+        <div class="main-menu-header">
+            <h3>Menu</h3>
+            <button class="close-main-menu" id="close-main-menu">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <div class="mobile-menu-links">
-            <a href="{{ url_for('main.index') }}" class="mobile-menu-link">
+        <div class="main-menu-links">
+            <a href="{{ url_for('main.index') }}" class="main-menu-link">
                 <i class="fas fa-home"></i> Home
             </a>
-            <a href="{{ url_for('main.search') }}" class="mobile-menu-link">
+            <a href="{{ url_for('main.search') }}" class="main-menu-link">
                 <i class="fas fa-search"></i> Find Playmates
             </a>
-            <a href="{{ url_for('auth.login') }}" class="mobile-menu-link">
+            <a href="{{ url_for('auth.login') }}" class="main-menu-link">
                 <i class="fas fa-sign-in-alt"></i> Login
             </a>
-            <a href="{{ url_for('main.mobile_index') }}" class="mobile-menu-link">
+            <a href="{{ url_for('main.mobile_index') }}" class="main-menu-link">
                 <i class="fas fa-info-circle"></i> About PetMate
             </a>
         </div>
@@ -253,20 +359,26 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Menu toggle functionality
-            const menuToggle = document.querySelector('.mobile-menu-toggle');
-            const closeMenu = document.querySelector('.mobile-close-menu');
-            const mobileMenu = document.querySelector('.mobile-menu');
+            const menuToggle = document.getElementById('main-menu-toggle');
+            const closeMenu = document.getElementById('close-main-menu');
+            const menuOverlay = document.getElementById('main-menu-overlay');
+            const mainMenu = document.getElementById('main-menu');
             
-            if (menuToggle && closeMenu && mobileMenu) {
+            if (menuToggle && closeMenu && menuOverlay && mainMenu) {
                 menuToggle.addEventListener('click', function() {
-                    mobileMenu.classList.add('active');
-                    document.body.style.overflow = 'hidden'; // Prevent scrolling
+                    mainMenu.classList.add('active');
+                    menuOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
                 });
                 
-                closeMenu.addEventListener('click', function() {
-                    mobileMenu.classList.remove('active');
-                    document.body.style.overflow = ''; // Enable scrolling
-                });
+                function closeMainMenu() {
+                    mainMenu.classList.remove('active');
+                    menuOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                
+                closeMenu.addEventListener('click', closeMainMenu);
+                menuOverlay.addEventListener('click', closeMainMenu);
             }
             
             // File input handling

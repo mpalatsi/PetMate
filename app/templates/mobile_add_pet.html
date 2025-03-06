@@ -1,0 +1,389 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Add New Pet{% endblock %}
+
+{% block header_title %}Add New Pet{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<style>
+    :root {
+        --sage-green: #6B8E6B;
+        --cream: #F8F4E3;
+        --deep-forest: #2C4C2C;
+        --warm-brown: #8B5A2B;
+        --terracotta: #CD5C5C;
+        --sage-green-light: #8FBC8F;
+    }
+    
+    .mobile-page-header {
+        background: linear-gradient(135deg, var(--sage-green), var(--deep-forest));
+        padding: 1.5rem 1rem;
+        margin: -15px -15px 20px -15px;
+        text-align: center;
+        color: white;
+        border-radius: 0 0 20px 20px;
+        position: relative;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .mobile-page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+        border-radius: 0 0 20px 20px;
+    }
+    
+    .mobile-page-header h2 {
+        font-size: 1.6rem;
+        margin-bottom: 0.3rem;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .mobile-page-header p {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin: 0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        max-width: 280px;
+        margin: 0 auto;
+    }
+    
+    .mobile-form-container {
+        background-color: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+    }
+    
+    .mobile-form-group {
+        margin-bottom: 18px;
+    }
+    
+    .mobile-form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--deep-forest);
+        font-size: 0.95rem;
+    }
+    
+    .mobile-form-group input[type="text"],
+    .mobile-form-group input[type="number"],
+    .mobile-form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        font-size: 1rem;
+        background-color: #f9f9f9;
+    }
+    
+    .mobile-form-group input:focus,
+    .mobile-form-group textarea:focus {
+        border-color: var(--sage-green);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(107, 142, 107, 0.1);
+    }
+    
+    .mobile-form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .mobile-file-input {
+        display: none;
+    }
+    
+    .mobile-file-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        background-color: #f5f9f5;
+        border: 2px dashed var(--sage-green);
+        border-radius: 10px;
+        cursor: pointer;
+        margin-bottom: 10px;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .mobile-upload-icon {
+        font-size: 2rem;
+        color: var(--sage-green);
+    }
+    
+    .mobile-upload-text {
+        font-weight: 500;
+        color: var(--sage-green);
+    }
+    
+    .mobile-upload-help {
+        background-color: #f8f8f8;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 10px;
+    }
+    
+    .mobile-upload-help ul {
+        padding-left: 18px;
+        margin: 5px 0 0 0;
+    }
+    
+    .mobile-upload-help li {
+        margin-bottom: 3px;
+    }
+    
+    .mobile-cropper-container {
+        margin: 15px 0;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        display: none;
+    }
+    
+    .mobile-image-container {
+        max-height: 300px;
+        overflow: hidden;
+    }
+    
+    .mobile-cropper-controls {
+        display: flex;
+        gap: 10px;
+        padding: 12px;
+        background-color: #f5f5f5;
+    }
+    
+    .mobile-crop-button {
+        flex: 1;
+        padding: 10px;
+        background-color: var(--sage-green);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    
+    .mobile-cancel-button {
+        padding: 10px;
+        background-color: white;
+        color: #666;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+    
+    .mobile-image-preview {
+        text-align: center;
+        margin: 15px 0;
+        display: none;
+    }
+    
+    .mobile-image-preview img {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .mobile-submit-button {
+        background-color: var(--sage-green);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 15px;
+        font-weight: 600;
+        font-size: 1rem;
+        width: 100%;
+        margin-top: 20px;
+        box-shadow: 0 3px 8px rgba(107, 142, 107, 0.3);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .mobile-error {
+        background-color: rgba(205, 92, 92, 0.1);
+        color: var(--terracotta);
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mobile-page-header">
+    <h2>Add New Pet</h2>
+    <p>Share info about your furry friend to find the perfect playmates</p>
+</div>
+
+<div class="mobile-form-container">
+    {% if error %}
+        <p class="mobile-error">{{ error }}</p>
+    {% endif %}
+    
+    <form method="POST" class="mobile-pet-form" enctype="multipart/form-data">
+        <div class="mobile-form-group">
+            <label for="name">Pet's Name</label>
+            <input type="text" id="name" name="name" required placeholder="What's your pet's name?">
+        </div>
+        
+        <div class="mobile-form-group">
+            <label for="pet_image">Pet's Photo</label>
+            <input type="file" id="pet_image" name="pet_image" accept="image/*" class="mobile-file-input">
+            <label for="pet_image" class="mobile-file-label">
+                <span class="mobile-upload-icon"><i class="fas fa-camera"></i></span>
+                <span class="mobile-upload-text">Choose a photo</span>
+            </label>
+            <div class="mobile-upload-help">
+                <p style="margin-top: 0; margin-bottom: 4px; font-weight: 500;">Upload a photo of your pet:</p>
+                <ul>
+                    <li>You can crop the photo after uploading</li>
+                    <li>Supported formats: JPG, PNG, GIF</li>
+                    <li>Maximum file size: 2MB</li>
+                </ul>
+            </div>
+            <div class="mobile-cropper-container">
+                <div class="mobile-image-container">
+                    <img id="crop-image" src="" alt="Upload an image to crop">
+                </div>
+                <div class="mobile-cropper-controls">
+                    <button type="button" class="mobile-crop-button">Crop Image</button>
+                    <button type="button" class="mobile-cancel-button">Cancel</button>
+                </div>
+            </div>
+            <div id="mobile-image-preview" class="mobile-image-preview"></div>
+            <input type="hidden" name="cropped_image" id="mobile-cropped-image-data">
+        </div>
+        
+        <div class="mobile-form-group">
+            <label for="species">Species</label>
+            <input type="text" id="species" name="species" required placeholder="Dog, Cat, Rabbit, etc.">
+        </div>
+        
+        <div class="mobile-form-group">
+            <label for="breed">Breed</label>
+            <input type="text" id="breed" name="breed" placeholder="What breed is your pet?">
+        </div>
+        
+        <div class="mobile-form-group">
+            <label for="age">Age (years)</label>
+            <input type="number" id="age" name="age" min="0" required placeholder="How old is your pet?">
+        </div>
+        
+        <div class="mobile-form-group">
+            <label for="size">Size</label>
+            <input type="text" id="size" name="size" required placeholder="Small, Medium, Large, etc.">
+        </div>
+        
+        <div class="mobile-form-group">
+            <label for="temperament">Pet's Bio & Temperament</label>
+            <textarea id="temperament" name="temperament" required placeholder="Describe your pet's personality, energy level, and how they interact with other animals..."></textarea>
+        </div>
+        
+        <button type="submit" class="mobile-submit-button">
+            <i class="fas fa-paw"></i> Add Pet
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+let cropper = null;
+
+document.getElementById('pet_image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Show cropper container
+            const cropperContainer = document.querySelector('.mobile-cropper-container');
+            cropperContainer.style.display = 'block';
+            
+            // Hide preview
+            document.getElementById('mobile-image-preview').style.display = 'none';
+            
+            // Set image source
+            const image = document.getElementById('crop-image');
+            image.src = e.target.result;
+            
+            // Initialize cropper
+            if (cropper) {
+                cropper.destroy();
+            }
+            cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 0.8,
+                background: false,
+                responsive: true,
+                minContainerWidth: 250,
+                minContainerHeight: 250
+            });
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+document.querySelector('.mobile-crop-button').addEventListener('click', function() {
+    if (cropper) {
+        try {
+            // Get cropped canvas
+            const canvas = cropper.getCroppedCanvas({
+                width: 300,
+                height: 300,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high'
+            });
+            
+            // Show preview
+            const preview = document.getElementById('mobile-image-preview');
+            preview.innerHTML = `<img src="${canvas.toDataURL('image/jpeg', 0.85)}" alt="Preview">`;
+            preview.style.display = 'block';
+            
+            // Store cropped data
+            document.getElementById('mobile-cropped-image-data').value = canvas.toDataURL('image/jpeg', 0.85);
+            
+            // Hide cropper
+            document.querySelector('.mobile-cropper-container').style.display = 'none';
+            
+            // Destroy cropper
+            cropper.destroy();
+            cropper = null;
+        } catch (error) {
+            console.error('Error cropping image:', error);
+            alert('There was an error cropping the image. The original image will be used instead.');
+            document.querySelector('.mobile-cancel-button').click();
+        }
+    }
+});
+
+document.querySelector('.mobile-cancel-button').addEventListener('click', function() {
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    document.querySelector('.mobile-cropper-container').style.display = 'none';
+    document.getElementById('mobile-image-preview').style.display = 'none';
+    document.getElementById('mobile-cropped-image-data').value = '';
+});
+</script>
+{% endblock %} 

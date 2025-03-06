@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mobile Dashboard Test 3 (ROOT)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #ADD8E6; /* Light Blue */
+        }
+        
+        .test-header {
+            background-color: #FF0000; /* Red */
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .test-content {
+            padding: 20px;
+            background-color: #90EE90; /* Light Green */
+            margin: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>Mobile Dashboard Test 3 (ROOT)</h1>
+        <p>This is a test template in ROOT templates directory</p>
+    </div>
+    
+    <div class="test-content">
+        <h2>Template Test Information</h2>
+        <p>Template: mobile_dashboard_test3.html</p>
+        <p>Path: templates/mobile_dashboard_test3.html (ROOT)</p>
+        <p>User Agent: {{ user_agent }}</p>
+        <p>Time Now: {{ now }}</p>
+        <p>Username: {{ user.username }}</p>
+        <p>Unread Messages: {{ unread_messages }}</p>
+        <p>Upcoming Playdates: {{ upcoming_playdates|length }}</p>
+    </div>
+</body>
+</html> 

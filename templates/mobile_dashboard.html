@@ -8,9 +8,7 @@
     <title>PetMate Dashboard</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile-homepage.css') }}?v=1.0.3">
-    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-logo.css') }}?v=1.0.2">
-    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-logo.css') }}?v=1.0.1">
     <style>
         :root {
             --sage-green: #6B8E6B;
@@ -20,180 +18,10 @@
             --terracotta: #CD5C5C;
         }
 
-        /* Dashboard Styles */
-        .dashboard-container {
-            padding: 15px;
-            margin-top: 70px;
-        }
-
-        /* Mobile Navigation Styles */
-        .mobile-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 65px; /* Increased height slightly */
-            background-color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-        
-        .mobile-nav-container {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 5px;
-        }
-
-        .mobile-nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 18px; /* Increased gap between logout and menu button */
-        }
-        
-        .mobile-nav-link {
-            color: var(--deep-forest);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            padding: 8px 12px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-        
-        .mobile-nav-link:hover {
-            background-color: rgba(0,0,0,0.05);
-        }
-
-        .mobile-menu-toggle {
-            width: 40px;
-            height: 40px;
-            background: transparent;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            cursor: pointer;
-            font-size: 1.3rem;
-            color: var(--deep-forest);
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-        
-        .mobile-menu-toggle:hover {
-            background-color: rgba(0,0,0,0.05);
-        }
-
-        .menu-toggle {
-            width: 30px;
-            height: 25px;
-            background: transparent;
-            border: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 0;
-            cursor: pointer;
-        }
-
-        .menu-toggle span {
-            display: block;
-            width: 100%;
-            height: 3px;
-            background-color: var(--deep-forest);
-            border-radius: 3px;
-            transition: all 0.3s ease;
-        }
-
-        .mobile-menu {
-            position: fixed;
-            top: 0;
-            left: auto;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            background-color: white;
-            z-index: 1001;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            overflow-y: auto;
-        }
-
-        .mobile-menu.active {
-            transform: translateX(0);
-        }
-
-        .menu-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .close-menu {
-            font-size: 24px;
-            background: transparent;
-            border: none;
-            height: 40px;
-            width: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .menu-links {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .menu-links li {
-            border-bottom: 1px solid #eee;
-        }
-
-        .menu-links li a {
-            padding: 15px;
-            display: block;
-            color: var(--deep-forest);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .menu-links li a.active {
-            background-color: var(--cream);
-            color: var(--sage-green);
-            font-weight: 700;
-        }
-
-        .menu-links li a:hover {
-            background-color: #f8f8f8;
-        }
-
-        .badge {
-            display: inline-block;
-            background-color: var(--terracotta);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.7rem;
-            text-align: center;
-            line-height: 20px;
-            margin-left: 5px;
-        }
-
         /* Dashboard specific styles */
         .dashboard-container {
             padding: 15px;
-            margin-top: 70px;
+            margin-top: 60px;
             margin-bottom: 20px;
         }
 
@@ -201,7 +29,7 @@
             display: flex;
             align-items: center;
             margin-bottom: 20px;
-            background-color: white;
+            background-color: var(--cream);
             border-radius: 10px;
             padding: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -213,19 +41,6 @@
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid var(--sage-green);
-            background-color: var(--cream);
-        }
-
-        .default-profile-container {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            border: 3px solid var(--sage-green);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--cream);
         }
 
         .profile-info {
@@ -272,7 +87,7 @@
         }
 
         .section {
-            background-color: white;
+            background-color: var(--cream);
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 20px;
@@ -309,17 +124,6 @@
             width: 100%;
             height: 120px;
             object-fit: cover;
-            background-color: var(--cream);
-        }
-
-        .default-pet-container {
-            width: 100%;
-            height: 120px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--cream);
         }
 
         .pet-info {
@@ -432,84 +236,69 @@
         }
 
         .desktop-link {
-            display: block;
-            text-align: center;
-            margin: 2rem 0;
+            display: inline-block;
+            margin-top: 10px;
             color: var(--sage-green);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: opacity 0.2s ease;
-        }
-        
-        .desktop-link:hover {
-            opacity: 0.8;
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <!-- Standardized Mobile Header -->
-    <header class="mobile-header">
-        <button class="back-button" onclick="history.back()">
-            <i class="fas fa-arrow-left"></i>
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-logo">
+            <div class="logo-container">
+                <div class="paw-print">
+                    <div class="pad"></div>
+                    <div class="pad"></div>
+                    <div class="pad"></div>
+                    <div class="pad"></div>
+                    <div class="pad center-pad"></div>
+                </div>
+                <span>PetMate</span>
+            </div>
+        </div>
+        <button class="menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
-        <h1>My Dashboard</h1>
-        <button class="menu-button" id="main-menu-toggle">
-            <i class="fas fa-bars"></i>
-        </button>
-    </header>
-    
+    </nav>
+
     <!-- Mobile Menu -->
-    <div class="main-menu-overlay" id="main-menu-overlay"></div>
-    <div class="main-menu" id="main-menu">
-        <div class="main-menu-header">
-            <h3>Menu</h3>
-            <button class="close-main-menu" id="close-main-menu">
-                <i class="fas fa-times"></i>
-            </button>
+    <div class="mobile-menu">
+        <div class="menu-header">
+            <div class="mobile-logo">
+                <div class="logo-container">
+                    <div class="paw-print">
+                        <div class="pad"></div>
+                        <div class="pad"></div>
+                        <div class="pad"></div>
+                        <div class="pad"></div>
+                        <div class="pad center-pad"></div>
+                    </div>
+                    <span>PetMate</span>
+                </div>
+            </div>
+            <button class="close-menu">×</button>
         </div>
-        <div class="main-menu-links">
-            <a href="{{ url_for('main.index') }}" class="main-menu-link">
-                <i class="fas fa-home"></i> Home
-            </a>
-            <a href="{{ url_for('main.search') }}" class="main-menu-link">
-                <i class="fas fa-search"></i> Find Playmates
-            </a>
-            <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
-                <i class="fas fa-paw"></i> My Pets
-            </a>
-            <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
-                <i class="fas fa-calendar-plus"></i> Schedule Playdate
-            </a>
-            <a href="{{ url_for('main.dashboard') }}" class="main-menu-link active">
-                <i class="fas fa-user"></i> My Dashboard
-            </a>
-            <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
-                <i class="fas fa-envelope"></i> Messages 
-                {% if unread_messages > 0 %}
-                <span class="badge">{{ unread_messages }}</span>
-                {% endif %}
-            </a>
-            <a href="{{ url_for('main.gallery') }}" class="main-menu-link">
-                <i class="fas fa-images"></i> Gallery
-            </a>
-            <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
+        <ul class="menu-links">
+            <li><a href="{{ url_for('main.index') }}">Home</a></li>
+            <li><a href="{{ url_for('main.search') }}">Find Playmates</a></li>
+            <li><a href="{{ url_for('pets.my_pets') }}">My Pets</a></li>
+            <li><a href="{{ url_for('playdates.create_playdate') }}">Schedule Playdate</a></li>
+            <li><a href="{{ url_for('main.dashboard') }}" class="active">My Dashboard</a></li>
+            <li><a href="{{ url_for('messages.view_messages') }}">Messages <span class="badge">{{ unread_messages }}</span></a></li>
+            <li><a href="{{ url_for('main.gallery') }}">Gallery</a></li>
+            <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+        </ul>
     </div>
 
     <!-- Dashboard Content -->
     <div class="dashboard-container">
         <!-- Profile Header -->
         <div class="profile-header">
-            {% if user.profile_picture %}
-                <img src="{{ url_for('static', filename='profile_pictures/' + user.profile_picture) }}" alt="Profile Picture" class="profile-pic">
-            {% else %}
-                <div class="default-profile-container">
-                    <img src="{{ url_for('static', filename='profile_pictures/default_user.png') }}" alt="Profile Picture" class="profile-pic">
-                </div>
-            {% endif %}
+            <img src="{{ user.profile_picture or url_for('static', filename='images/default_profile.jpg') }}" alt="Profile Picture" class="profile-pic">
             <div class="profile-info">
                 <h2>{{ user.username }}</h2>
                 <p>{{ user.city }}, {{ user.state }}</p>
@@ -549,13 +338,7 @@
                 <div class="pet-cards">
                     {% for pet in pets %}
                         <div class="pet-card">
-                            {% if pet.profile_picture %}
-                                <img src="{{ pet.profile_picture }}" alt="{{ pet.name }}" class="pet-img">
-                            {% else %}
-                                <div class="default-pet-container">
-                                    <img src="{{ url_for('static', filename='images/paw-print.png') }}" alt="{{ pet.name }}" width="80" height="80">
-                                </div>
-                            {% endif %}
+                            <img src="{{ pet.profile_picture or url_for('static', filename='images/default_pet.jpg') }}" alt="{{ pet.name }}" class="pet-img">
                             <div class="pet-info">
                                 <h3>{{ pet.name }}</h3>
                                 <p>{{ pet.breed }}, {{ pet.age }} years</p>
@@ -619,29 +402,41 @@
     </div>
 
     <script>
-        // Menu Toggle Script
+        // Menu Toggle Functionality
         document.addEventListener('DOMContentLoaded', function() {
-            const menuToggle = document.getElementById('main-menu-toggle');
-            const closeMenu = document.getElementById('close-main-menu');
-            const menuOverlay = document.getElementById('main-menu-overlay');
-            const mainMenu = document.getElementById('main-menu');
+            const menuToggle = document.querySelector('.menu-toggle');
+            const closeMenu = document.querySelector('.close-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
             
-            if (menuToggle && closeMenu && menuOverlay && mainMenu) {
-                menuToggle.addEventListener('click', function() {
-                    mainMenu.classList.add('active');
-                    menuOverlay.classList.add('active');
-                    document.body.style.overflow = 'hidden';
+            menuToggle.addEventListener('click', function() {
+                mobileMenu.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            closeMenu.addEventListener('click', function() {
+                mobileMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+            
+            // Add ripple effect to buttons
+            const buttons = document.querySelectorAll('.action-button');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const x = e.clientX - e.target.getBoundingClientRect().left;
+                    const y = e.clientY - e.target.getBoundingClientRect().top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
                 });
-                
-                function closeMainMenu() {
-                    mainMenu.classList.remove('active');
-                    menuOverlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-                
-                closeMenu.addEventListener('click', closeMainMenu);
-                menuOverlay.addEventListener('click', closeMainMenu);
-            }
+            });
         });
     </script>
 </body>

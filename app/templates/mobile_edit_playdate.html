@@ -1,0 +1,787 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Edit Playdate - PetMate{% endblock %}
+
+{% block meta %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#6B8E6B">
+<meta id="google-maps-api" data-key="{{ google_maps_api_key }}">
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places&callback=initMap" async defer></script>
+{% endblock %}
+
+{% block styles %}
+<link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+<link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root {
+        --sage-green: #6B8E6B;
+        --cream: #F8F4E3;
+        --deep-forest: #2C4C2C;
+        --warm-brown: #8B5A2B;
+        --terracotta: #CD5C5C;
+    }
+
+    /* Force light mode */
+    body {
+        background-color: var(--cream);
+        color: #333;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+    }
+    
+    .content-with-header {
+        padding-top: 10px;
+        padding-bottom: 20px;
+        margin-top: 50px;
+    }
+
+    .mobile-container {
+        padding: 0px 15px;
+    }
+
+    /* Remove any transitions that might cause animation effects */
+    body * {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .ripple:after {
+        display: none !important;
+    }
+
+    /* Mobile Header Improvements */
+    .mobile-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50px;
+        background-color: var(--sage-green);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 15px;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .back-button {
+        color: white;
+        font-size: 1.2rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+    }
+
+    .mobile-header h1 {
+        font-size: 1.2rem;
+        margin: 0;
+        font-weight: 600;
+        flex: 1;
+        text-align: center;
+    }
+
+    .mobile-menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+    }
+
+    /* Mobile Menu */
+    .mobile-slide-menu {
+        position: fixed;
+        top: 0;
+        right: -280px;
+        width: 280px;
+        height: 100%;
+        background-color: white;
+        z-index: 2000;
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+        overflow-y: auto;
+    }
+
+    .mobile-slide-menu.open {
+        right: 0;
+    }
+
+    .menu-header {
+        background-color: var(--sage-green);
+        color: white;
+        padding: 20px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .menu-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .menu-items {
+        padding: 15px 0;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #333;
+        text-decoration: none;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .menu-item:hover {
+        background-color: #f9f9f9;
+    }
+
+    .menu-item i {
+        margin-right: 15px;
+        width: 20px;
+        text-align: center;
+        color: var(--sage-green);
+    }
+
+    .menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1999;
+        display: none;
+    }
+
+    .menu-overlay.open {
+        display: block;
+    }
+
+    /* Form styling */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #444;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="datetime-local"],
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        background-color: white;
+    }
+
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .form-helper {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 4px;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 15px 0 10px 0;
+        color: #444;
+    }
+
+    /* Pet selection styling */
+    .pet-selection {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .pet-checkbox {
+        position: relative;
+        width: calc(50% - 5px);
+    }
+
+    .pet-checkbox input[type="checkbox"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .pet-checkbox label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px 10px;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pet-checkbox input[type="checkbox"]:checked + label {
+        background-color: rgba(107, 142, 107, 0.15);
+        border-color: var(--sage-green);
+    }
+
+    .pet-checkbox label img,
+    .pet-placeholder {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 8px;
+    }
+
+    .pet-placeholder {
+        background-color: #E8F5E9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--sage-green);
+    }
+
+    .pet-checkbox label span {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    /* Form actions */
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+        flex-direction: column;
+    }
+
+    .form-actions .button {
+        flex: 1;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .form-actions .button.primary {
+        background-color: var(--sage-green);
+        color: white;
+    }
+
+    .form-actions .button.secondary {
+        background-color: white;
+        border: 1px solid #ddd;
+        color: #444;
+    }
+
+    .form-actions .button i {
+        margin-right: 8px;
+    }
+
+    /* Location map section */
+    .map-container {
+        height: 200px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+    }
+
+    #map {
+        height: 100%;
+        width: 100%;
+    }
+
+    .map-fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        background-color: #f5f5f5;
+        color: #666;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .map-fallback p {
+        margin: 5px 0;
+    }
+
+    .map-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .map-controls button,
+    .map-controls select {
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        background-color: white;
+        border: 1px solid #ddd;
+    }
+
+    .map-controls button {
+        display: flex;
+        align-items: center;
+        color: #444;
+        font-weight: 500;
+    }
+
+    .map-controls button i {
+        margin-right: 5px;
+    }
+
+    .venue-list {
+        max-height: 200px;
+        overflow-y: auto;
+        margin-top: 10px;
+    }
+
+    .venue-item {
+        background-color: white;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .venue-item h4 {
+        margin: 0 0 5px 0;
+        font-size: 0.95rem;
+    }
+
+    .venue-item p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let map, marker;
+    
+    // Make initMap function globally available for the callback
+    window.initMap = function() {
+        console.log("Map initialization started");
+        const mapElement = document.getElementById('map');
+        if (mapElement) {
+            // Clear the loading message
+            mapElement.innerHTML = '';
+            
+            // Create the map with a default location (will be updated)
+            map = new google.maps.Map(mapElement, {
+                center: { lat: 40.7128, lng: -74.0060 }, // Default to New York
+                zoom: 13,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false
+            });
+            
+            // Try to get user's current location
+            if (navigator.geolocation) {
+                console.log("Getting user's location...");
+                navigator.geolocation.getCurrentPosition(
+                    // Success callback
+                    function(position) {
+                        console.log("Location obtained:", position.coords.latitude, position.coords.longitude);
+                        const userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        
+                        // Center map on user's location
+                        map.setCenter(userLocation);
+                        
+                        // Add a marker for user's location
+                        if (marker) marker.setMap(null); // Remove existing marker
+                        marker = new google.maps.Marker({
+                            position: userLocation,
+                            map: map,
+                            animation: google.maps.Animation.DROP,
+                            title: "Your location"
+                        });
+                        
+                        // Try to get address from coordinates
+                        const geocoder = new google.maps.Geocoder();
+                        geocoder.geocode({ location: userLocation }, function(results, status) {
+                            if (status === "OK" && results[0]) {
+                                const locationInput = document.getElementById('location');
+                                if (locationInput && !locationInput.value) {
+                                    locationInput.value = results[0].formatted_address;
+                                }
+                            }
+                        });
+                    },
+                    // Error callback
+                    function(error) {
+                        console.error("Error getting location:", error.message);
+                        // Try to geocode the current location value instead
+                        geocodeExistingLocation();
+                    },
+                    // Options
+                    { maximumAge: 60000, timeout: 10000, enableHighAccuracy: true }
+                );
+            } else {
+                console.log("Geolocation not supported");
+                // Fallback to geocoding the current location value
+                geocodeExistingLocation();
+            }
+            
+            // Set up location autocomplete
+            setupAutocomplete();
+            
+            // Enable venue search controls
+            const findVenuesButton = document.getElementById('find-venues');
+            const venueTypeSelect = document.getElementById('venue-type');
+            
+            if (findVenuesButton) findVenuesButton.removeAttribute('disabled');
+            if (venueTypeSelect) venueTypeSelect.removeAttribute('disabled');
+            
+            // Add event listener for finding venues
+            if (findVenuesButton && venueTypeSelect) {
+                findVenuesButton.addEventListener('click', findVenues);
+            }
+        }
+    };
+    
+    function geocodeExistingLocation() {
+        const locationInput = document.getElementById('location');
+        const currentLocation = locationInput ? locationInput.value : '';
+        
+        if (currentLocation && map) {
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ address: currentLocation }, function(results, status) {
+                if (status === 'OK' && results[0]) {
+                    map.setCenter(results[0].geometry.location);
+                    
+                    if (marker) marker.setMap(null); // Remove existing marker
+                    marker = new google.maps.Marker({
+                        map: map,
+                        position: results[0].geometry.location
+                    });
+                }
+            });
+        }
+    }
+    
+    function setupAutocomplete() {
+        const locationInput = document.getElementById('location');
+        if (locationInput && map) {
+            // Create autocomplete
+            const autocomplete = new google.maps.places.Autocomplete(locationInput, {
+                types: ['geocode', 'establishment']
+            });
+            
+            // Bind to map
+            autocomplete.bindTo('bounds', map);
+            
+            // Handle place selection
+            autocomplete.addListener('place_changed', function() {
+                const place = autocomplete.getPlace();
+                if (!place.geometry) return;
+                
+                // Set map center to selected place
+                if (place.geometry.viewport) {
+                    map.fitBounds(place.geometry.viewport);
+                } else {
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(17);
+                }
+                
+                // Update marker
+                if (marker) marker.setMap(null);
+                marker = new google.maps.Marker({
+                    map: map,
+                    position: place.geometry.location
+                });
+            });
+        }
+    }
+    
+    function findVenues() {
+        const venueTypeSelect = document.getElementById('venue-type');
+        const venueType = venueTypeSelect.value;
+        const locationInput = document.getElementById('location');
+        const currentLocation = locationInput ? locationInput.value : '';
+        const center = map.getCenter();
+        
+        // Create a service to find places
+        const service = new google.maps.places.PlacesService(map);
+        service.textSearch({
+            query: venueType + ' near ' + (currentLocation || 'current location'),
+            location: center,
+            radius: 5000
+        }, displayVenueResults);
+    }
+    
+    function displayVenueResults(results, status) {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            // Clear previous markers
+            const markers = document.querySelectorAll('.venue-marker');
+            markers.forEach(m => {
+                if (typeof m.setMap === 'function') m.setMap(null);
+            });
+            
+            // Store all venue markers
+            const venueMarkers = [];
+            
+            // Display results
+            const venueList = document.getElementById('venue-list');
+            if (venueList) {
+                venueList.innerHTML = '';
+                
+                results.forEach(function(place) {
+                    // Create marker
+                    const venueMarker = new google.maps.Marker({
+                        map: map,
+                        position: place.geometry.location,
+                        animation: google.maps.Animation.DROP,
+                        title: place.name,
+                        className: 'venue-marker'
+                    });
+                    
+                    venueMarkers.push(venueMarker);
+                    
+                    // Create venue item
+                    const venueItem = document.createElement('div');
+                    venueItem.className = 'venue-item';
+                    venueItem.innerHTML = `
+                        <h4>${place.name}</h4>
+                        <p>${place.formatted_address}</p>
+                    `;
+                    
+                    // Add click event
+                    venueItem.addEventListener('click', function() {
+                        // Update location input
+                        const locationInput = document.getElementById('location');
+                        if (locationInput) {
+                            locationInput.value = place.name + ', ' + place.formatted_address;
+                        }
+                        
+                        // Center map
+                        map.setCenter(place.geometry.location);
+                        map.setZoom(17);
+                        
+                        // Update main marker
+                        if (marker) marker.setMap(null);
+                        marker = new google.maps.Marker({
+                            map: map,
+                            position: place.geometry.location,
+                            animation: google.maps.Animation.DROP
+                        });
+                        
+                        // Highlight venue marker
+                        venueMarkers.forEach(m => {
+                            if (m.getPosition().equals(place.geometry.location)) {
+                                m.setAnimation(google.maps.Animation.BOUNCE);
+                                setTimeout(function() { m.setAnimation(null); }, 1500);
+                            }
+                        });
+                    });
+                    
+                    venueList.appendChild(venueItem);
+                });
+            }
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const slideMenu = document.getElementById('slideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const menuClose = document.getElementById('menuClose');
+        
+        function toggleMenu() {
+            slideMenu.classList.toggle('open');
+            menuOverlay.classList.toggle('open');
+            document.body.style.overflow = slideMenu.classList.contains('open') ? 'hidden' : '';
+        }
+        
+        menuToggle.addEventListener('click', toggleMenu);
+        menuClose.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        // Handle date-time input
+        const dateInput = document.getElementById('date');
+        if (dateInput) {
+            // Ensure the input works well on mobile
+            dateInput.setAttribute('type', 'datetime-local');
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="mobile-header">
+    <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1>Edit Playdate</h1>
+    <button id="menuToggle" class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<!-- Mobile Slide Menu -->
+<div id="menuOverlay" class="menu-overlay"></div>
+<div id="slideMenu" class="mobile-slide-menu">
+    <div class="menu-header">
+        <h3>Menu</h3>
+        <button id="menuClose" class="menu-close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="menu-items">
+        <a href="{{ url_for('main.index') }}" class="menu-item">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('main.search') }}" class="menu-item">
+            <i class="fas fa-search"></i> Find Playmates
+        </a>
+        <a href="{{ url_for('pets.my_pets') }}" class="menu-item">
+            <i class="fas fa-paw"></i> My Pets
+        </a>
+        <a href="{{ url_for('playdates.playdates') }}" class="menu-item">
+            <i class="fas fa-calendar"></i> Playdates
+        </a>
+        <a href="{{ url_for('playdates.create_playdate') }}" class="menu-item">
+            <i class="fas fa-calendar-plus"></i> Create Playdate
+        </a>
+        <a href="{{ url_for('messages.inbox') }}" class="menu-item">
+            <i class="fas fa-envelope"></i> Messages
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" class="menu-item">
+            <i class="fas fa-user"></i> My Profile
+        </a>
+        <a href="{{ url_for('auth.logout') }}" class="menu-item">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+        
+        <a href="{{ url_for('playdates.edit_playdate', playdate_id=playdate.id) }}?mode=desktop" class="menu-item">
+            <i class="fas fa-desktop"></i> Switch to Desktop Version
+        </a>
+    </div>
+</div>
+
+<div class="content-with-header">
+    <div class="mobile-container">
+        <form method="POST" class="playdate-form">
+            <div class="form-group">
+                <label for="date">Date and Time:</label>
+                <input type="datetime-local" id="date" name="date" required value="{{ formatted_date }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" required value="{{ playdate.location }}" class="location-autocomplete">
+                <div class="form-helper">Enter the address or name of the location</div>
+                
+                <div class="map-container">
+                    <div id="map" class="map-fallback">
+                        <div class="map-error">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <p>Map loading...</p>
+                            <p><small>If the map doesn't load, you can still enter a location manually above.</small></p>
+                        </div>
+                    </div>
+                    <div class="map-controls">
+                        <button type="button" id="find-venues" class="button secondary" disabled>
+                            <i class="fas fa-search-location"></i> Find Venues
+                        </button>
+                        <select id="venue-type" class="venue-select" disabled>
+                            <option value="dog park">Dog Parks</option>
+                            <option value="pet friendly cafe">Pet-Friendly Cafes</option>
+                            <option value="dog beach">Dog Beaches</option>
+                            <option value="dog friendly trail">Dog-Friendly Trails</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="venue-list" class="venue-list"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" rows="4">{{ playdate.description }}</textarea>
+                <div class="form-helper">Describe what this playdate is about (50-250 characters)</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Select Your Pets:</label>
+                <div class="pet-selection">
+                    {% for pet in user_pets %}
+                        <div class="pet-checkbox">
+                            <input type="checkbox" id="pet-{{ pet.id }}" name="selected_pets" value="{{ pet.id }}" 
+                                   {% if pet.id in selected_pet_ids %}checked{% endif %}>
+                            <label for="pet-{{ pet.id }}">
+                                {% if pet.image_filename %}
+                                    <img src="{{ url_for('static', filename='pet_images/' + pet.image_filename) }}" alt="{{ pet.name }}">
+                                {% else %}
+                                    <div class="pet-placeholder">
+                                        <i class="fas fa-paw"></i>
+                                    </div>
+                                {% endif %}
+                                <span>{{ pet.name }}</span>
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="button primary">
+                    <i class="fas fa-save"></i> Update Playdate
+                </button>
+                <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="button secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

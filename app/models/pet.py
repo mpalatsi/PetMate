@@ -27,3 +27,10 @@ class Pet(db.Model):
     
     def __repr__(self):
         return f'<Pet {self.name}>' 
+        
+    @property
+    def profile_picture(self):
+        """Return the URL for the pet's profile picture or None if no image exists."""
+        if self.image_filename:
+            return f"/static/pet_images/{self.image_filename}"
+        return None 

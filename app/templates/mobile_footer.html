@@ -1,0 +1,23 @@
+<!-- Mobile Footer Navigation -->
+<div class="mobile-nav">
+    <a href="{{ url_for('main.index') }}" class="nav-item {% if request.path == url_for('main.index') %}active{% endif %}">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+    <a href="{{ url_for('main.search') }}" class="nav-item {% if request.path == url_for('main.search') %}active{% endif %}">
+        <i class="fas fa-search"></i>
+        <span>Find</span>
+    </a>
+    <a href="{{ url_for('playdates.create_playdate') }}" class="nav-item {% if request.path == url_for('playdates.create_playdate') %}active{% endif %}">
+        <i class="fas fa-plus-circle"></i>
+        <span>New</span>
+    </a>
+    <a href="{{ url_for('messages.inbox') }}" class="nav-item {% if request.path == url_for('messages.inbox') %}active{% endif %}">
+        <i class="fas fa-envelope"></i>
+        <span>Messages</span>
+    </a>
+    <a href="{{ url_for('main.dashboard') }}" class="nav-item {% if request.path == url_for('main.dashboard') %}active{% endif %}">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+</div> 

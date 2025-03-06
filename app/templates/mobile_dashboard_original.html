@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#7C9082">
+    <title>PetMate Dashboard</title>
+    <!-- Favicons -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-homepage.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-logo.css') }}">
+    <style>
+        /* DIAGNOSTIC BANNER - SHOULD BE VERY OBVIOUS */
+        .diagnostic-banner {
+            background-color: fuchsia;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+        }
+        
+        /* Color Scheme Variables */
+        :root {
+            --pale-sage: #D1D9CE;
+            --light-sage: #B1BCA9;
+            --sage-green: #7C9082;
+            --deep-forest: #4B6455;
+            --dark-forest: #2E3E36;
+            --cream-background: #F5F1E8;
+            --warm-accent: #E6A157;
+            --dark-accent: #78552B;
+            --light-text: #F5F5F5;
+            --dark-text: #333333;
+            --light-shadow: rgba(0, 0, 0, 0.1);
+            --medium-shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        /* BASE STYLES */
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--cream-background);
+            color: var(--dark-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* MOBILE NAVIGATION */
+        .mobile-nav {
+            background-color: var(--sage-green);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            box-shadow: 0 2px 10px var(--medium-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .mobile-nav .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mobile-nav .logo-icon {
+            background: url("{{ url_for('static', filename='images/paw-icon.svg') }}") no-repeat center center;
+            width: 24px;
+            height: 24px;
+            background-size: contain;
+        }
+
+        .mobile-nav .logo-text {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-banner">
+        UPDATED MOBILE DASHBOARD - v2 ({{request.user_agent.string}})
+    </div>
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav" style="border-bottom: 5px solid red !important;">
+        <div class="logo">
+            <div class="logo-icon"></div>
+            <div class="logo-text">PetMate</div>
+        </div>
+        <button id="menuToggle" aria-label="Toggle Menu">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <!-- Mobile Menu (Hidden by default) -->
+    <div class="mobile-slide-menu">
+        <div class="mobile-menu-header">
+            <div class="user-avatar">
+                <img src="{{ user.profile_picture if user.profile_picture else url_for('static', filename='images/default-profile.jpg') }}" alt="{{ user.username }}">
+            </div>
+            <div class="user-info">
+                <h3>{{ user.username }}</h3>
+                <p>@{{ user.username }}</p>
+            </div>
+            <button class="close-menu-btn" aria-label="Close Menu">×</button>
+        </div>
+        <nav class="mobile-menu-nav">
+            <a href="{{ url_for('main.index') }}"><i class="fas fa-home"></i> Home</a>
+            <a href="{{ url_for('main.search') }}"><i class="fas fa-search"></i> Find Playmates</a>
+            <a href="{{ url_for('pets.my_pets') }}"><i class="fas fa-paw"></i> My Pets</a>
+            <a href="{{ url_for('playdates.schedule_playdate') }}"><i class="fas fa-calendar-plus"></i> Schedule Playdate</a>
+            <a href="{{ url_for('main.dashboard') }}" class="active"><i class="fas fa-user"></i> My Profile</a>
+            <a href="{{ url_for('messages.messages') }}"><i class="fas fa-envelope"></i> Messages 
+                {% if unread_messages > 0 %}
+                <span class="badge">{{ unread_messages }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('main.gallery') }}"><i class="fas fa-images"></i> Gallery</a>
+            <div class="menu-divider"></div>
+            <a href="{{ url_for('main.dashboard') }}?mode=desktop"><i class="fas fa-desktop"></i> Desktop Version</a>
+            <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="mobile-container">
+        <!-- Profile Section -->
+        <section class="profile-section">
+            <div class="profile-header">
+                <div class="profile-image">
+                    <img src="{{ user.profile_picture if user.profile_picture else url_for('static', filename='images/default-profile.jpg') }}" alt="{{ user.username }}">
+                </div>
+                <div class="profile-info">
+                    <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+                    <p class="username">@{{ user.username }}</p>
+                    <p class="location">
+                        <i class="fas fa-map-marker-alt"></i> 
+                        {{ user.city }}, {{ user.state }}
+                    </p>
+                </div>
+                <a href="{{ url_for('main.edit_profile') }}" class="edit-profile-btn">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-paw"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ user.pets|length }}</h3>
+                        <p>Pets</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ upcoming_playdates|length }}</h3>
+                        <p>Upcoming</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ unread_messages }}</h3>
+                        <p>Messages</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Me Section -->
+        <section class="about-section">
+            <h2>About Me</h2>
+            <div class="about-text">
+                {% if user.bio %}
+                    <p>{{ user.bio }}</p>
+                {% else %}
+                    <p class="placeholder-text">Tell the community about yourself and your pets!</p>
+                    <a href="{{ url_for('main.edit_profile') }}" class="add-bio-btn">Add Bio</a>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- My Pets Section -->
+        <section class="pets-section">
+            <div class="section-header">
+                <h2>My Pets</h2>
+                <a href="{{ url_for('pets.add_pet') }}" class="add-pet-btn">
+                    <i class="fas fa-plus"></i> Add
+                </a>
+            </div>
+            <div class="pet-cards">
+                {% if user.pets %}
+                    {% for pet in user.pets %}
+                        <div class="pet-card">
+                            <div class="pet-image">
+                                <img src="{{ pet.image if pet.image else url_for('static', filename='images/default-pet.jpg') }}" alt="{{ pet.name }}">
+                            </div>
+                            <div class="pet-info">
+                                <h3>{{ pet.name }}</h3>
+                                <p>{{ pet.breed }}</p>
+                                <p>{{ pet.age }} years old</p>
+                            </div>
+                            <a href="{{ url_for('pets.view_pet', pet_id=pet.id) }}" class="view-pet-btn">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>No pets added yet</p>
+                        <a href="{{ url_for('pets.add_pet') }}" class="add-pet-btn">Add Your First Pet</a>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Upcoming Playdates Section -->
+        <section class="playdates-section">
+            <h2>Upcoming Playdates</h2>
+            <div class="playdate-cards">
+                {% if upcoming_playdates %}
+                    {% for playdate in upcoming_playdates %}
+                        <div class="playdate-card">
+                            <div class="playdate-date">
+                                <span class="month">{{ playdate.date.strftime('%b') }}</span>
+                                <span class="day">{{ playdate.date.strftime('%d') }}</span>
+                            </div>
+                            <div class="playdate-info">
+                                <h3>{{ playdate.title }}</h3>
+                                <p>
+                                    <i class="fas fa-map-marker-alt"></i> 
+                                    {{ playdate.location }}
+                                </p>
+                                <p>
+                                    <i class="fas fa-clock"></i>
+                                    {{ playdate.date.strftime('%I:%M %p') }}
+                                </p>
+                            </div>
+                            <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="view-playdate-btn">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>No upcoming playdates</p>
+                        <a href="{{ url_for('playdates.schedule_playdate') }}" class="schedule-btn">Schedule a Playdate</a>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Action Buttons -->
+        <section class="action-buttons">
+            <a href="{{ url_for('main.search') }}" class="action-btn">
+                <i class="fas fa-search"></i>
+                <span>Find Playmates</span>
+            </a>
+            <a href="{{ url_for('playdates.schedule_playdate') }}" class="action-btn">
+                <i class="fas fa-calendar-plus"></i>
+                <span>Schedule Playdate</span>
+            </a>
+            <a href="{{ url_for('main.gallery') }}" class="action-btn">
+                <i class="fas fa-images"></i>
+                <span>Photo Gallery</span>
+            </a>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mobile-footer">
+            <p>&copy; 2023 PetMate. All rights reserved.</p>
+            <a href="{{ url_for('main.dashboard') }}?mode=desktop">Switch to Desktop Version</a>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menuToggle');
+            const closeMenuBtn = document.querySelector('.close-menu-btn');
+            const slideMenu = document.querySelector('.mobile-slide-menu');
+            
+            // Toggle menu
+            menuToggle.addEventListener('click', function() {
+                slideMenu.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+            });
+            
+            // Close menu
+            closeMenuBtn.addEventListener('click', function() {
+                slideMenu.classList.remove('active');
+                document.body.style.overflow = ''; // Restore scrolling
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (slideMenu.classList.contains('active') && 
+                    !slideMenu.contains(e.target) && 
+                    e.target !== menuToggle) {
+                    slideMenu.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

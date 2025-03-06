@@ -4,32 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="color-scheme" content="light only">
-    <meta name="theme-color" content="#6B8E23">
+    <meta name="theme-color" content="#6B8E6B">
     <title>Messages - PetMate</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile_styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --sage-green: #6B8E23;
+            --sage-green: #6B8E6B;
+            --cream: #F8F4E3;
+            --deep-forest: #2C4C2C;
+            --warm-brown: #8B5A2B;
+            --terracotta: #CD5C5C;
             --sage-green-light: #8FBC8F;
-            --sage-green-dark: #556B2F;
             --sage-green-lighter: #E8F5E9;
         }
         
         /* Force light mode */
         body {
-            background-color: #f8f8f8;
+            background-color: var(--cream);
             color: #333;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
             min-height: 100vh;
+            padding-bottom: 70px; /* Add padding for the footer */
+        }
+        
+        /* Override header content spacing */
+        .messages-container {
+            margin-top: 75px;
+            padding: 15px;
+            margin-bottom: 60px; /* Add margin to prevent content being hidden by footer */
         }
         
         .mobile-header {
-            background-color: var(--sage-green);
-            color: white;
+            background-color: white;
+            color: var(--deep-forest);
             padding: 15px;
             text-align: center;
             position: fixed;
@@ -41,6 +53,7 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            height: 65px;
         }
         
         .mobile-header h1 {
@@ -50,7 +63,7 @@
         }
         
         .back-button {
-            color: white;
+            color: var(--deep-forest);
             text-decoration: none;
             font-size: 1.2rem;
             width: 40px;
@@ -61,7 +74,7 @@
         }
         
         .new-message-button {
-            color: white;
+            color: var(--deep-forest);
             text-decoration: none;
             font-size: 1.2rem;
             width: 40px;
@@ -95,7 +108,7 @@
         }
         
         .conversation-item.unread {
-            background-color: #f0f7ee;
+            background-color: var(--cream);
             border-left: 4px solid var(--sage-green);
         }
         
@@ -106,7 +119,7 @@
             overflow: hidden;
             margin-right: 15px;
             flex-shrink: 0;
-            background-color: #f0f0f0;
+            background-color: var(--cream);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -127,7 +140,7 @@
             font-weight: 600;
             font-size: 1rem;
             margin-bottom: 4px;
-            color: #333;
+            color: var(--deep-forest);
         }
         
         .conversation-preview {
@@ -161,7 +174,7 @@
         }
         
         .unread-badge {
-            background-color: var(--sage-green);
+            background-color: var(--terracotta);
             color: white;
             font-size: 0.75rem;
             font-weight: bold;
@@ -183,14 +196,14 @@
         
         .empty-state i {
             font-size: 3rem;
-            color: #ccc;
+            color: var(--sage-green);
             margin-bottom: 15px;
         }
         
         .empty-state h3 {
             margin: 10px 0;
             font-size: 1.2rem;
-            color: #555;
+            color: var(--deep-forest);
         }
         
         .empty-state p {
@@ -250,29 +263,76 @@
         }
         
         .desktop-link {
+            margin: 20px auto;
             text-align: center;
-            margin: 20px 0;
-            font-size: 0.8rem;
         }
         
         .desktop-link a {
             color: var(--sage-green);
             text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s ease;
+        }
+        
+        .desktop-link a:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
+    <!-- Mobile Header -->
     <header class="mobile-header">
-        <a href="{{ url_for('main.dashboard') }}" class="back-button mobile-touch-feedback">
+        <button class="back-button" onclick="history.back()">
             <i class="fas fa-arrow-left"></i>
-        </a>
+        </button>
         <h1>Messages</h1>
-        <a href="{{ url_for('main.search') }}" class="new-message-button mobile-touch-feedback">
-            <i class="fas fa-edit"></i>
-        </a>
+        <button class="menu-button" id="main-menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
     </header>
     
-    <main class="mobile-content">
+    <!-- Mobile Menu -->
+    <div class="main-menu-overlay" id="main-menu-overlay"></div>
+    <div class="main-menu" id="main-menu">
+        <div class="main-menu-header">
+            <h3>Menu</h3>
+            <button class="close-main-menu" id="close-main-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="main-menu-links">
+            <a href="{{ url_for('main.index') }}" class="main-menu-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="{{ url_for('main.search') }}" class="main-menu-link">
+                <i class="fas fa-search"></i> Find Playmates
+            </a>
+            <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
+                <i class="fas fa-paw"></i> My Pets
+            </a>
+            <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
+                <i class="fas fa-calendar-plus"></i> Schedule Playdate
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
+                <i class="fas fa-user"></i> My Dashboard
+            </a>
+            <a href="{{ url_for('messages.inbox') }}" class="main-menu-link active">
+                <i class="fas fa-envelope"></i> Messages 
+                {% if unread_messages and unread_messages > 0 %}
+                <span class="badge">{{ unread_messages }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('main.gallery') }}" class="main-menu-link">
+                <i class="fas fa-images"></i> Gallery
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Messages Content -->
+    <div class="messages-container">
         {% if conversations %}
             <ul class="conversation-list">
                 {% for convo in conversations %}
@@ -321,10 +381,10 @@
                 <i class="fas fa-desktop"></i> View Desktop Version
             </a>
         </div>
-    </main>
-    
-    <!-- Mobile Navigation -->
-    <nav class="mobile-footer">
+    </div>
+
+    <!-- Mobile Footer Navigation -->
+    <div class="mobile-footer">
         <a href="{{ url_for('main.index') }}" class="mobile-nav-button">
             <i class="fas fa-home"></i>
             <span>Home</span>
@@ -333,9 +393,9 @@
             <i class="fas fa-search"></i>
             <span>Search</span>
         </a>
-        <a href="{{ url_for('pets.my_pets') }}" class="mobile-nav-button">
-            <i class="fas fa-paw"></i>
-            <span>My Pets</span>
+        <a href="{{ url_for('playdates.playdates') }}" class="mobile-nav-button">
+            <i class="fas fa-calendar"></i>
+            <span>Playdates</span>
         </a>
         <a href="{{ url_for('messages.inbox') }}" class="mobile-nav-button active">
             <i class="fas fa-envelope"></i>
@@ -345,14 +405,37 @@
             <i class="fas fa-user"></i>
             <span>Profile</span>
         </a>
-    </nav>
-    
+    </div>
+
     <script>
-        // Force light mode
-        document.documentElement.style.colorScheme = 'light';
-        
-        // Add ripple effect to buttons
+        // Menu Toggle Script
         document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('main-menu-toggle');
+            const closeMenu = document.getElementById('close-main-menu');
+            const menuOverlay = document.getElementById('main-menu-overlay');
+            const mainMenu = document.getElementById('main-menu');
+            
+            if (menuToggle && closeMenu && menuOverlay && mainMenu) {
+                menuToggle.addEventListener('click', function() {
+                    mainMenu.classList.add('active');
+                    menuOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+                
+                function closeMainMenu() {
+                    mainMenu.classList.remove('active');
+                    menuOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                
+                closeMenu.addEventListener('click', closeMainMenu);
+                menuOverlay.addEventListener('click', closeMainMenu);
+            }
+            
+            // Force light mode
+            document.documentElement.style.colorScheme = 'light';
+            
+            // Add ripple effect to buttons
             const touchElements = document.querySelectorAll('.mobile-touch-feedback');
             
             touchElements.forEach(element => {
@@ -383,19 +466,19 @@
                     }, 600);
                 });
             });
-        });
-        
-        // Add animation keyframe
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(2.5);
-                    opacity: 0;
+            
+            // Add animation keyframe
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes ripple {
+                    to {
+                        transform: scale(2.5);
+                        opacity: 0;
+                    }
                 }
-            }
-        `;
-        document.head.appendChild(style);
+            `;
+            document.head.appendChild(style);
+        });
     </script>
 </body>
 </html> 

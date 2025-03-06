@@ -58,10 +58,14 @@ def inbox():
     
     template = 'mobile_messages.html' if use_mobile else 'messages.html'
     
+    # Get total unread messages for the badge in the menu
+    total_unread = sum(conv['unread_count'] for conv in conversations.values())
+    
     return render_template(
         template,
         conversations=conversations_list,
-        current_user=user
+        current_user=user,
+        unread_messages=total_unread
     )
 
 @bp.route('/conversation/<int:user_id>', methods=['GET', 'POST'])
@@ -110,11 +114,18 @@ def conversation(user_id):
     
     template = 'mobile_conversation.html' if use_mobile else 'conversation.html'
     
+    # Get count of all unread messages for the badge in the menu
+    unread_messages_count = Message.query.filter_by(
+        recipient_id=current_user.id,
+        is_read=False
+    ).count()
+    
     return render_template(
         template,
         messages=messages,
         current_user=current_user,
-        other_user=other_user
+        other_user=other_user,
+        unread_messages=unread_messages_count
     )
 
 @bp.route('/new', methods=['GET', 'POST'])

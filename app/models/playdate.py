@@ -13,6 +13,7 @@ class Playdate(db.Model):
     date = db.Column(db.DateTime, nullable=False)
     duration = db.Column(db.Integer)  # Duration in minutes
     max_attendees = db.Column(db.Integer)
+    max_pets = db.Column(db.Integer)  # Maximum number of pets allowed
     status = db.Column(db.String(20), default='scheduled')  # scheduled, in_progress, completed, cancelled
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

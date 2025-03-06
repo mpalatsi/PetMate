@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#6B8E6B">
     <title>{% block title %}PetMate{% endblock %} - PetMate</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -10,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Base CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pet-avatars.css') }}">
+    <!-- Standardized Mobile Header CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
     <style>
         :root {
             --primary-color: #4A90E2;
@@ -51,42 +55,6 @@
             width: 100%;
             padding: 0 15px;
             margin: 0 auto;
-        }
-        
-        /* Mobile Header */
-        .mobile-header {
-            position: sticky;
-            top: 0;
-            left: 0;
-            right: 0;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        
-        .mobile-header h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin: 0;
-            text-align: center;
-            flex-grow: 1;
-        }
-        
-        .back-button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         
         /* Mobile Footer Navigation */
@@ -240,16 +208,67 @@
             <i class="fas fa-arrow-left"></i>
         </button>
         <h1>{% block header_title %}PetMate{% endblock %}</h1>
-        <div style="width: 24px;"></div> <!-- Spacer for alignment -->
+        <button class="menu-button" id="main-menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
     </header>
+    
+    <!-- Main Navigation Menu -->
+    <div class="main-menu-overlay" id="main-menu-overlay"></div>
+    <div class="main-menu" id="main-menu">
+        <div class="main-menu-header">
+            <h3>Menu</h3>
+            <button class="close-main-menu" id="close-main-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="main-menu-links">
+            <a href="{{ url_for('main.index') }}" class="main-menu-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="{{ url_for('main.search') }}" class="main-menu-link">
+                <i class="fas fa-search"></i> Find Playmates
+            </a>
+            <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
+                <i class="fas fa-paw"></i> My Pets
+            </a>
+            <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
+                <i class="fas fa-calendar-plus"></i> Schedule Playdate
+            </a>
+            {% if 'username' in session %}
+                <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
+                    <i class="fas fa-user"></i> My Dashboard
+                </a>
+                <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
+                    <i class="fas fa-envelope"></i> Messages
+                    {% if unread_messages and unread_messages > 0 %}
+                    <span class="badge">{{ unread_messages }}</span>
+                    {% endif %}
+                </a>
+                <a href="{{ url_for('main.gallery') }}" class="main-menu-link">
+                    <i class="fas fa-images"></i> Gallery
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="main-menu-link">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="main-menu-link">
+                    <i class="fas fa-user-plus"></i> Register
+                </a>
+            {% endif %}
+        </div>
+    </div>
     {% endblock %}
     
-    <div class="container">
+    <div class="container content-with-header">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="flash-messages-container">
                     {% for category, message in messages %}
-                        <div class="flash-message {{ category }}">
+                        <div class="flash-message flash-{{ category }}">
                             <div class="flash-content">
                                 <i class="fas {% if category == 'error' %}fa-exclamation-circle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
                                 <span>{{ message }}</span>
@@ -269,36 +288,36 @@
     </div>
     
     {% block footer %}
-    <nav class="mobile-nav">
-        <a href="{{ url_for('main.index') }}" class="nav-item {% if request.endpoint == 'main.index' %}active{% endif %}">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="{{ url_for('main.search') }}" class="nav-item {% if request.endpoint == 'main.search' %}active{% endif %}">
-            <i class="fas fa-search"></i>
-            <span>Search</span>
-        </a>
-        <a href="{{ url_for('pets.my_pets') }}" class="nav-item {% if request.endpoint == 'pets.my_pets' %}active{% endif %}">
-            <i class="fas fa-paw"></i>
-            <span>My Pets</span>
-        </a>
-        <a href="{{ url_for('messages.inbox') }}" class="nav-item {% if request.endpoint == 'messages.inbox' %}active{% endif %}">
-            <i class="fas fa-envelope"></i>
-            <span>Messages</span>
-        </a>
-        <a href="{{ url_for('main.view_profile', user_id=session.user_id) }}" class="nav-item {% if request.endpoint == 'main.view_profile' and user_id == session.user_id %}active{% endif %}">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
-        </a>
-    </nav>
     {% endblock %}
     
-    <!-- Base JavaScript -->
+    {% block scripts %}
     <script>
-        // Add ripple effect to buttons
+        // Menu Toggle
         document.addEventListener('DOMContentLoaded', function() {
-            const buttons = document.querySelectorAll('.btn');
+            const menuToggle = document.getElementById('main-menu-toggle');
+            const closeMenu = document.getElementById('close-main-menu');
+            const menuOverlay = document.getElementById('main-menu-overlay');
+            const mainMenu = document.getElementById('main-menu');
             
+            if (menuToggle && closeMenu && menuOverlay && mainMenu) {
+                menuToggle.addEventListener('click', function() {
+                    mainMenu.classList.add('active');
+                    menuOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+                
+                function closeMainMenu() {
+                    mainMenu.classList.remove('active');
+                    menuOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                
+                closeMenu.addEventListener('click', closeMainMenu);
+                menuOverlay.addEventListener('click', closeMainMenu);
+            }
+            
+            // Add ripple effect to buttons
+            const buttons = document.querySelectorAll('.btn');
             buttons.forEach(button => {
                 button.addEventListener('click', function(e) {
                     const x = e.clientX - e.target.getBoundingClientRect().left;
@@ -318,6 +337,6 @@
             });
         });
     </script>
-    {% block scripts %}{% endblock %}
+    {% endblock %}
 </body>
 </html> 

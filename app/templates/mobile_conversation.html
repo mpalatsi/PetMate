@@ -4,22 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="color-scheme" content="light only">
-    <meta name="theme-color" content="#6B8E23">
+    <meta name="theme-color" content="#6B8E6B">
     <title>Chat with {{ other_user.username }} - PetMate</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile_styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --sage-green: #6B8E23;
+            --sage-green: #6B8E6B;
+            --cream: #F8F4E3;
+            --deep-forest: #2C4C2C;
+            --warm-brown: #8B5A2B;
+            --terracotta: #CD5C5C;
             --sage-green-light: #8FBC8F;
-            --sage-green-dark: #556B2F;
             --sage-green-lighter: #E8F5E9;
         }
         
         /* Force light mode */
         body {
-            background-color: #f5f5f5;
+            background-color: var(--cream);
             color: #333;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -29,9 +33,32 @@
             flex-direction: column;
         }
         
+        /* Chat-specific styles for the header */
+        .mobile-header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mobile-header .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        /* Chat content container */
+        .chat-container {
+            flex: 1;
+            margin-top: 75px;
+            margin-bottom: 70px;
+            padding: 10px 15px;
+            overflow-y: auto;
+        }
+        
         .chat-header {
-            background-color: var(--sage-green);
-            color: white;
+            background-color: white;
+            color: var(--deep-forest);
             position: fixed;
             top: 0;
             left: 0;
@@ -41,10 +68,11 @@
             display: flex;
             align-items: center;
             padding: 10px 15px;
+            height: 65px;
         }
         
         .back-button {
-            color: white;
+            color: var(--deep-forest);
             text-decoration: none;
             margin-right: 10px;
             width: 30px;
@@ -79,6 +107,7 @@
             font-weight: 600;
             font-size: 1rem;
             margin: 0;
+            color: var(--deep-forest);
         }
         
         .user-status {
@@ -88,7 +117,7 @@
         }
         
         .view-profile {
-            color: white;
+            color: var(--deep-forest);
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -140,7 +169,7 @@
         
         .message.received .message-bubble {
             background-color: white;
-            color: #333;
+            color: var(--deep-forest);
             border-bottom-left-radius: 4px;
         }
         
@@ -163,7 +192,7 @@
         .no-messages {
             text-align: center;
             padding: 30px 20px;
-            color: #888;
+            color: var(--deep-forest);
             background-color: white;
             border-radius: 10px;
             margin: 20px 0;
@@ -184,7 +213,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background-color: #f5f5f5;
+            background-color: var(--cream);
             border-radius: 24px;
             padding: 5px 15px;
         }
@@ -239,21 +268,26 @@
         }
         
         .date-separator span {
-            background-color: #f5f5f5;
+            background-color: var(--cream);
             padding: 0 10px;
             font-size: 0.8rem;
             color: #888;
         }
         
         .desktop-link {
+            margin: 20px auto;
             text-align: center;
-            padding: 15px 0;
-            font-size: 0.8rem;
         }
         
         .desktop-link a {
             color: var(--sage-green);
             text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s ease;
+        }
+        
+        .desktop-link a:hover {
+            opacity: 0.8;
         }
         
         /* Placeholder for avatar if no image */
@@ -268,34 +302,73 @@
             justify-content: center;
             font-size: 1.2rem;
             color: #888;
-            background-color: #f0f0f0;
+            background-color: var(--cream);
         }
     </style>
 </head>
 <body>
-    <header class="chat-header">
-        <a href="{{ url_for('messages.inbox') }}" class="back-button mobile-touch-feedback">
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <button class="back-button" onclick="goBack()">
             <i class="fas fa-arrow-left"></i>
-        </a>
-        <div class="user-avatar">
-            {% if other_user.profile_picture %}
-                <img src="{{ url_for('static', filename='profile_pictures/' + other_user.profile_picture) }}" alt="{{ other_user.username }}">
-            {% else %}
-                <i class="fas fa-user"></i>
-            {% endif %}
-        </div>
-        <div class="chat-user-info">
-            <h2 class="chat-username">{{ other_user.username }}</h2>
-            {% if other_user.location %}
-                <p class="user-status"><i class="fas fa-map-marker-alt"></i> {{ other_user.location }}</p>
-            {% endif %}
-        </div>
-        <a href="{{ url_for('main.view_profile', user_id=other_user.id) }}" class="view-profile mobile-touch-feedback">
-            <i class="fas fa-user-circle"></i>
-        </a>
+        </button>
+        <h1>
+            <div class="user-info">
+                {% if other_user.profile_picture %}
+                    <img src="{{ other_user.profile_picture }}" alt="{{ other_user.username }}" class="user-avatar">
+                {% else %}
+                    <img src="{{ url_for('static', filename='profile_pictures/default_user.png') }}" alt="{{ other_user.username }}" class="user-avatar">
+                {% endif %}
+                {{ other_user.username }}
+            </div>
+        </h1>
+        <button class="menu-button" id="main-menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
     </header>
     
-    <main class="chat-content">
+    <!-- Mobile Menu -->
+    <div class="main-menu-overlay" id="main-menu-overlay"></div>
+    <div class="main-menu" id="main-menu">
+        <div class="main-menu-header">
+            <h3>Menu</h3>
+            <button class="close-main-menu" id="close-main-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="main-menu-links">
+            <a href="{{ url_for('main.index') }}" class="main-menu-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="{{ url_for('main.search') }}" class="main-menu-link">
+                <i class="fas fa-search"></i> Find Playmates
+            </a>
+            <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
+                <i class="fas fa-paw"></i> My Pets
+            </a>
+            <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
+                <i class="fas fa-calendar-plus"></i> Schedule Playdate
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
+                <i class="fas fa-user"></i> My Dashboard
+            </a>
+            <a href="{{ url_for('messages.inbox') }}" class="main-menu-link active">
+                <i class="fas fa-envelope"></i> Messages
+                {% if unread_messages and unread_messages > 0 %}
+                <span class="badge">{{ unread_messages }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('main.gallery') }}" class="main-menu-link">
+                <i class="fas fa-images"></i> Gallery
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Chat Content -->
+    <div class="chat-container">
         <div class="messages">
             {% if messages %}
                 {% set current_date = none %}
@@ -330,8 +403,9 @@
                 <i class="fas fa-desktop"></i> View Desktop Version
             </a>
         </div>
-    </main>
-    
+    </div>
+
+    <!-- Message Input -->
     <div class="chat-input-container">
         <form method="POST" action="{{ url_for('messages.conversation', user_id=other_user.id) }}" id="messageForm">
             <div class="message-form">
@@ -342,10 +416,16 @@
             </div>
         </form>
     </div>
-    
+
     <script>
         // Force light mode
         document.documentElement.style.colorScheme = 'light';
+        
+        // Navigation function
+        function goBack() {
+            window.location.href = "{{ url_for('messages.inbox') }}";
+            return false;
+        }
         
         document.addEventListener('DOMContentLoaded', function() {
             // Scroll to bottom of chat on load
@@ -397,6 +477,29 @@
                     }, 600);
                 });
             });
+            
+            // Menu Toggle Script
+            const menuToggle = document.getElementById('main-menu-toggle');
+            const closeMenu = document.getElementById('close-main-menu');
+            const menuOverlay = document.getElementById('main-menu-overlay');
+            const mainMenu = document.getElementById('main-menu');
+            
+            if (menuToggle && closeMenu && menuOverlay && mainMenu) {
+                menuToggle.addEventListener('click', function() {
+                    mainMenu.classList.add('active');
+                    menuOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+                
+                function closeMainMenu() {
+                    mainMenu.classList.remove('active');
+                    menuOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                
+                closeMenu.addEventListener('click', closeMainMenu);
+                menuOverlay.addEventListener('click', closeMainMenu);
+            }
         });
         
         // Add animation keyframe
@@ -412,4 +515,4 @@
         document.head.appendChild(style);
     </script>
 </body>
-</html> 
+</html>

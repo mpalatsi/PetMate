@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="color-scheme" content="light only">
-    <meta name="theme-color" content="#F5F1E8">
+    <meta name="theme-color" content="#6B8E6B">
     <meta name="supported-color-schemes" content="light">
     <title>Create Playdate - PetMate</title>
     
@@ -15,14 +15,19 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile-homepage.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         /* Additional styles specific to the create playdate page */
+        .content-with-header {
+            padding-top: 70px;
+        }
+        
         .mobile-page-header {
             text-align: center;
             padding: 1.5rem 1rem;
-            background-color: var(--warm-brown);
+            background-color: var(--sage-green);
             color: white;
             border-radius: 0 0 20px 20px;
             margin-bottom: 1.5rem;
@@ -48,10 +53,14 @@
             padding: 1.5rem;
             margin: 0 1rem 1.5rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            position: relative;
+            z-index: 1;
         }
         
         .mobile-form-group {
             margin-bottom: 1.5rem;
+            position: relative;
+            transition: all 0.3s ease;
         }
         
         .mobile-form-label {
@@ -70,6 +79,9 @@
             font-size: 1rem;
             background-color: #fcfcfc;
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
         
         .mobile-form-input:focus {
@@ -81,6 +93,8 @@
         .mobile-form-textarea {
             min-height: 100px;
             resize: vertical;
+            line-height: 1.4;
+            padding: 1rem;
         }
         
         .mobile-form-hint {
@@ -306,6 +320,100 @@
             font-weight: 500;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
         }
+        
+        /* Additional mobile optimization styles */
+        input, textarea, select {
+            font-size: 16px !important; /* Prevents iOS zoom on focus */
+        }
+        
+        .input-focus-highlight {
+            background-color: rgba(107, 142, 107, 0.05) !important;
+            transition: background-color 0.3s ease;
+        }
+        
+        /* Enhanced form styling */
+        .mobile-form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        /* Style for active form group */
+        .form-group-active {
+            transform: translateY(-2px);
+        }
+        
+        /* Enhanced number input */
+        input[type="number"] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+        
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        /* Number stepper control */
+        .number-control {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .number-control input {
+            text-align: center;
+            border-radius: 10px;
+            flex: 1;
+            margin: 0 8px;
+        }
+        
+        .stepper-button {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            min-height: 42px;
+            max-width: 42px;
+            max-height: 42px;
+            border-radius: 50%;
+            background-color: var(--sage-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border: none;
+            cursor: pointer;
+            flex-shrink: 0;
+            flex-grow: 0;
+            padding: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+        
+        .stepper-button i {
+            line-height: 1;
+            width: 100%;
+            text-align: center;
+        }
+        
+        /* Custom checkbox styling */
+        .custom-checkbox input:checked ~ .checkbox-icon::before {
+            transform: rotate(45deg) scale(1);
+        }
+        
+        /* Desktop version link styling */
+        .desktop-link a {
+            color: var(--sage-green);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: opacity 0.2s ease;
+        }
+        
+        .desktop-link a:hover {
+            opacity: 0.8;
+        }
     </style>
     
     <script>
@@ -320,69 +428,77 @@
     <!-- <script src="{{ url_for('static', filename='js/map.js') }}"></script> -->
 </head>
 <body>
-    <!-- Mobile Navigation -->
-    <nav class="mobile-nav">
-        <div class="mobile-nav-container">
-            <a href="{{ url_for('main.index') }}" class="mobile-logo">
-                <div class="mobile-logo-icon"></div>
-                <div class="mobile-logo-text">Pet<span class="highlight">Mate</span></div>
-            </a>
-            <div class="mobile-nav-actions">
-                <a href="{{ url_for('main.dashboard') }}" class="mobile-nav-link">
-                    <i class="fas fa-user"></i>
-                </a>
-                <button class="mobile-menu-toggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
-
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <button class="back-button" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1>Schedule Playdate</h1>
+        <button class="menu-button" id="main-menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+    
     <!-- Mobile Menu -->
-    <div class="mobile-menu">
-        <div class="mobile-menu-header">
-            <span>Menu</span>
-            <button class="mobile-close-menu">
+    <div class="main-menu-overlay" id="main-menu-overlay"></div>
+    <div class="main-menu" id="main-menu">
+        <div class="main-menu-header">
+            <h3>Menu</h3>
+            <button class="close-main-menu" id="close-main-menu">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <div class="mobile-menu-links">
-            <a href="{{ url_for('main.index') }}" class="mobile-menu-link">
+        <div class="main-menu-links">
+            <a href="{{ url_for('main.index') }}" class="main-menu-link">
                 <i class="fas fa-home"></i> Home
             </a>
-            <a href="{{ url_for('main.search') }}" class="mobile-menu-link">
+            <a href="{{ url_for('main.search') }}" class="main-menu-link">
                 <i class="fas fa-search"></i> Find Playmates
             </a>
-            <a href="{{ url_for('pets.my_pets') }}" class="mobile-menu-link">
+            <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
                 <i class="fas fa-paw"></i> My Pets
             </a>
-            <a href="{{ url_for('playdates.create_playdate') }}" class="mobile-menu-link">
+            <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link active">
                 <i class="fas fa-calendar-plus"></i> Schedule Playdate
             </a>
-            <a href="{{ url_for('main.dashboard') }}" class="mobile-menu-link">
-                <i class="fas fa-user"></i> My Profile
-            </a>
-            <a href="{{ url_for('messages.inbox') }}" class="mobile-menu-link">
-                <i class="fas fa-envelope"></i> Messages
-            </a>
-            <a href="{{ url_for('auth.logout') }}" class="mobile-menu-link">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+            {% if 'username' in session %}
+                <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
+                    <i class="fas fa-user"></i> My Dashboard
+                </a>
+                <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
+                    <i class="fas fa-envelope"></i> Messages
+                    {% if unread_messages and unread_messages > 0 %}
+                    <span class="badge">{{ unread_messages }}</span>
+                    {% endif %}
+                </a>
+                <a href="{{ url_for('main.gallery') }}" class="main-menu-link">
+                    <i class="fas fa-images"></i> Gallery
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="main-menu-link">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="main-menu-link">
+                    <i class="fas fa-user-plus"></i> Register
+                </a>
+            {% endif %}
         </div>
     </div>
 
     <!-- Content -->
-    <main class="mobile-main">
+    <div class="content-with-header">
         <div class="mobile-page-header">
-            <h2>Create Playdate</h2>
             <p>Schedule a fun meetup for your pets</p>
         </div>
         
-        <form method="POST" action="{{ url_for('playdates.create_playdate') }}" enctype="multipart/form-data" class="mobile-create-playdate-form">
+        <form method="POST" action="{{ url_for('playdates.create_playdate', _external=True) }}" enctype="multipart/form-data" class="mobile-create-playdate-form" id="playdateForm">
             <div class="mobile-form-container">
                 <div class="mobile-form-group">
                     <label for="description" class="mobile-form-label">Description:</label>
-                    <textarea id="description" name="description" class="mobile-form-input mobile-form-textarea" placeholder="Describe your playdate. For example: 'Dog-friendly meetup at Central Park'" required></textarea>
+                    <textarea id="description" name="description" class="mobile-form-input mobile-form-textarea" placeholder="Describe your playdate. For example: 'Dog-friendly meetup at Central Park'" required aria-label="Description"></textarea>
                     <span class="mobile-form-hint">Briefly describe the playdate so others know what to expect</span>
                 </div>
                 
@@ -390,7 +506,7 @@
                     <h3 class="mobile-form-section-title"><i class="fas fa-map-marker-alt"></i> Location</h3>
                     <div class="mobile-form-group">
                         <label for="location" class="mobile-form-label">Location:</label>
-                        <input type="text" id="location" name="location" class="mobile-form-input location-autocomplete" placeholder="Search for a location or venue" required>
+                        <input type="text" id="location" name="location" class="mobile-form-input location-autocomplete" placeholder="Search for a location or venue" required aria-label="Location">
                         <span class="mobile-form-hint">Type to search for parks, cafes, or other pet-friendly venues</span>
                     </div>
                     
@@ -433,7 +549,15 @@
                 
                 <div class="mobile-form-group">
                     <label for="max_pets" class="mobile-form-label">Maximum number of pets:</label>
-                    <input type="number" id="max_pets" name="max_pets" class="mobile-form-input" min="1" value="5" required>
+                    <div class="number-control">
+                        <button type="button" class="stepper-button decrease-pets mobile-touch-feedback">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" id="max_pets" name="max_pets" class="mobile-form-input" min="1" max="20" value="5" required aria-label="Maximum number of pets" inputmode="numeric" pattern="[0-9]*">
+                        <button type="button" class="stepper-button increase-pets mobile-touch-feedback">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                     <span class="mobile-form-hint">Set the maximum number of pets that can join this playdate</span>
                 </div>
             </div>
@@ -476,7 +600,7 @@
                 </div>
                 
                 {% if user_pets %}
-                    <button type="submit" class="mobile-cta-button mobile-cta-button-large mobile-touch-feedback">
+                    <button type="submit" class="mobile-cta-button mobile-cta-button-large mobile-touch-feedback" id="submitPlaydateBtn">
                         <i class="fas fa-calendar-plus"></i> Create Playdate
                     </button>
                 {% endif %}
@@ -486,28 +610,99 @@
         <p class="desktop-link" style="text-align: center; margin: 2rem 0;">
             <a href="{{ url_for('playdates.create_playdate') }}?mode=desktop" id="view-desktop-version">View Desktop Version</a>
         </p>
-    </main>
+    </div>
 
     <!-- Mobile-specific JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             console.log("DOMContentLoaded fired"); // Debugging
             
-            // Menu toggle functionality
-            const menuToggle = document.querySelector('.mobile-menu-toggle');
-            const closeMenu = document.querySelector('.mobile-close-menu');
-            const mobileMenu = document.querySelector('.mobile-menu');
+            // Form field enhancement
+            const enhanceFormFields = function() {
+                // Get all form elements
+                const formInputs = document.querySelectorAll('.mobile-form-input');
+                const formGroups = document.querySelectorAll('.mobile-form-group');
+                
+                // Add special handling for form fields
+                formInputs.forEach(input => {
+                    // Add focus handling
+                    input.addEventListener('focus', function() {
+                        // Find parent form group
+                        const formGroup = this.closest('.mobile-form-group');
+                        if (formGroup) {
+                            formGroup.classList.add('form-group-active');
+                            this.classList.add('input-focus-highlight');
+                        }
+                    });
+                    
+                    input.addEventListener('blur', function() {
+                        // Find parent form group
+                        const formGroup = this.closest('.mobile-form-group');
+                        if (formGroup) {
+                            formGroup.classList.remove('form-group-active');
+                            this.classList.remove('input-focus-highlight');
+                        }
+                    });
+                    
+                    // Make text fields easier to tap by allowing label taps
+                    formGroups.forEach(group => {
+                        const label = group.querySelector('.mobile-form-label');
+                        const input = group.querySelector('.mobile-form-input');
+                        
+                        if (label && input) {
+                            label.addEventListener('click', function() {
+                                input.focus();
+                            });
+                        }
+                    });
+                });
+                
+                // Add number stepper functionality
+                const maxPetsInput = document.getElementById('max_pets');
+                const decreaseButton = document.querySelector('.decrease-pets');
+                const increaseButton = document.querySelector('.increase-pets');
+                
+                if (maxPetsInput && decreaseButton && increaseButton) {
+                    decreaseButton.addEventListener('click', function() {
+                        const currentValue = parseInt(maxPetsInput.value, 10);
+                        if (currentValue > parseInt(maxPetsInput.min, 10)) {
+                            maxPetsInput.value = currentValue - 1;
+                        }
+                    });
+                    
+                    increaseButton.addEventListener('click', function() {
+                        const currentValue = parseInt(maxPetsInput.value, 10);
+                        if (!maxPetsInput.max || currentValue < parseInt(maxPetsInput.max, 10)) {
+                            maxPetsInput.value = currentValue + 1;
+                        }
+                    });
+                }
+            };
             
-            if (menuToggle && closeMenu && mobileMenu) {
+            // Call the function to enhance form fields
+            enhanceFormFields();
+            
+            // Menu toggle functionality
+            const menuToggle = document.getElementById('main-menu-toggle');
+            const closeMenu = document.getElementById('close-main-menu');
+            const menuOverlay = document.getElementById('main-menu-overlay');
+            const mainMenu = document.getElementById('main-menu');
+            
+            if (menuToggle && closeMenu && menuOverlay && mainMenu) {
                 menuToggle.addEventListener('click', function() {
-                    mobileMenu.classList.add('active');
+                    mainMenu.classList.add('active');
+                    menuOverlay.classList.add('active');
                     document.body.style.overflow = 'hidden'; // Prevent scrolling
                 });
                 
-                closeMenu.addEventListener('click', function() {
-                    mobileMenu.classList.remove('active');
+                function closeMainMenu() {
+                    mainMenu.classList.remove('active');
+                    menuOverlay.classList.remove('active');
                     document.body.style.overflow = ''; // Enable scrolling
-                });
+                }
+                
+                closeMenu.addEventListener('click', closeMainMenu);
+                menuOverlay.addEventListener('click', closeMainMenu);
             }
             
             // Apply ripple effect to touch elements
@@ -960,5 +1155,124 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
         }
     </style>
+    
+    <!-- Debug script to check form submission -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded for playdate creation page');
+            
+            const form = document.querySelector('.mobile-create-playdate-form');
+            const submitBtn = document.getElementById('submitPlaydateBtn');
+            
+            if (form) {
+                console.log('Form found, action:', form.action);
+                
+                // Add a status indicator to the page
+                const statusDiv = document.createElement('div');
+                statusDiv.id = 'formSubmitStatus';
+                statusDiv.style.position = 'fixed';
+                statusDiv.style.bottom = '10px';
+                statusDiv.style.left = '10px';
+                statusDiv.style.padding = '10px';
+                statusDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                statusDiv.style.color = 'white';
+                statusDiv.style.borderRadius = '5px';
+                statusDiv.style.zIndex = '9999';
+                statusDiv.style.display = 'none';
+                statusDiv.textContent = 'Form submission status will appear here';
+                document.body.appendChild(statusDiv);
+                
+                // Add click handler to the submit button for debugging
+                if (submitBtn) {
+                    submitBtn.addEventListener('click', function(e) {
+                        statusDiv.style.display = 'block';
+                        statusDiv.textContent = 'Submit button clicked';
+                        // Don't prevent default - let the form submit normally
+                    });
+                }
+                
+                // Formatting date and time for server expectations
+                const dateInput = document.getElementById('date');
+                const timeInput = document.getElementById('time');
+                
+                if (dateInput && timeInput) {
+                    // Set default values if empty
+                    if (!dateInput.value) {
+                        const today = new Date();
+                        const yyyy = today.getFullYear();
+                        const mm = String(today.getMonth() + 1).padStart(2, '0');
+                        const dd = String(today.getDate()).padStart(2, '0');
+                        dateInput.value = `${yyyy}-${mm}-${dd}`;
+                    }
+                    
+                    if (!timeInput.value) {
+                        const now = new Date();
+                        const hh = String(now.getHours()).padStart(2, '0');
+                        const min = String(now.getMinutes()).padStart(2, '0');
+                        timeInput.value = `${hh}:${min}`;
+                    }
+                }
+                
+                form.addEventListener('submit', function(e) {
+                    statusDiv.style.display = 'block';
+                    statusDiv.textContent = 'Form submission initiated';
+                    
+                    // Check all required fields
+                    const requiredFields = form.querySelectorAll('[required]');
+                    const emptyFields = [];
+                    
+                    requiredFields.forEach(field => {
+                        statusDiv.textContent += `\nField ${field.name}: ${field.value ? 'OK' : 'EMPTY'}`;
+                        if (!field.value.trim()) {
+                            emptyFields.push(field.name);
+                        }
+                    });
+                    
+                    if (emptyFields.length > 0) {
+                        statusDiv.textContent += `\nMissing fields: ${emptyFields.join(', ')}`;
+                        alert('Please fill in all required fields: ' + emptyFields.join(', '));
+                        e.preventDefault();
+                        return false;
+                    }
+                    
+                    // Check if at least one pet is selected
+                    const petCheckboxes = form.querySelectorAll('input[name="pet_ids"]');
+                    let petSelected = false;
+                    let selectedPets = [];
+                    
+                    petCheckboxes.forEach(checkbox => {
+                        if (checkbox.checked) {
+                            petSelected = true;
+                            selectedPets.push(checkbox.value);
+                        }
+                    });
+                    
+                    statusDiv.textContent += `\nSelected pets: ${selectedPets.join(', ')}`;
+                    
+                    if (!petSelected) {
+                        statusDiv.textContent += '\nNo pets selected!';
+                        alert('Please select at least one pet for the playdate.');
+                        e.preventDefault();
+                        return false;
+                    }
+                    
+                    statusDiv.textContent += '\nForm submission continuing...';
+                    
+                    // Ensure proper submission by manually triggering the form
+                    setTimeout(() => {
+                        statusDiv.textContent += '\nForm actually submitting now...';
+                        // Continue with form submission
+                    }, 500);
+                    
+                    return true;
+                });
+            } else {
+                console.error('Form not found!');
+            }
+            
+            // Rest of initialization code
+            // ...
+        });
+    </script>
 </body>
 </html> 

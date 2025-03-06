@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROOT TEMPLATE TEST</title>
+    <style>
+        body {
+            background-color: red;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+        .test-header {
+            background-color: green;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .test-content {
+            background-color: orange;
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>ROOT TEMPLATE TEST</h1>
+        <p>This is a test template from ROOT templates/mobile_dashboard_test2.html</p>
+    </div>
+    <div class="test-content">
+        <p>User Agent: {{ request.user_agent.string }}</p>
+        <p>Time: {{ now }}</p>
+        <p>Username: {{ user.username }}</p>
+        <p>Unread Messages: {{ unread_messages }}</p>
+        <p>Upcoming Playdates: {{ upcoming_playdates|length }}</p>
+    </div>
+</body>
+</html> 
