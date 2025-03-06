@@ -24,8 +24,8 @@ COPY requirements.txt ./
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Add WebSocket dependencies
-RUN pip install --no-cache-dir gevent gevent-websocket
+# Ensure WebSocket dependencies are installed
+RUN pip install --no-cache-dir gevent==23.9.1 gevent-websocket==0.10.1 eventlet==0.33.3
 
 # Copy the rest of the application
 COPY . .
