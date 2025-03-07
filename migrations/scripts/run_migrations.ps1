@@ -2,26 +2,21 @@
 
 Write-Host "Running database migrations..." -ForegroundColor Cyan
 
-# Get the web container name
-$container = docker ps --filter "name=petmate" --filter "name=web" --format "{{.Names}}"
+# Use the specific container name
+$container = "petmate"
 
-if (-not $container) {
-    Write-Host "Error: Web container not found. Make sure the containers are running." -ForegroundColor Red
-    exit 1
-}
-
-Write-Host "Found web container: $container" -ForegroundColor Green
+Write-Host "Using web container: $container" -ForegroundColor Green
 
 # Run the migrations
 Write-Host "Creating database tables..." -ForegroundColor Cyan
-docker exec -it $container flask db upgrade
+docker exec $container flask db upgrade
 
 # If the above fails, try the standard database initialization
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Migrations failed, trying standard database initialization..." -ForegroundColor Yellow
-    docker exec -it $container flask db init
-    docker exec -it $container flask db migrate -m "Initial migration"
-    docker exec -it $container flask db upgrade
+    docker exec $container flask db init
+    docker exec $container flask db migrate -m "Initial migration"
+    docker exec $container flask db upgrade
 }
 
 # Create test admin user if needed
@@ -30,7 +25,7 @@ $createAdmin = Read-Host
 
 if ($createAdmin -eq "y") {
     Write-Host "Creating test admin user..." -ForegroundColor Cyan
-    docker exec -it $container flask create-admin
+    docker exec $container flask create-admin
 }
 
 Write-Host "Database setup complete!" -ForegroundColor Green 

@@ -14,10 +14,10 @@ This guide provides instructions for deploying the PetMate application to produc
 
 1. Copy the example environment file to create your production environment file:
    ```
-   cp .env.example production.env
+   cp .env.example docker/production.env
    ```
 
-2. Edit the `production.env` file and update the following values with secure credentials:
+2. Edit the `docker/production.env` file and update the following values with secure credentials:
    - `POSTGRES_PASSWORD`: A strong password for the PostgreSQL database
    - `SECRET_KEY`: A secure random string for Flask's secret key
    - `GOOGLE_MAPS_API_KEY`: Your Google Maps API key
@@ -39,7 +39,7 @@ This is the recommended approach for production deployments. It uses Docker imag
 
 2. Start the containers using the production Docker Compose file:
    ```
-   docker-compose --env-file production.env up -d
+   docker-compose --env-file docker/production.env up -d
    ```
 
 #### Option B: Building Locally
@@ -48,7 +48,7 @@ This approach is useful for development or if you need to make custom modificati
 
 1. Build and start the containers:
    ```
-   docker-compose -f docker-compose.dev.yml --env-file production.env up --build -d
+   docker-compose -f docker/docker-compose.dev.yml --env-file docker/production.env up --build -d
    ```
 
 ### 3. Deploy to Unraid Server
@@ -57,7 +57,7 @@ This approach is useful for development or if you need to make custom modificati
 
 1. Copy the project files to your Unraid server:
    ```
-   scp -r docker-compose.yml production.env user@unraid-server:/path/on/unraid/petmate/
+   scp -r docker/docker-compose.yml docker/production.env user@unraid-server:/path/on/unraid/petmate/
    ```
 
 2. SSH into your Unraid server:
@@ -68,7 +68,7 @@ This approach is useful for development or if you need to make custom modificati
 3. Navigate to the project directory and start the containers:
    ```
    cd /path/on/unraid/petmate
-   docker-compose --env-file production.env up -d
+   docker-compose --env-file docker/production.env up -d
    ```
 
 #### Option 2: Using Unraid's Docker Manager
@@ -91,7 +91,7 @@ This approach is useful for development or if you need to make custom modificati
    - Click "Add Container"
    - Repository: Point to your built Docker image or use a private registry
    - Name: `petmate-web`
-   - Add the environment variables from your production.env file
+   - Add the environment variables from your docker/production.env file
    - Add volume mappings:
      - Host Path: `/mnt/user/appdata/petmate/uploads`
      - Container Path: `/app/uploads`
@@ -128,7 +128,7 @@ Access the application at `http://your-unraid-ip:5000`
 
 2. Rebuild and restart the containers:
    ```
-   docker-compose --env-file production.env up --build -d
+   docker-compose --env-file docker/production.env up --build -d
    ```
 
 ### Backup
@@ -215,7 +215,7 @@ To create a new release that will automatically build and publish a Docker image
 5. Add a title and description
 6. Click "Publish release"
 
-The GitHub Actions workflow will automatically build and publish a Docker image to GitHub Container Registry. You can then update your `production.env` file to use the new version:
+The GitHub Actions workflow will automatically build and publish a Docker image to GitHub Container Registry. You can then update your docker/production.env file to use the new version:
 
 ```
 IMAGE_TAG=1.0.0
@@ -224,5 +224,5 @@ IMAGE_TAG=1.0.0
 And restart your containers:
 
 ```
-docker-compose --env-file production.env up -d
+docker-compose --env-file docker/production.env up -d
 ``` 

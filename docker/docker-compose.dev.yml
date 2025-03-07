@@ -19,8 +19,8 @@ services:
   web:
     # Build locally for development
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     depends_on:
       db:
         condition: service_healthy

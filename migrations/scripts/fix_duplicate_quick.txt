@@ -1,0 +1,23 @@
+# Quick Fix for Duplicate Migration Revision Warning
+
+The warning about duplicate revision ID (8395c7dd69b4) can often be resolved by 
+simply stamping the database with the current head revision.
+
+## Quick fix (try this first)
+
+Run this command:
+```
+docker exec petmate flask db stamp head
+```
+
+Then run your migrations again:
+```
+docker exec petmate flask db upgrade
+```
+
+This tells Alembic to mark the current database state as being at the "head" 
+revision, which can resolve the duplicate revision issue if it's just a warning 
+and the migrations have actually been applied correctly.
+
+If this doesn't work, run the fix_duplicate_migrations.ps1 script for more detailed
+diagnostics and additional solutions. 

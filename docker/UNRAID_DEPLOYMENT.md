@@ -14,12 +14,12 @@ This guide provides step-by-step instructions for deploying the PetMate applicat
 
 The following files are essential for deployment:
 
-- `docker-compose.yml`: Main container configuration
-- `production.env`: Environment variables for production
+- `docker/docker-compose.yml`: Main container configuration
+- `docker/production.env`: Environment variables for production
 - Support scripts:
-  - `run_migrations.ps1`/`run_migrations.sh`: For database setup
-  - `reset_db.ps1`: For resetting the database if needed
-  - `check_status.ps1`: For checking container status
+  - `migrations/scripts/run_migrations.ps1`/`migrations/scripts/run_migrations.sh`: For database setup
+  - `migrations/scripts/reset_db.ps1`: For resetting the database if needed
+  - `migrations/scripts/check_status.ps1`: For checking container status
 
 ### 2. Transfer Files to Unraid Server
 
@@ -30,7 +30,7 @@ The following files are essential for deployment:
 
 2. Transfer the necessary files:
    ```bash
-   scp docker-compose.yml production.env run_migrations.sh user@unraid-server:/mnt/user/appdata/petmate/
+   scp docker/docker-compose.yml docker/production.env migrations/scripts/run_migrations.sh user@unraid-server:/mnt/user/appdata/petmate/
    ```
 
 3. Connect to your Unraid server:
@@ -210,30 +210,3 @@ Make sure data persists across container updates:
      postgres_data:
        name: petmate_postgres_data
    ```
-
-2. Mount uploads directory to Unraid storage:
-   ```yaml
-   volumes:
-     - /mnt/user/appdata/petmate/uploads:/app/uploads
-   ```
-
-### Resource Limits
-
-Set appropriate resource limits for your Unraid server:
-
-```yaml
-services:
-  web:
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-```
-
-## Security Considerations
-
-1. Never expose the PostgreSQL port (5432) directly to the internet
-2. Consider placing the application behind a reverse proxy with HTTPS
-3. Regularly update the Docker images to get security updates
-4. Use strong, unique passwords for all services
-5. Keep your .env file secure and never commit it to version control 

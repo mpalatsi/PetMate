@@ -1,0 +1,66 @@
+# Manual Steps to Fix Multiple Migration Heads
+
+If you're experiencing the "Multiple head revisions are present" error, follow these steps:
+
+## Step 1: Identify the multiple heads
+
+Run this command to see all migration heads:
+```
+docker exec <your-web-container-name> flask db heads
+```
+
+This will show output like:
+```
+<revision_id1> (head)
+<revision_id2> (head)
+```
+
+## Step 2: Create a merge migration
+
+Run this command to create a merge migration that combines all the heads:
+```
+docker exec <your-web-container-name> flask db merge -m "Merge multiple heads"
+```
+
+This creates a new migration file that links all the previous heads.
+
+## Step 3: Apply the merge migration
+
+Run this command to apply the merge migration:
+```
+docker exec <your-web-container-name> flask db upgrade
+```
+
+## Step 4: Verify the fix
+
+Run this command to check the current migration version:
+```
+docker exec <your-web-container-name> flask db current
+```
+
+You should now see a single current revision.
+
+## If the above doesn't work
+
+You can manually specify a revision to upgrade to:
+```
+docker exec <your-web-container-name> flask db upgrade <specific_revision_id>
+```
+
+Replace <specific_revision_id> with one of the revision IDs shown in the "heads" command.
+
+## Alternative approach: Recreate the migrations
+
+If merging doesn't work, you can start fresh with migrations:
+
+1. Backup your database data if needed
+2. Drop all tables in your database
+3. Delete the migrations folder in your project
+4. Run: 
+   ```
+   docker exec <your-web-container-name> flask db init
+   docker exec <your-web-container-name> flask db migrate -m "Fresh start"
+   docker exec <your-web-container-name> flask db upgrade
+   ```
+
+This creates a clean migration history but requires rebuilding your database from scratch. 

@@ -1,37 +1,45 @@
 # PowerShell script to check the status of the Docker containers and PostgreSQL database
 
 Write-Host "Checking Docker container status..." -ForegroundColor Cyan
-docker ps -a --filter "name=petmate"
+docker ps -a | Select-String "petmate"
 
-# Get web container name
-$webContainer = docker ps --filter "name=petmate" --filter "name=web" --format "{{.Names}}"
-$dbContainer = docker ps --filter "name=petmate" --filter "name=db" --format "{{.Names}}"
+# Use the specific container names
+$webContainer = "petmate"
+$dbContainer = "petmate_db"
 
-if (-not $webContainer) {
+Write-Host "Web container: $webContainer" -ForegroundColor Cyan
+Write-Host "DB container: $dbContainer" -ForegroundColor Cyan
+
+# Check if containers are running
+$webRunning = docker ps | Select-String $webContainer
+$dbRunning = docker ps | Select-String $dbContainer
+
+if (-not $webRunning) {
     Write-Host "Web container not found or not running." -ForegroundColor Red
 } else {
     Write-Host "`nWeb container logs (last 10 lines):" -ForegroundColor Cyan
     docker logs --tail 10 $webContainer
 }
 
-if (-not $dbContainer) {
+if (-not $dbRunning) {
     Write-Host "`nDatabase container not found or not running." -ForegroundColor Red
 } else {
     Write-Host "`nDatabase container status:" -ForegroundColor Cyan
     
     # Check if the database is running and tables exist
-    $tablesExist = docker exec -it $dbContainer psql -U petmate -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users');" 2>&1
+    $tablesExist = docker exec $dbContainer psql -U petmate -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users');" petmate 2>&1
     
     if ($tablesExist -match "t") {
         Write-Host "Database is running and users table exists." -ForegroundColor Green
         
         # Check number of users
-        $userCount = docker exec -it $dbContainer psql -U petmate -c "SELECT COUNT(*) FROM users;" 2>&1
+        $userCount = docker exec $dbContainer psql -U petmate -c "SELECT COUNT(*) FROM users;" petmate 2>&1
         if ($userCount -match "\d+") {
             Write-Host "Number of users in database: $($Matches[0])" -ForegroundColor Green
         }
     } else {
-        Write-Host "Database is running but users table does not exist. You need to run migrations." -ForegroundColor Yellow
+        Write-Host "Database is running but users table does not exist or couldn't check. You may need to run migrations." -ForegroundColor Yellow
+        Write-Host "Result of check: $tablesExist" -ForegroundColor Yellow
     }
 }
 
