@@ -121,12 +121,12 @@
             <a href="{{ url_for('pets.my_pets') }}"><i class="fas fa-paw"></i> My Pets</a>
             <a href="{{ url_for('playdates.schedule_playdate') }}"><i class="fas fa-calendar-plus"></i> Schedule Playdate</a>
             <a href="{{ url_for('main.dashboard') }}" class="active"><i class="fas fa-user"></i> My Profile</a>
-            <a href="{{ url_for('messages.messages') }}"><i class="fas fa-envelope"></i> Messages 
+            <a href="{{ url_for('messages.new_message') }}"><i class="fas fa-envelope"></i> Messages 
                 {% if unread_messages > 0 %}
                 <span class="badge">{{ unread_messages }}</span>
                 {% endif %}
             </a>
-            <a href="{{ url_for('main.gallery') }}"><i class="fas fa-images"></i> Gallery</a>
+            <a href="{{ url_for('gallery.index') }}"><i class="fas fa-images"></i> Gallery</a>
             <div class="menu-divider"></div>
             <a href="{{ url_for('main.dashboard') }}?mode=desktop"><i class="fas fa-desktop"></i> Desktop Version</a>
             <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -279,7 +279,7 @@
                 <i class="fas fa-calendar-plus"></i>
                 <span>Schedule Playdate</span>
             </a>
-            <a href="{{ url_for('main.gallery') }}" class="action-btn">
+            <a href="{{ url_for('gallery.index') }}" class="action-btn">
                 <i class="fas fa-images"></i>
                 <span>Photo Gallery</span>
             </a>

@@ -46,17 +46,21 @@ def create_app(config_class=Config):
     """
     # Explicitly set template_folder to app/templates
     template_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+    static_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static')
     app = Flask(__name__, 
-                static_folder='static', 
+                static_folder=static_folder, 
                 static_url_path='/static',
                 template_folder=template_folder)
     app.config.from_object(config_class)
     
     # Print template folder location for debugging
-    print(f"Flask template folders:")
-    print(f"1. app.template_folder = {app.template_folder}")
-    print(f"2. app.jinja_loader.searchpath = {app.jinja_loader.searchpath}")
+    print(f"Flask template folder: {app.template_folder}")
     print(f"Current working directory: {os.getcwd()}")
+    
+    # Ensure only app/templates is used for templates
+    if os.path.exists(os.path.join(os.getcwd(), 'templates')):
+        print("Warning: Found templates directory in project root which may cause conflicts.")
+        print("Consider moving all templates to app/templates for consistency.")
     
     # Initialize extensions with the app
     db.init_app(app)
@@ -126,6 +130,10 @@ def create_app(config_class=Config):
     from app.routes.admin import bp as admin_bp
     app.register_blueprint(admin_bp, url_prefix='/admin')
     
+    # Register new gallery blueprint
+    from app.routes.gallery import bp as gallery_bp
+    app.register_blueprint(gallery_bp)
+    
     # Register WebSocket events
     from app.routes.websockets import register_socket_events
     register_socket_events(socketio)
@@ -178,5 +186,8 @@ def create_app(config_class=Config):
         from app.models.emergency_contact import EmergencyContact
         from app.models.incident_report import IncidentReport
         from app.models.user_verification import UserVerification
+        from app.models.photo_like import PhotoLike
+        from app.models.photo_comment import PhotoComment
+        from app.models.photo_report import PhotoReport
     
     return app 

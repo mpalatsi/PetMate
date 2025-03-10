@@ -1,342 +1,299 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+{% extends "base_minimal.html" %}
+
+{% block title %}PetMate Mobile{% endblock %}
+
+{% block head %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="color-scheme" content="light only">
-    <meta name="theme-color" content="#6B8E6B">
-    <title>{% block title %}PetMate{% endblock %} - PetMate</title>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Base CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pet-avatars.css') }}">
-    <!-- Standardized Mobile Header CSS -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pet-avatars.css') }}">
+
+    <!-- Allow child templates to add extra head content -->
+    {% block extra_head %}{% endblock %}
+    
     <style>
-        :root {
-            --primary-color: #4A90E2;
-            --secondary-color: #F5A623;
-            --accent-color: #50E3C2;
-            --danger-color: #E74C3C;
-            --success-color: #2ECC71;
-            --warning-color: #F39C12;
-            --info-color: #3498DB;
-            --light-color: #F8F9FA;
-            --dark-color: #343A40;
-            --gray-color: #6C757D;
-            --light-gray-color: #E9ECEF;
-            --white-color: #FFFFFF;
-            --black-color: #000000;
-            --border-radius: 8px;
-            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        * {
+        body {
             margin: 0;
             padding: 0;
+            background-color: #f4f4f4;
+            font-family: 'Poppins', sans-serif;
+            padding-bottom: 60px; /* Space for bottom nav */
+        }
+        
+        .mobile-header {
+            background: linear-gradient(135deg, #6B8E6B, #2C4C2C);
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 56px;
             box-sizing: border-box;
         }
         
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            padding-bottom: 70px; /* Space for mobile footer */
-            max-width: 100%;
-            overflow-x: hidden;
+        .mobile-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            flex-grow: 1;
         }
         
-        .container {
-            width: 100%;
-            padding: 0 15px;
-            margin: 0 auto;
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 0;
+            margin-right: 10px;
+            cursor: pointer;
         }
         
-        /* Mobile Footer Navigation */
+        .menu-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 0;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        
         .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 56px;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            z-index: 99;
+        }
+        
+        .mobile-nav.open {
+            display: block;
+        }
+        
+        .mobile-nav-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: block;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .mobile-bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background-color: white;
+            background: white;
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
         }
         
-        .nav-item {
+        .mobile-nav-button {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: var(--gray-color);
+            padding: 8px 0;
+            color: #6B8E6B;
             text-decoration: none;
-            font-size: 0.7rem;
-            padding: 5px;
         }
         
-        .nav-item i {
-            font-size: 1.2rem;
+        .mobile-nav-button i {
+            font-size: 1.4rem;
             margin-bottom: 3px;
         }
         
-        .nav-item.active {
-            color: var(--primary-color);
+        .mobile-nav-label {
+            font-size: 0.7rem;
+            font-weight: 500;
         }
         
-        /* Main Content Area */
         .main-content {
+            margin-top: 56px;
             padding: 15px;
-            margin-bottom: 60px;
         }
         
-        /* Buttons */
+        .content-with-header {
+            padding-top: 60px;
+        }
+        
+        /* General utility classes */
+        .text-center {
+            text-align: center;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .mt-3 {
+            margin-top: 1rem;
+        }
+        
+        .container {
+            padding: 0 15px;
+        }
+        
+        /* Form styles for consistent mobile experience */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        
+        .form-control-file {
+            width: 100%;
+            padding: 10px 0;
+            font-size: 14px;
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-check-input {
+            margin-right: 8px;
+        }
+        
+        .form-check-label {
+            font-size: 15px;
+        }
+        
         .btn {
             display: inline-block;
             font-weight: 500;
             text-align: center;
-            white-space: nowrap;
-            vertical-align: middle;
-            user-select: none;
-            border: 1px solid transparent;
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-            line-height: 1.5;
-            border-radius: var(--border-radius);
-            transition: all 0.2s ease-in-out;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
+            font-size: 16px;
+            transition: all 0.2s;
         }
         
         .btn-primary {
-            background-color: var(--primary-color);
+            background-color: #6B8E6B;
             color: white;
         }
         
-        .btn-secondary {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-        
-        .btn-success {
-            background-color: var(--success-color);
-            color: white;
-        }
-        
-        .btn-danger {
-            background-color: var(--danger-color);
-            color: white;
-        }
-        
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--gray-color);
-            color: var(--gray-color);
-        }
-        
-        .btn-block {
-            display: block;
-            width: 100%;
-        }
-        
-        /* Flash Messages */
-        .flash-messages {
-            margin-bottom: 15px;
-        }
-        
-        .flash-message {
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border-radius: var(--border-radius);
-            font-size: 0.9rem;
-        }
-        
-        .flash-success {
-            background-color: rgba(46, 204, 113, 0.2);
-            border: 1px solid var(--success-color);
-            color: var(--success-color);
-        }
-        
-        .flash-error {
-            background-color: rgba(231, 76, 60, 0.2);
-            border: 1px solid var(--danger-color);
-            color: var(--danger-color);
-        }
-        
-        .flash-info {
-            background-color: rgba(52, 152, 219, 0.2);
-            border: 1px solid var(--info-color);
-            color: var(--info-color);
-        }
-        
-        .flash-warning {
-            background-color: rgba(243, 156, 18, 0.2);
-            border: 1px solid var(--warning-color);
-            color: var(--warning-color);
-        }
-        
-        /* Touch Ripple Effect */
-        .ripple {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: scale(0);
-            animation: ripple 0.6s linear;
-            pointer-events: none;
-        }
-        
-        @keyframes ripple {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
+        .btn-primary:hover {
+            background-color: #5D7D5D;
         }
     </style>
-    {% block styles %}{% endblock %}
-</head>
-<body>
-    {% block header %}
+{% endblock %}
+
+{% block body %}
+    <!-- Mobile Header -->
     <header class="mobile-header">
-        <button class="back-button" onclick="history.back()">
+        <button class="back-button" onclick="goBack()">
             <i class="fas fa-arrow-left"></i>
         </button>
-        <h1>{% block header_title %}PetMate{% endblock %}</h1>
-        <button class="menu-button" id="main-menu-toggle">
+        <div class="mobile-title">
+            {% block header_title %}PetMate{% endblock %}
+        </div>
+        <button class="menu-button" id="menuButton">
             <i class="fas fa-bars"></i>
         </button>
     </header>
     
-    <!-- Main Navigation Menu -->
-    <div class="main-menu-overlay" id="main-menu-overlay"></div>
-    <div class="main-menu" id="main-menu">
-        <div class="main-menu-header">
-            <h3>Menu</h3>
-            <button class="close-main-menu" id="close-main-menu">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="main-menu-links">
-            <a href="{{ url_for('main.index') }}" class="main-menu-link">
-                <i class="fas fa-home"></i> Home
-            </a>
-            <a href="{{ url_for('main.search') }}" class="main-menu-link">
-                <i class="fas fa-search"></i> Find Playmates
-            </a>
-            <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
-                <i class="fas fa-paw"></i> My Pets
-            </a>
-            <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
-                <i class="fas fa-calendar-plus"></i> Schedule Playdate
-            </a>
-            {% if 'username' in session %}
-                <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
-                    <i class="fas fa-user"></i> My Dashboard
-                </a>
-                <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
-                    <i class="fas fa-envelope"></i> Messages
-                    {% if unread_messages and unread_messages > 0 %}
-                    <span class="badge">{{ unread_messages }}</span>
-                    {% endif %}
-                </a>
-                <a href="{{ url_for('main.gallery') }}" class="main-menu-link">
-                    <i class="fas fa-images"></i> Gallery
-                </a>
-                <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            {% else %}
-                <a href="{{ url_for('auth.login') }}" class="main-menu-link">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </a>
-                <a href="{{ url_for('auth.register') }}" class="main-menu-link">
-                    <i class="fas fa-user-plus"></i> Register
-                </a>
-            {% endif %}
-        </div>
+    <!-- Mobile Navigation Menu -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="{{ url_for('main.mobile_index') }}" class="mobile-nav-item">Home</a>
+        <a href="{{ url_for('gallery.index') }}" class="mobile-nav-item">Gallery</a>
+        <a href="{{ url_for('main.view_playdates') }}" class="mobile-nav-item">Playdates</a>
+        <a href="{{ url_for('main.profile') }}" class="mobile-nav-item">Profile</a>
+        {% if session.get('username') %}
+            <a href="{{ url_for('auth.logout') }}" class="mobile-nav-item">Logout</a>
+        {% else %}
+            <a href="{{ url_for('auth.login') }}" class="mobile-nav-item">Login</a>
+        {% endif %}
     </div>
-    {% endblock %}
     
-    <div class="container content-with-header">
+    <!-- Main Content -->
+    <div class="main-content">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="flash-messages-container">
-                    {% for category, message in messages %}
-                        <div class="flash-message flash-{{ category }}">
-                            <div class="flash-content">
-                                <i class="fas {% if category == 'error' %}fa-exclamation-circle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
-                                <span>{{ message }}</span>
-                            </div>
-                            <button class="close-flash" onclick="this.parentElement.style.display='none';">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    {% endfor %}
-                </div>
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
             {% endif %}
         {% endwith %}
         
-        <div class="main-content">
-            {% block content %}{% endblock %}
-        </div>
+        {% block content %}{% endblock %}
     </div>
     
-    {% block footer %}
-    {% endblock %}
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <a href="{{ url_for('main.mobile_index') }}" class="mobile-nav-button">
+            <i class="fas fa-home"></i>
+            <span class="mobile-nav-label">Home</span>
+        </a>
+        <a href="{{ url_for('gallery.index') }}" class="mobile-nav-button">
+            <i class="fas fa-images"></i>
+            <span class="mobile-nav-label">Gallery</span>
+        </a>
+        <a href="{{ url_for('gallery.mobile_upload_photo') }}" class="mobile-nav-button">
+            <i class="fas fa-plus-circle"></i>
+            <span class="mobile-nav-label">Upload</span>
+        </a>
+        <a href="{{ url_for('main.view_playdates') }}" class="mobile-nav-button">
+            <i class="fas fa-calendar"></i>
+            <span class="mobile-nav-label">Playdates</span>
+        </a>
+        <a href="{{ url_for('main.profile') }}" class="mobile-nav-button">
+            <i class="fas fa-user"></i>
+            <span class="mobile-nav-label">Profile</span>
+        </a>
+    </nav>
     
-    {% block scripts %}
     <script>
-        // Menu Toggle
+        // Menu toggle
+        document.getElementById('menuButton').addEventListener('click', function() {
+            document.getElementById('mobileNav').classList.toggle('open');
+        });
+        
+        // Back button
+        function goBack() {
+            window.history.back();
+        }
+        
+        // Handle alert dismissal
         document.addEventListener('DOMContentLoaded', function() {
-            const menuToggle = document.getElementById('main-menu-toggle');
-            const closeMenu = document.getElementById('close-main-menu');
-            const menuOverlay = document.getElementById('main-menu-overlay');
-            const mainMenu = document.getElementById('main-menu');
-            
-            if (menuToggle && closeMenu && menuOverlay && mainMenu) {
-                menuToggle.addEventListener('click', function() {
-                    mainMenu.classList.add('active');
-                    menuOverlay.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                });
-                
-                function closeMainMenu() {
-                    mainMenu.classList.remove('active');
-                    menuOverlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-                
-                closeMenu.addEventListener('click', closeMainMenu);
-                menuOverlay.addEventListener('click', closeMainMenu);
-            }
-            
-            // Add ripple effect to buttons
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    const x = e.clientX - e.target.getBoundingClientRect().left;
-                    const y = e.clientY - e.target.getBoundingClientRect().top;
-                    
-                    const ripple = document.createElement('span');
-                    ripple.classList.add('ripple');
-                    ripple.style.left = `${x}px`;
-                    ripple.style.top = `${y}px`;
-                    
-                    this.appendChild(ripple);
-                    
-                    setTimeout(() => {
-                        ripple.remove();
-                    }, 600);
-                });
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.opacity = '0';
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                    }, 500);
+                }, 5000);
             });
         });
     </script>
-    {% endblock %}
-</body>
-</html> 
+    
+    {% block scripts %}{% endblock %}
+{% endblock %} 

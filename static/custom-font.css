@@ -1,0 +1,47 @@
+@font-face {
+    font-family: 'BlackFriday';
+    src: url('Black Friday.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Apply the custom font to the entire PetMate logo text with stronger specificity */
+nav .logo-text,
+.mobile-header h1,
+header.mobile-header h1 {
+    font-family: 'BlackFriday', 'Quicksand', sans-serif !important;
+    font-weight: normal;
+    letter-spacing: 1px;
+}
+
+/* Apply to the highlight part as well with increased specificity */
+nav .logo-text .highlight,
+.mobile-header h1 .highlight {
+    font-family: 'BlackFriday', 'Quicksand', sans-serif !important;
+    font-weight: normal;
+}
+
+/* View Toggle Styles */
+.view-toggle {
+    text-align: center;
+    padding: 15px 0;
+    background-color: rgba(124, 144, 130, 0.1);
+    margin-top: 30px;
+}
+
+.view-toggle a {
+    display: inline-block;
+    color: #7C9082;
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 5px 15px;
+    border: 1px solid #7C9082;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.view-toggle a:hover {
+    background-color: #7C9082;
+    color: white;
+} 

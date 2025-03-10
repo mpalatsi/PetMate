@@ -492,14 +492,14 @@
         {% if photos %}
             <div class="photo-grid">
                 {% for photo in photos %}
-                    <div class="photo-item" data-src="{{ url_for('static', filename='playdate_photos/' + photo.photo_path) }}" data-username="{% if photo.user %}{{ photo.user.username }}{% else %}Unknown{% endif %}" data-date="{{ photo.created_at.strftime('%B %d, %Y') }}">
+                    <div class="photo-item" data-src="{{ url_for('static', filename='playdate_photos/' + photo.photo_path) }}" data-username="{% if photo.uploader %}{{ photo.uploader.username }}{% else %}Unknown{% endif %}" data-date="{{ photo.created_at.strftime('%B %d, %Y') }}">
                         <img src="{{ url_for('static', filename='playdate_photos/' + photo.photo_path) }}" alt="Playdate photo">
                         
                         <div class="photo-info">
                             <div class="uploader-name">
                                 <i class="fas fa-user"></i>
-                                {% if photo.user %}
-                                    {{ photo.user.username }}
+                                {% if photo.uploader %}
+                                    {{ photo.uploader.username }}
                                 {% else %}
                                     Unknown
                                 {% endif %}

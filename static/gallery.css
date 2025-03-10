@@ -1,0 +1,382 @@
+/* Photo Gallery Styling */
+.gallery-container {
+    padding: 40px 0;
+    background-color: #f8f9fa;
+    min-height: 80vh;
+}
+
+.gallery-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.gallery-header h1 {
+    color: var(--sage-green);
+    font-weight: 700;
+    margin-bottom: 10px;
+    position: relative;
+    display: inline-block;
+}
+
+.gallery-header h1:after {
+    content: '';
+    display: block;
+    width: 60%;
+    height: 3px;
+    background-color: var(--sage-green);
+    margin: 10px auto 0;
+}
+
+/* Navigation tabs */
+.gallery-nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    gap: 15px;
+}
+
+.gallery-tab {
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #f5f5f5;
+    color: #444;
+    border: 2px solid #e0e0e0;
+    font-size: 1.1rem;
+    min-width: 160px;
+    text-align: center;
+}
+
+.gallery-tab.active {
+    background-color: var(--sage-green);
+    color: white;
+    border-color: var(--sage-green);
+}
+
+.gallery-tab:hover:not(.active) {
+    border-color: var(--sage-green);
+    background-color: white;
+    color: var(--sage-green);
+}
+
+.gallery-section {
+    display: none;
+}
+
+.gallery-section.active {
+    display: block;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Photo grid layout */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+/* Photo card styling */
+.photo-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.photo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.photo-img-container {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+}
+
+.gallery-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.photo-card:hover .gallery-photo {
+    transform: scale(1.05);
+}
+
+.photo-content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.photo-title {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--deep-forest);
+    font-size: 1.2rem;
+}
+
+.photo-description {
+    color: var(--text-muted);
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    flex-grow: 1;
+}
+
+.photo-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-light);
+    padding-top: 12px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.photo-actions {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.photo-card:hover .photo-actions {
+    opacity: 1;
+}
+
+.action-btn {
+    background: rgba(255, 255, 255, 0.85);
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-dark);
+}
+
+.action-btn:hover {
+    background: white;
+    transform: scale(1.1);
+}
+
+.edit-btn:hover {
+    color: var(--info);
+}
+
+.visibility-btn:hover {
+    color: var(--warning);
+}
+
+.delete-btn:hover {
+    color: var(--error);
+}
+
+.private-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    background: white;
+    border-radius: 12px;
+    margin-top: 30px;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: var(--border-medium);
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    color: var(--text-dark);
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: var(--text-muted);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.upload-btn {
+    display: inline-block;
+    background: var(--sage-green);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+    background: var(--deep-forest);
+    transform: translateY(-2px);
+}
+
+/* Debug info */
+.debug-info {
+    margin-top: 30px;
+    padding: 15px;
+    background: #f0f0f0;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .gallery-container {
+        padding: 20px 10px;
+    }
+    
+    .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 15px;
+    }
+    
+    .gallery-tab {
+        min-width: 120px;
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+    
+    .photo-card {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+    }
+    
+    .photo-card:active {
+        transform: scale(0.98);
+    }
+    
+    /* Improve touch targets for actions */
+    .action-btn {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 8px 12px;
+        margin: 0 5px;
+    }
+    
+    /* Improve single photo view on mobile */
+    .single-photo-container {
+        margin: 0 10px;
+    }
+    
+    .photo-header {
+        padding: 1rem;
+    }
+    
+    .single-photo-info {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .gallery-nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .gallery-tab {
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+    }
+    
+    .photo-card {
+        max-width: 350px;
+        margin: 0 auto 20px;
+    }
+    
+    /* Standardize photo card sizes */
+    .photo-img-container {
+        height: 220px; /* Fixed height for all image containers */
+        overflow: hidden;
+    }
+    
+    .gallery-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ensures the image covers the area while maintaining aspect ratio */
+    }
+    
+    .photo-content {
+        padding: 12px;
+        min-height: 80px; /* Ensure minimum height for content area */
+    }
+    
+    .photo-meta {
+        flex-wrap: wrap;
+    }
+    
+    /* Make lightbox more mobile-friendly */
+    .lightbox-img {
+        max-width: 90vw;
+        max-height: 80vh;
+    }
+    
+    .lightbox-caption {
+        max-width: 90vw;
+        font-size: 0.9rem;
+    }
+}
+
+/* Fix empty state on mobile */
+@media (max-width: 768px) {
+    .empty-state {
+        padding: 30px 15px;
+    }
+    
+    .upload-btn {
+        width: 100%;
+        max-width: 220px;
+        padding: 12px 20px;
+    }
+} 

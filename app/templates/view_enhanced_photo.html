@@ -1,0 +1,786 @@
+{% extends "base.html" %}
+
+{% block title %}{{ photo.title or 'Photo' }} - PetMate{% endblock %}
+
+{% block extra_head %}
+<style>
+    .photo-view-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .photo-view-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .back-link {
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .back-link:hover {
+        text-decoration: underline;
+    }
+    
+    .photo-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn {
+        padding: 8px 15px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        text-decoration: none;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+    }
+    
+    .btn-outline {
+        background-color: transparent;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+    }
+    
+    .btn-danger {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+    }
+    
+    .photo-content {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .photo-main {
+        flex: 2;
+    }
+    
+    .photo-details {
+        flex: 1;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .photo-image-container {
+        background: #fff;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        position: relative;
+    }
+    
+    .photo-image {
+        width: 100%;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .photo-image img {
+        width: 100%;
+        display: block;
+    }
+    
+    .photo-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        z-index: 1;
+    }
+    
+    .badge-private {
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+    }
+    
+    .badge-featured {
+        background-color: rgba(255, 193, 7, 0.9);
+        color: #333;
+    }
+    
+    .photo-title {
+        font-size: 1.5rem;
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    
+    .photo-description {
+        color: #666;
+        margin-bottom: 20px;
+    }
+    
+    .photo-meta {
+        margin-bottom: 20px;
+    }
+    
+    .meta-row {
+        display: flex;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .meta-label {
+        width: 100px;
+        color: #666;
+        font-weight: 500;
+    }
+    
+    .meta-value {
+        flex: 1;
+        color: #333;
+    }
+    
+    .photo-stats {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #666;
+    }
+    
+    .stat-item i {
+        font-size: 1.2rem;
+    }
+    
+    .stat-count {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .interaction-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .interaction-btn {
+        flex: 1;
+        padding: 10px;
+        border-radius: 20px;
+        border: none;
+        background: #f5f5f5;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: #666;
+        font-weight: 500;
+        transition: background-color 0.2s ease, color 0.2s ease;
+        min-width: 120px;
+        height: 40px;
+        white-space: nowrap;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+    
+    .interaction-btn:hover {
+        background-color: #ebebeb;
+    }
+    
+    .interaction-btn.active {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .share-options {
+        margin-top: 20px;
+    }
+    
+    .share-title {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    
+    .share-link-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .share-link {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        background: #f9f9f9;
+    }
+    
+    .copy-btn {
+        padding: 8px 15px;
+        border: none;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    
+    .social-share {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .social-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+    
+    .facebook {
+        background-color: #3b5998;
+    }
+    
+    .twitter {
+        background-color: #1da1f2;
+    }
+    
+    .email {
+        background-color: #dd4b39;
+    }
+    
+    .whatsapp {
+        background-color: #25d366;
+    }
+    
+    /* Comments section */
+    .comments-section {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+        margin: 0 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--primary-color);
+        color: #333;
+    }
+    
+    .comment-form {
+        margin-bottom: 30px;
+    }
+    
+    .comment-input {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        font-family: inherit;
+        font-size: 1rem;
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .comment-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .comment-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    
+    .comment-item {
+        padding: 15px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .comment-item:last-child {
+        border-bottom: none;
+    }
+    
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    
+    .comment-user {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .comment-date {
+        font-size: 0.9rem;
+        color: #999;
+    }
+    
+    .comment-content {
+        color: #666;
+        line-height: 1.5;
+    }
+    
+    /* Report Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        background-color: white;
+        border-radius: 8px;
+        max-width: 500px;
+        width: 100%;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .modal-title {
+        font-size: 1.3rem;
+        margin: 0;
+        color: #333;
+    }
+    
+    .close {
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #999;
+        line-height: 1;
+    }
+    
+    .modal-body {
+        margin-bottom: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 1rem;
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .photo-content {
+            flex-direction: column;
+        }
+        
+        .photo-main, .photo-details {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="photo-view-container">
+    <div class="photo-view-header">
+        <a href="{{ url_for('gallery.index') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Gallery
+        </a>
+        
+        {% if photo.user_id == user.id %}
+        <div class="photo-actions">
+            <a href="{{ url_for('gallery.edit_photo', photo_id=photo.id) }}" class="btn btn-outline">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <button class="btn btn-danger" id="delete-photo-btn">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="photo-content">
+        <div class="photo-main">
+            <div class="photo-image-container">
+                <div class="photo-image">
+                    <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" 
+                         alt="{{ photo.title or 'Pet photo' }}">
+                </div>
+                
+                {% if photo.featured %}
+                <div class="photo-badge badge-featured">
+                    <i class="fas fa-star"></i> Featured
+                </div>
+                {% endif %}
+                
+                {% if not photo.is_public %}
+                <div class="photo-badge badge-private">
+                    <i class="fas fa-lock"></i> Private
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="comments-section">
+                <h2 class="section-title" id="comment-section">Comments ({{ comments|length }})</h2>
+                
+                <form class="comment-form" method="POST" action="{{ url_for('gallery.add_comment', photo_id=photo.id) }}">
+                    <textarea name="comment" placeholder="Add a comment..." class="comment-input" required></textarea>
+                    <div class="comment-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Post Comment
+                        </button>
+                    </div>
+                </form>
+                
+                {% if comments %}
+                <ul class="comment-list">
+                    {% for comment in comments %}
+                    <li class="comment-item">
+                        <div class="comment-header">
+                            <span class="comment-user">{{ comment.user.username }}</span>
+                            <span class="comment-date">{{ comment.created_at.strftime('%b %d, %Y at %H:%M') }}</span>
+                        </div>
+                        <div class="comment-content">
+                            {{ comment.comment }}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="no-comments">
+                    <p>No comments yet. Be the first to comment!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="photo-details">
+            <h1 class="photo-title">{{ photo.title or 'Untitled Photo' }}</h1>
+            
+            {% if photo.description %}
+            <div class="photo-description">
+                {{ photo.description }}
+            </div>
+            {% endif %}
+            
+            <div class="photo-meta">
+                <div class="meta-row">
+                    <div class="meta-label">Uploaded by:</div>
+                    <div class="meta-value">{{ photo.uploader.username }}</div>
+                </div>
+                
+                <div class="meta-row">
+                    <div class="meta-label">Date:</div>
+                    <div class="meta-value">{{ photo.created_at.strftime('%b %d, %Y') }}</div>
+                </div>
+                
+                {% if photo.pet %}
+                <div class="meta-row">
+                    <div class="meta-label">Pet:</div>
+                    <div class="meta-value">{{ photo.pet.name }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="meta-row">
+                    <div class="meta-label">Visibility:</div>
+                    <div class="meta-value">{% if photo.is_public %}Public{% else %}Private{% endif %}</div>
+                </div>
+            </div>
+            
+            <div class="photo-stats">
+                <div class="stat-item">
+                    <i class="fas fa-heart"></i>
+                    <span class="stat-count" id="like-count">{{ like_count }}</span>
+                    <span>Likes</span>
+                </div>
+                
+                <div class="stat-item">
+                    <i class="fas fa-comment"></i>
+                    <span class="stat-count">{{ comments|length }}</span>
+                    <span>Comments</span>
+                </div>
+                
+                <div class="stat-item">
+                    <i class="fas fa-eye"></i>
+                    <span class="stat-count">{{ photo.view_count }}</span>
+                    <span>Views</span>
+                </div>
+            </div>
+            
+            <div class="interaction-buttons">
+                <button class="interaction-btn {% if user_like %}active{% endif %}" id="like-btn">
+                    <i class="fas fa-heart"></i> {% if user_like %}Liked{% else %}Like{% endif %}
+                </button>
+                
+                <button class="interaction-btn" id="comment-btn">
+                    <i class="fas fa-comment"></i> Comment
+                </button>
+                
+                {% if photo.user_id != user.id %}
+                <button class="interaction-btn" id="report-btn">
+                    <i class="fas fa-flag"></i> Report
+                </button>
+                {% endif %}
+            </div>
+            
+            <div class="share-options">
+                <h3 class="share-title">Share this photo</h3>
+                
+                <div class="share-link-container">
+                    <input type="text" class="share-link" id="share-link" value="{{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True) }}" readonly>
+                    <button class="copy-btn" id="copy-link-btn">Copy</button>
+                </div>
+                
+                <div class="social-share">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True) | urlencode }}" target="_blank" class="social-btn facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    
+                    <a href="https://twitter.com/intent/tweet?url={{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True) | urlencode }}&text=Check%20out%20this%20amazing%20pet%20photo!" target="_blank" class="social-btn twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    
+                    <a href="mailto:?subject=Check out this amazing pet photo!&body=I found this great pet photo on PetMate and wanted to share it with you: {{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True) }}" class="social-btn email">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                    
+                    <a href="https://wa.me/?text=Check out this amazing pet photo! {{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True) }}" target="_blank" class="social-btn whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="delete-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Confirm Deletion</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete this photo? This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="cancel-delete">Cancel</button>
+            <form method="POST" action="{{ url_for('gallery.delete_photo', photo_id=photo.id) }}">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal" id="report-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Report Photo</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form method="POST" action="{{ url_for('gallery.report_photo', photo_id=photo.id) }}" id="report-form">
+                <div class="form-group">
+                    <label class="form-label">Why are you reporting this photo?</label>
+                    <select name="reason" class="form-control" required>
+                        <option value="">Select a reason</option>
+                        <option value="inappropriate">Inappropriate content</option>
+                        <option value="offensive">Offensive or harmful</option>
+                        <option value="spam">Spam or misleading</option>
+                        <option value="violation">Violates community guidelines</option>
+                        <option value="copyright">Copyright violation</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Additional details (optional)</label>
+                    <textarea name="details" class="form-control" placeholder="Please provide any additional information that might help us understand your report."></textarea>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="cancel-report">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Like functionality
+        const likeBtn = document.getElementById('like-btn');
+        const likeCount = document.getElementById('like-count');
+        
+        likeBtn.addEventListener('click', function() {
+            fetch('{{ url_for("gallery.like_photo", photo_id=photo.id) }}', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update like count
+                likeCount.textContent = data.like_count;
+                
+                // Update button state
+                if (data.action === 'liked') {
+                    likeBtn.classList.add('active');
+                    likeBtn.innerHTML = '<i class="fas fa-heart"></i> Liked';
+                } else {
+                    likeBtn.classList.remove('active');
+                    likeBtn.innerHTML = '<i class="fas fa-heart"></i> Like';
+                }
+            });
+        });
+        
+        // Comment button scrolls to comment section
+        const commentBtn = document.getElementById('comment-btn');
+        const commentSection = document.getElementById('comment-section');
+        
+        commentBtn.addEventListener('click', function() {
+            commentSection.scrollIntoView({ behavior: 'smooth' });
+            document.querySelector('.comment-input').focus();
+        });
+        
+        // Delete modal
+        const deleteBtn = document.getElementById('delete-photo-btn');
+        const deleteModal = document.getElementById('delete-modal');
+        const cancelDelete = document.getElementById('cancel-delete');
+        const closeDeleteModal = deleteModal.querySelector('.close');
+        
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function() {
+                deleteModal.style.display = 'flex';
+            });
+            
+            cancelDelete.addEventListener('click', function() {
+                deleteModal.style.display = 'none';
+            });
+            
+            closeDeleteModal.addEventListener('click', function() {
+                deleteModal.style.display = 'none';
+            });
+        }
+        
+        // Report modal
+        const reportBtn = document.getElementById('report-btn');
+        const reportModal = document.getElementById('report-modal');
+        const cancelReport = document.getElementById('cancel-report');
+        const closeReportModal = reportModal.querySelector('.close');
+        
+        if (reportBtn) {
+            reportBtn.addEventListener('click', function() {
+                reportModal.style.display = 'flex';
+            });
+            
+            cancelReport.addEventListener('click', function() {
+                reportModal.style.display = 'none';
+            });
+            
+            closeReportModal.addEventListener('click', function() {
+                reportModal.style.display = 'none';
+            });
+        }
+        
+        // Copy share link
+        const copyLinkBtn = document.getElementById('copy-link-btn');
+        const shareLink = document.getElementById('share-link');
+        
+        copyLinkBtn.addEventListener('click', function() {
+            shareLink.select();
+            document.execCommand('copy');
+            
+            // Change button text temporarily
+            const originalText = copyLinkBtn.textContent;
+            copyLinkBtn.textContent = 'Copied!';
+            setTimeout(() => {
+                copyLinkBtn.textContent = originalText;
+            }, 2000);
+        });
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === deleteModal) {
+                deleteModal.style.display = 'none';
+            }
+            
+            if (event.target === reportModal) {
+                reportModal.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %} 

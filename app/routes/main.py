@@ -12,6 +12,10 @@ from datetime import datetime, timedelta
 from sqlalchemy import desc, and_, or_
 from app.models.message import Message
 from flask_login import login_required, current_user
+from app.models.photo_like import PhotoLike
+from app.models.photo_comment import PhotoComment
+from app.models.photo_report import PhotoReport
+from app.routes.gallery import PhotoUploadForm
 
 bp = Blueprint('main', __name__)
 
@@ -178,7 +182,7 @@ def edit_profile():
             if file and allowed_file(file.filename, {'jpg', 'jpeg', 'png', 'gif'}):
                 filename = save_uploaded_file(
                     file, 
-                    'app/static/profile_pictures', 
+                    'static/profile_pictures', 
                     f"user_{user.id}_profile"
                 )
                 user.profile_picture = filename
@@ -205,277 +209,37 @@ def edit_profile():
                          current_year=int(datetime.now().year),
                          google_maps_api_key=os.environ.get('GOOGLE_MAPS_API_KEY', ''))
 
-@bp.route('/gallery')
-def gallery():
-    if 'username' not in session:
-        flash('Please log in to view the gallery', 'error')
-        return redirect(url_for('auth.login'))
-    
-    user = User.query.filter_by(username=session['username']).first()
-    
-    # If user not found in database, redirect to login
-    if user is None:
-        flash('User session invalid. Please log in again.', 'error')
-        session.clear()  # Clear the invalid session
-        return redirect(url_for('auth.login'))
-    
-    # Get all gallery photos
-    photos = GalleryPhoto.query.order_by(GalleryPhoto.created_at.desc()).all()
-    
-    # Debug first few photos
-    print("\nDetailed photo info for first 3 photos:")
-    for i, photo in enumerate(photos[:3]):
-        print(f"Photo {i+1}:")
-        print(f"  - ID: {photo.id}")
-        print(f"  - User ID: {photo.user_id} (type: {type(photo.user_id).__name__})")
-        print(f"  - Filename: {photo.filename}")
-        print(f"  - Is Public: {photo.is_public}")
-        print(f"  - Title: {photo.title}")
-    
-    # Debug info about current user and photo ownership
-    print(f"Current user ID: {user.id}")
-    print(f"Total photos: {len(photos)}")
-    print(f"User's photos: {len([p for p in photos if p.user_id == user.id])}")
-    print(f"Public photos: {len([p for p in photos if p.is_public])}")
-    print(f"Private photos: {len([p for p in photos if not p.is_public])}")
-    print(f"User's private photos: {len([p for p in photos if p.user_id == user.id and not p.is_public])}")
-    
-    # Print details about each photo in the database
-    for photo in photos:
-        print(f"Photo ID: {photo.id}, user_id: {photo.user_id}, filename: {photo.filename}, is_public: {photo.is_public}")
-    
-    # Redirect to new gallery (comment this line if you want to keep using the old gallery)
-    return redirect(url_for('main.new_gallery'))
-    
-    # Uncomment this line if you want to keep using the old gallery
-    # return render_template('gallery.html', photos=photos, user=user)
-
-@bp.route('/new-gallery')
-def new_gallery():
-    """New implementation of the gallery with improved UI and functionality."""
-    user = None
-    
-    # Try to get the user from session username
-    if 'username' in session:
-        username = session.get('username')
-        user = User.query.filter_by(username=username).first()
-    
-    # If not found, try with user_id
-    if user is None and 'user_id' in session:
-        user_id = session.get('user_id')
-        try:
-            user_id_int = int(user_id)
-            user = User.query.get(user_id_int)
-        except (ValueError, TypeError):
-            pass
-    
-    # Try to find by admin status if needed
-    if user is None:
-        # Look for admin user as a fallback
-        if session.get('is_admin') or 'admin' in session.get('username', '').lower():
-            user = User.query.filter_by(is_admin=True).first()
-    
-    # If no user is found, redirect to login
-    if user is None:
-        flash('Your session appears to be invalid. Please log in again.', 'error')
-        return redirect(url_for('auth.login'))
-
-    # Check if we should display mobile version
-    user_agent = request.headers.get('User-Agent', '').lower()
-    is_mobile = any(device in user_agent.lower() for device in ['iphone', 'android', 'mobile', 'tablet'])
-    mode = request.args.get('mode', None)  # Check for manual override
-    
-    # Redirect to mobile gallery if on a mobile device and not manually requesting desktop version
-    if is_mobile and mode != 'desktop':
-        return redirect(url_for('main.mobile_gallery'))
-    
-    # Update session with correct user info
-    session['user_id'] = user.id
-    session['username'] = user.username
-    
-    # Fetch all photos (visible to this user)
-    all_photos = []
-    
-    # Personal photos (owned by the user)
-    personal_photos = GalleryPhoto.query.filter_by(user_id=user.id).order_by(GalleryPhoto.created_at.desc()).all()
-    
-    # Public photos (visible to everyone)
-    public_photos = GalleryPhoto.query.filter_by(is_public=True).order_by(GalleryPhoto.created_at.desc()).all()
-    
-    # Combine and deduplicate photos
-    all_photos = personal_photos.copy()
-    for photo in public_photos:
-        if photo not in all_photos:
-            all_photos.append(photo)
-    
-    # Sort combined photos by upload date (newest first)
-    all_photos.sort(key=lambda x: x.created_at, reverse=True)
-    
-    # Get user's pets for the "Add to Pet" feature
-    user_pets = Pet.query.filter_by(owner_id=user.id).all()
-    
-    return render_template('new_gallery.html', 
-                           all_photos=all_photos,
-                           personal_photos=personal_photos,
-                           public_photos=public_photos,
-                           user=user,
-                           user_pets=user_pets,
-                           current_user=user)
-
-@bp.route('/mobile-gallery')
-def mobile_gallery():
-    """Mobile-optimized implementation of the gallery."""
-    user = None
-    
-    # Try to get the user from session username
-    if 'username' in session:
-        username = session.get('username')
-        user = User.query.filter_by(username=username).first()
-    
-    # If not found, try with user_id
-    if user is None and 'user_id' in session:
-        user_id = session.get('user_id')
-        try:
-            user_id_int = int(user_id)
-            user = User.query.get(user_id_int)
-        except (ValueError, TypeError):
-            pass
-    
-    # If no user is found, redirect to login
-    if user is None:
-        flash('Your session appears to be invalid. Please log in again.', 'error')
-        return redirect(url_for('auth.login'))
-    
-    # Update session with correct user info
-    session['user_id'] = user.id
-    session['username'] = user.username
-    
-    # Fetch all photos (visible to this user)
-    all_photos = []
-    
-    # Personal photos (owned by the user)
-    personal_photos = GalleryPhoto.query.filter_by(user_id=user.id).order_by(GalleryPhoto.created_at.desc()).all()
-    
-    # Public photos (visible to everyone)
-    public_photos = GalleryPhoto.query.filter_by(is_public=True).order_by(GalleryPhoto.created_at.desc()).all()
-    
-    # Combine and deduplicate photos
-    all_photos = personal_photos.copy()
-    for photo in public_photos:
-        if photo not in all_photos:
-            all_photos.append(photo)
-    
-    # Sort combined photos by upload date (newest first)
-    all_photos.sort(key=lambda x: x.created_at, reverse=True)
-    
-    return render_template('mobile_gallery.html', 
-                           all_photos=all_photos,
-                           personal_photos=personal_photos,
-                           public_photos=public_photos,
-                           user=user,
-                           current_user=user)
-
-@bp.route('/gallery/upload', methods=['GET', 'POST'])
+@bp.route('/upload-to-gallery', methods=['GET', 'POST'])
 def upload_to_gallery():
     if 'username' not in session:
-        flash('Please log in to upload photos', 'error')
         return redirect(url_for('auth.login'))
     
     user = User.query.filter_by(username=session['username']).first()
-    
-    # If user not found in database, redirect to login
-    if user is None:
-        flash('User session invalid. Please log in again.', 'error')
-        session.clear()  # Clear the invalid session
-        return redirect(url_for('auth.login'))
-    
-    # Get user's pets for the form
     pets = Pet.query.filter_by(owner_id=user.id).all()
     
+    # Create a photo form for the template
+    form = PhotoUploadForm()
+    form.pet_id.choices = [(0, 'None')] + [(pet.id, pet.name) for pet in pets]
+    
     if request.method == 'POST':
-        # Debug print to check what files are being received
-        print("Files in request:", request.files)
-        print("Form data:", request.form)
-        
-        # Check if any files were uploaded
-        if 'photos[]' not in request.files:
-            flash('No files selected', 'error')
-            return redirect(request.url)
-
-        files = request.files.getlist('photos[]')
-        if not files or not files[0].filename:
-            flash('No files selected', 'error')
-            return redirect(request.url)
-
-        title = request.form.get('title')
-        description = request.form.get('description')
-        pet_id = request.form.get('pet_id')
-        is_public = request.form.get('is_public') == 'on'
-        
-        # Ensure the destination directory exists
-        upload_dir = 'app/static/pet_images/gallery_photos'
-        if not os.path.exists(upload_dir):
-            try:
-                os.makedirs(upload_dir)
-                print(f"Created directory: {upload_dir}")
-            except Exception as e:
-                print(f"Error creating directory {upload_dir}: {str(e)}")
-                flash(f"Error creating upload directory: {str(e)}", 'error')
-                return redirect(request.url)
-                
-        uploaded_count = 0
-        for file in files:
-            if file and file.filename:  # Check if file has a filename
-                try:
-                    # Check if file is allowed
-                    if not allowed_file(file.filename, {'jpg', 'jpeg', 'png', 'gif'}):
-                        flash(f'File {file.filename} has an invalid format. Only JPG, PNG, and GIF are allowed.', 'error')
-                        continue
-
-                    # Generate a unique filename
-                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')
-                    filename = save_uploaded_file(
-                        file, 
-                        upload_dir, 
-                        f"user_{user.id}_{timestamp}"
-                    )
-                    
-                    # Explicitly print the file path and check if it exists
-                    file_path = os.path.join(upload_dir, filename)
-                    print(f"Saved file to: {file_path}")
-                    print(f"File exists: {os.path.exists(file_path)}")
-                    
-                    # Create a new photo with proper field names
-                    photo = GalleryPhoto(
-                        filename=filename,
-                        user_id=user.id,
-                        pet_id=pet_id if pet_id and pet_id.strip() else None,
-                        title=title,
-                        description=description,
-                        is_public=is_public
-                    )
-                    db.session.add(photo)
-                    uploaded_count += 1
-                except Exception as e:
-                    print(f"Error uploading file {file.filename}:", str(e))  # Debug print
-                    flash(f'Error uploading file {file.filename}: {str(e)}', 'error')
-                    continue
-        
         try:
-            if uploaded_count > 0:
-                db.session.commit()
-                flash(f'Successfully uploaded {uploaded_count} photo{"s" if uploaded_count > 1 else ""}!', 'success')
-                return redirect(url_for('main.gallery'))
-            else:
-                flash('No valid photos were uploaded', 'error')
-                return redirect(request.url)
+            # Process form submission
+            pass  # Placeholder for form processing code
         except Exception as e:
             print("Database error:", str(e))  # Debug print
             db.session.rollback()
             flash(f'Error saving to database: {str(e)}', 'error')
             return redirect(request.url)
     
-    return render_template('upload_gallery_photo_new.html', pets=pets)
+    # Check if mobile using the shared function
+    is_mobile = is_mobile_device(request)
+    
+    # Don't use templates from this route - redirect to the appropriate gallery route
+    # This avoids duplicating logic and prevents template errors
+    if is_mobile:
+        return redirect(url_for('gallery.mobile_upload_photo'))
+    else:
+        return redirect(url_for('gallery.upload_photo'))
 
 @bp.route('/gallery/delete/<int:photo_id>', methods=['POST'])
 def delete_gallery_photo(photo_id):
@@ -487,13 +251,13 @@ def delete_gallery_photo(photo_id):
     
     if photo.user_id != user.id:
         flash('You do not have permission to delete this photo.', 'error')
-        return redirect(url_for('main.gallery'))
+        return redirect(url_for('gallery.index'))
     
     try:
         # Delete the file from the filesystem
         if photo.filename:
             try:
-                file_path = os.path.join('app/static/pet_images/gallery_photos', photo.filename)
+                file_path = os.path.join('static/pet_images/gallery_photos', photo.filename)
                 print(f"Attempting to delete file: {file_path}")
                 print(f"File exists before deletion: {os.path.exists(file_path)}")
                 
@@ -513,7 +277,7 @@ def delete_gallery_photo(photo_id):
         db.session.rollback()
         flash(f'Error deleting photo: {str(e)}', 'error')
     
-    return redirect(url_for('main.gallery'))
+    return redirect(url_for('gallery.index'))
 
 @bp.route('/gallery/photo/<int:photo_id>/toggle_visibility', methods=['POST'])
 def toggle_gallery_photo_visibility(photo_id):
@@ -526,7 +290,7 @@ def toggle_gallery_photo_visibility(photo_id):
     # Check if user owns the photo
     if photo.user_id != user.id:
         flash('You can only change visibility of your own photos.', 'error')
-        return redirect(url_for('main.gallery'))
+        return redirect(url_for('gallery.index'))
     
     try:
         # Debug info before change
@@ -549,13 +313,14 @@ def toggle_gallery_photo_visibility(photo_id):
         db.session.refresh(photo)
         print(f"TOGGLE VISIBILITY - After commit: Photo ID {photo.id}, is_public: {photo.is_public}, type: {type(photo.is_public)}")
         
-        flash(f"Photo visibility updated successfully! It is now {'public' if photo.is_public else 'private'}.", 'success')
+        status = 'public' if photo.is_public else 'private'
+        flash(f"Photo visibility updated successfully! It is now {status}.", 'success')
     except Exception as e:
         db.session.rollback()
         print(f"ERROR in toggle_visibility: {str(e)}")
         flash(f'Error updating photo visibility: {str(e)}', 'error')
     
-    return redirect(url_for('main.gallery'))
+    return redirect(url_for('gallery.index'))
 
 @bp.route('/gallery/photo/<int:photo_id>/edit', methods=['GET', 'POST'])
 def edit_gallery_photo(photo_id):
@@ -568,16 +333,17 @@ def edit_gallery_photo(photo_id):
     # Check if user owns the photo
     if photo.user_id != user.id:
         flash('You can only edit your own photos.', 'error')
-        return redirect(url_for('main.gallery'))
+        return redirect(url_for('gallery.index'))
     
     if request.method == 'POST':
         try:
             photo.title = request.form.get('title')
             photo.description = request.form.get('description')
             photo.pet_id = request.form.get('pet_id') or None
+            photo.is_public = 'is_public' in request.form
             db.session.commit()
             flash('Photo updated successfully!', 'success')
-            return redirect(url_for('main.gallery'))
+            return redirect(url_for('main.view_gallery_photo', photo_id=photo.id))
         except Exception as e:
             db.session.rollback()
             flash(f'Error updating photo: {str(e)}', 'error')
@@ -585,7 +351,15 @@ def edit_gallery_photo(photo_id):
     # Get user's pets for the form
     pets = Pet.query.filter_by(owner_id=user.id).all()
     
-    return render_template('edit_gallery_photo.html', photo=photo, pets=pets)
+    # Check if we should display mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent.lower() for device in ['iphone', 'android', 'mobile', 'tablet'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
+    # Choose template based on device type
+    template = 'mobile_edit_gallery_photo.html' if is_mobile and mode != 'desktop' else 'edit_gallery_photo.html'
+    
+    return render_template(template, photo=photo, pets=pets, user=user)
 
 @bp.route('/gallery/photo/<int:photo_id>')
 def view_gallery_photo(photo_id):
@@ -602,7 +376,7 @@ def view_gallery_photo(photo_id):
     # Check if the user has permission to view this photo
     if not photo.is_public and photo.user_id != user.id:
         flash('You do not have permission to view this photo', 'error')
-        return redirect(url_for('main.gallery'))
+        return redirect(url_for('gallery.index'))
     
     # Check if we should display the mobile version
     user_agent = request.headers.get('User-Agent', '').lower()
@@ -611,6 +385,140 @@ def view_gallery_photo(photo_id):
     
     # Choose template based on device type
     template = 'mobile_view_gallery_photo.html' if is_mobile and mode != 'desktop' else 'view_gallery_photo.html'
+    
+    # Get user's like status
+    user_like = PhotoLike.query.filter_by(user_id=user.id, photo_id=photo_id).first()
+    
+    # Get comments for the photo
+    comments = PhotoComment.query.filter_by(photo_id=photo_id).order_by(PhotoComment.created_at.desc()).all()
+    
+    return render_template(template, photo=photo, current_user=user, user_like=user_like, comments=comments)
+
+@bp.route('/gallery/photo/<int:photo_id>/like', methods=['POST'])
+def like_gallery_photo(photo_id):
+    """Like a gallery photo."""
+    if 'username' not in session:
+        flash('Please log in to like photos', 'error')
+        return redirect(url_for('auth.login'))
+    
+    user = User.query.filter_by(username=session['username']).first()
+    
+    # Get the photo
+    photo = GalleryPhoto.query.get_or_404(photo_id)
+    
+    # Check if the user already liked the photo
+    existing_like = PhotoLike.query.filter_by(user_id=user.id, photo_id=photo_id).first()
+    
+    if existing_like:
+        # Unlike the photo
+        db.session.delete(existing_like)
+        flash('Photo unliked!', 'success')
+    else:
+        # Like the photo
+        like = PhotoLike(user_id=user.id, photo_id=photo_id)
+        db.session.add(like)
+        flash('Photo liked!', 'success')
+    
+    db.session.commit()
+    
+    # Return to photo view
+    return redirect(url_for('main.view_gallery_photo', photo_id=photo_id))
+
+@bp.route('/gallery/photo/<int:photo_id>/comment', methods=['POST'])
+def comment_gallery_photo(photo_id):
+    """Add a comment to a gallery photo."""
+    if 'username' not in session:
+        flash('Please log in to comment on photos', 'error')
+        return redirect(url_for('auth.login'))
+    
+    user = User.query.filter_by(username=session['username']).first()
+    
+    # Get the photo
+    photo = GalleryPhoto.query.get_or_404(photo_id)
+    
+    # Get the comment
+    comment_text = request.form.get('comment', '').strip()
+    
+    if not comment_text:
+        flash('Comment cannot be empty', 'error')
+    else:
+        # Add the comment
+        comment = PhotoComment(user_id=user.id, photo_id=photo_id, comment=comment_text)
+        db.session.add(comment)
+        db.session.commit()
+        flash('Comment added!', 'success')
+    
+    # Return to photo view
+    return redirect(url_for('main.view_gallery_photo', photo_id=photo_id))
+
+@bp.route('/gallery/photo/<int:photo_id>/comment/<int:comment_id>/delete', methods=['POST'])
+def delete_gallery_photo_comment(photo_id, comment_id):
+    """Delete a comment from a gallery photo."""
+    if 'username' not in session:
+        flash('Please log in to delete comments', 'error')
+        return redirect(url_for('auth.login'))
+    
+    user = User.query.filter_by(username=session['username']).first()
+    
+    # Get the comment
+    comment = PhotoComment.query.get_or_404(comment_id)
+    
+    # Check if the user is authorized to delete the comment
+    if comment.user_id != user.id and comment.photo.user_id != user.id:
+        flash('You are not authorized to delete this comment', 'error')
+    else:
+        db.session.delete(comment)
+        db.session.commit()
+        flash('Comment deleted!', 'success')
+    
+    # Return to photo view
+    return redirect(url_for('main.view_gallery_photo', photo_id=photo_id))
+
+@bp.route('/gallery/photo/<int:photo_id>/report', methods=['GET', 'POST'])
+def report_gallery_photo(photo_id):
+    """Report a gallery photo."""
+    if 'username' not in session:
+        flash('Please log in to report photos', 'error')
+        return redirect(url_for('auth.login'))
+    
+    user = User.query.filter_by(username=session['username']).first()
+    
+    # Get the photo
+    photo = GalleryPhoto.query.get_or_404(photo_id)
+    
+    if request.method == 'POST':
+        # Check if the user already reported the photo
+        existing_report = PhotoReport.query.filter_by(user_id=user.id, photo_id=photo_id).first()
+        
+        if existing_report:
+            flash('You have already reported this photo', 'error')
+        else:
+            # Get report data
+            reason = request.form.get('reason', '').strip()
+            details = request.form.get('details', '').strip()
+            
+            if not reason:
+                flash('Please select a reason for reporting', 'error')
+            else:
+                # Create the report
+                report = PhotoReport(
+                    user_id=user.id,
+                    photo_id=photo_id,
+                    reason=reason,
+                    details=details
+                )
+                db.session.add(report)
+                db.session.commit()
+                flash('Thank you for your report. Our team will review it shortly.', 'success')
+                return redirect(url_for('gallery.index'))
+    
+    # Check if we should display the mobile version
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent.lower() for device in ['iphone', 'android', 'mobile', 'tablet'])
+    mode = request.args.get('mode', None)  # Check for manual override
+    
+    # Choose template based on device type
+    template = 'mobile_report_photo.html' if is_mobile and mode != 'desktop' else 'report_photo.html'
     
     return render_template(template, photo=photo, current_user=user)
 
@@ -1114,4 +1022,96 @@ def leave_playdate(playdate_id):
     except Exception as e:
         db.session.rollback()
         flash(f'Error leaving playdate: {str(e)}', 'error')
-        return redirect(url_for('main.view_playdate', playdate_id=playdate_id)) 
+        return redirect(url_for('main.view_playdate', playdate_id=playdate_id))
+
+@bp.route('/debug_user')
+def debug_user():
+    """Debug route to show user and admin status information"""
+    data = {
+        'is_authenticated': False,
+        'username': None,
+        'is_admin': False,
+        'admin_type': None,
+        'session_username': session.get('username', 'Not in session'),
+        'session_keys': list(session.keys())
+    }
+    
+    if hasattr(current_user, 'is_authenticated'):
+        data['is_authenticated'] = current_user.is_authenticated
+    
+    if hasattr(current_user, 'username'):
+        data['username'] = current_user.username
+    
+    if hasattr(current_user, 'is_admin'):
+        data['is_admin'] = current_user.is_admin
+        data['admin_type'] = type(current_user.is_admin).__name__
+    
+    # Return as both HTML and JSON for easy access
+    if request.args.get('format') == 'json':
+        return jsonify(data)
+    
+    return f"""
+    <html>
+        <head><title>User Debug</title></head>
+        <body>
+            <h1>User Debug Info</h1>
+            <pre>{str(data)}</pre>
+            <h2>Current User Object</h2>
+            <pre>{str(current_user.__dict__)}</pre>
+            <div style="margin-top: 20px;">
+                <a href="/admin/" style="display: inline-block; padding: 10px 20px; background-color: #ff5722; color: white; text-decoration: none; border-radius: 5px;">Go to Admin Panel Directly</a>
+            </div>
+        </body>
+    </html>
+    """
+
+@bp.route('/gallery-redesigned')
+def gallery_redesigned():
+    """Redirects to the enhanced gallery implementation"""
+    return redirect(url_for('gallery.index'))
+
+# Original implementation commented out
+# def gallery_redesigned():
+#     """Completely redesigned gallery page."""
+#     user = None
+#     
+#     # Try to get the user from session username
+#     if 'username' in session:
+#         username = session.get('username')
+#         user = User.query.filter_by(username=username).first()
+#     
+#     # If not found, try with user_id
+#     if user is None and 'user_id' in session:
+#         user_id = session.get('user_id')
+#         try:
+#             user_id_int = int(user_id)
+#             user = User.query.get(user_id_int)
+#         except (ValueError, TypeError):
+#             pass
+#     
+#     # If no user is found, redirect to login
+#     if user is None:
+#         flash('Please log in to view this page', 'error')
+#         return redirect(url_for('auth.login'))
+#     
+#     # Fetch all photos (visible to this user)
+#     all_photos = []
+#     
+#     # Personal photos (owned by the user)
+#     personal_photos = GalleryPhoto.query.filter_by(user_id=user.id).order_by(GalleryPhoto.created_at.desc()).all()
+#     
+#     # Public photos (visible to everyone)
+#     public_photos = GalleryPhoto.query.filter_by(is_public=True).order_by(GalleryPhoto.created_at.desc()).all()
+#     
+#     # Combine and deduplicate photos
+#     all_photos = personal_photos.copy()
+#     for photo in public_photos:
+#         if photo not in all_photos:
+#             all_photos.append(photo)
+#     
+#     # Sort combined photos by upload date (newest first)
+#     all_photos.sort(key=lambda x: x.created_at, reverse=True)
+#     
+#     return render_template('gallery_redesigned.html', 
+#                            all_photos=all_photos,
+#                            user=user) 

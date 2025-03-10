@@ -430,7 +430,7 @@
                             </div>
                             
                             <div class="mobile-result-actions">
-                                <a href="{{ url_for('main.view_playdate', playdate_id=result.playdate.id) }}" class="mobile-action-btn secondary mobile-touch-feedback">
+                                <a href="{{ url_for('playdates.view_playdate', playdate_id=result.playdate.id) }}" class="mobile-action-btn secondary mobile-touch-feedback">
                                     <i class="fas fa-eye"></i> View
                                 </a>
                                 <a href="{{ url_for('main.join_playdate', playdate_id=result.playdate.id) }}" class="mobile-action-btn primary mobile-touch-feedback">

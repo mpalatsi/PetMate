@@ -16,6 +16,9 @@ from .playdate_message import PlaydateMessage
 from .emergency_contact import EmergencyContact
 from .incident_report import IncidentReport
 from .user_verification import UserVerification
+from .photo_like import PhotoLike
+from .photo_comment import PhotoComment
+from .photo_report import PhotoReport
 
 # Export all models
 __all__ = [
@@ -29,5 +32,8 @@ __all__ = [
     'PlaydateMessage',
     'EmergencyContact',
     'IncidentReport',
-    'UserVerification'
+    'UserVerification',
+    'PhotoLike',
+    'PhotoComment',
+    'PhotoReport'
 ] 

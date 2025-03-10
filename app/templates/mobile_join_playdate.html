@@ -200,7 +200,7 @@
     
     <div class="action-buttons">
         <button type="submit" class="btn btn-primary btn-block">Join Playdate</button>
-        <a href="{{ url_for('main.view_playdate', playdate_id=playdate.id) }}" class="btn btn-outline btn-block">Cancel</a>
+        <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="btn btn-outline btn-block">Cancel</a>
     </div>
 </form>
 {% else %}
@@ -208,7 +208,7 @@
     <i class="fas fa-paw"></i>
     <h3 class="empty-state-title">No pets found</h3>
     <p class="empty-state-text">You need to add a pet before you can join a playdate.</p>
-    <a href="{{ url_for('main.add_pet') }}" class="btn btn-primary">Add a Pet</a>
+    <a href="{{ url_for('pets.add_pet') }}" class="btn btn-primary">Add a Pet</a>
 </div>
 {% endif %}
 {% endblock %}

@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Pet Gallery - Redesigned - PetMate{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Main design styles */
+    .gallery-container {
+        padding: 40px;
+        background-color: #f8f9fa;
+        min-height: 80vh;
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+    
+    .gallery-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .gallery-header h1 {
+        color: var(--sage-green);
+        font-weight: 700;
+        margin-bottom: 10px;
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Navigation tabs */
+    .gallery-nav {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+        gap: 15px;
+    }
+    
+    .gallery-tab {
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #f5f5f5;
+        color: #444;
+        border: 2px solid #e0e0e0;
+        font-size: 1.1rem;
+        min-width: 160px;
+        text-align: center;
+    }
+    
+    .gallery-tab.active {
+        background-color: var(--sage-green);
+        color: white;
+        border-color: var(--sage-green);
+    }
+    
+    /* Photo grid */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 35px;
+    }
+    
+    .photo-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .photo-img-container {
+        position: relative;
+        overflow: hidden;
+        height: 220px;
+    }
+    
+    .photo-img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    /* Photo info area */
+    .photo-info {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    
+    .photo-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0 0 8px;
+    }
+    
+    /* Engagement features */
+    .engagement-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.6);
+        padding: 15px;
+        text-align: center;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .photo-img-container:hover .engagement-overlay {
+        opacity: 1;
+    }
+    
+    .engage-btn {
+        display: inline-block;
+        background-color: var(--sage-green);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .engage-btn:hover {
+        background-color: #4a7c59;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container gallery-container">
+    <div class="gallery-header">
+        <h1>Pet Gallery - Redesigned</h1>
+        <p>Share and explore pet photos from our community</p>
+    </div>
+    
+    <div class="gallery-nav">
+        <div class="gallery-tab active" onclick="showTab('personal')">My Photos</div>
+        <div class="gallery-tab" onclick="showTab('public')">Public Gallery</div>
+    </div>
+    
+    <!-- Personal Photos Section -->
+    <div id="personal-section" class="gallery-section active">
+        <div class="gallery-grid">
+            {% for photo in all_photos %}
+                {% if photo.user_id|string == user.id|string %}
+                    <div class="photo-card">
+                        <div class="photo-img-container">
+                            <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" 
+                                 alt="{{ photo.title or 'Pet photo' }}">
+                            
+                            <!-- Engagement Overlay -->
+                            <div class="engagement-overlay">
+                                <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="engage-btn">
+                                    View & Engage
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="photo-info">
+                            <h3 class="photo-title">{{ photo.title or 'Untitled' }}</h3>
+                            <p>{{ photo.description or 'No description' }}</p>
+                            
+                            <div class="photo-meta">
+                                {% if photo.is_public %}
+                                    <span class="badge bg-success">Public</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Private</span>
+                                {% endif %}
+                                
+                                <span class="likes">
+                                    <i class="fas fa-heart"></i> {{ photo.likes|default([])|length }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Public Photos Section -->
+    <div id="public-section" class="gallery-section" style="display: none;">
+        <div class="gallery-grid">
+            {% for photo in all_photos %}
+                {% if photo.is_public %}
+                    <div class="photo-card">
+                        <div class="photo-img-container">
+                            <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" 
+                                 alt="{{ photo.title or 'Pet photo' }}">
+                            
+                            <!-- Engagement Overlay -->
+                            <div class="engagement-overlay">
+                                <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="engage-btn">
+                                    View & Engage
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="photo-info">
+                            <h3 class="photo-title">{{ photo.title or 'Untitled' }}</h3>
+                            <p>{{ photo.description or 'No description' }}</p>
+                            
+                            <div class="photo-meta">
+                                <span class="uploader">
+                                    <i class="fas fa-user"></i> {{ photo.uploader.username }}
+                                </span>
+                                
+                                <span class="likes">
+                                    <i class="fas fa-heart"></i> {{ photo.likes|default([])|length }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function showTab(tabName) {
+        // Hide all sections
+        document.querySelectorAll('.gallery-section').forEach(section => {
+            section.style.display = 'none';
+        });
+        
+        // Show the selected section
+        document.getElementById(tabName + '-section').style.display = 'block';
+        
+        // Update active tab
+        document.querySelectorAll('.gallery-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Find the clicked tab and add active class
+        event.target.classList.add('active');
+    }
+</script>
+{% endblock %} 

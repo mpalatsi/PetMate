@@ -3,45 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light only">
-    <meta name="theme-color" content="#F5F1E8">
-    <meta name="supported-color-schemes" content="light">
     <title>{% block title %}PetMate{% endblock %}</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="{{ url_for('static', filename='Black Friday.ttf') }}" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='mobile.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='how-it-works.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='feature-cards.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pet-avatars.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='gallery.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom-font.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/flash.css') }}">
-    
-    <!-- Always load admin CSS, we'll apply it with class selectors -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="any">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
     
-    {% block extra_head %}{% endblock %}
-    
-    <!-- Prevent forced dark mode -->
-    <script>
-        // Force light mode to prevent dark mode styling
-        document.documentElement.style.colorScheme = 'light';
-        
-        // Make sure iOS respects our preference
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F5F1E8');
-        }
-    </script>
-    
-    <!-- Mobile detection script -->
+    <!-- Mobile Detection Script -->
     <script src="{{ url_for('static', filename='js/mobile-detect.js') }}"></script>
-    {% block styles %}{% endblock %}
+    
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
     <nav>
@@ -58,9 +36,6 @@
                 {% if 'username' in session %}
                     <div class="user-menu">
                         <span>Welcome, {{ session['username'] }}!</span>
-                        {% if session.get('is_impersonating') %}
-                        <a href="{{ url_for('admin.stop_impersonating') }}" class="btn-warning">Return to Admin</a>
-                        {% endif %}
                         <a href="{{ url_for('auth.logout') }}">Logout</a>
                     </div>
                     <button class="menu-toggle">
@@ -82,19 +57,6 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        {% if session.get('is_impersonating') %}
-            <a href="{{ url_for('admin.stop_impersonating') }}" class="warning-link">
-                <i class="fas fa-user-shield"></i> Return to Admin
-            </a>
-        {% endif %}
-        {% if 'username' in session %}
-            {% set user = session['username'] %}
-            {% if user == 'admin' %}
-            <a href="{{ url_for('admin.admin_dashboard') }}">
-                <i class="fas fa-cog"></i> Admin Panel
-            </a>
-            {% endif %}
-        {% endif %}
         <a href="{{ url_for('main.search') }}">
             <i class="fas fa-search"></i> Find Playmates
         </a>
@@ -110,18 +72,23 @@
         <a href="{{ url_for('playdates.create_playdate') }}">
             <i class="fas fa-calendar-plus"></i> Schedule Playdate
         </a>
-        <a href="{{ url_for('playdates.playdates') }}">
+        <a href="{{ url_for('main.view_playdates') }}">
             <i class="fas fa-calendar-alt"></i> View Playdates
         </a>
         <a href="{{ url_for('messages.inbox') }}">
             <i class="fas fa-envelope"></i> Messages
-            {% if current_user.is_authenticated and current_user.get_unread_message_count() > 0 %}
+            {% if current_user and current_user.get_unread_message_count() > 0 %}
                 <span class="badge">{{ current_user.get_unread_message_count() }}</span>
             {% endif %}
         </a>
-        <a href="{{ url_for('main.gallery') }}">
+        <a href="{{ url_for('gallery.index') }}">
             <i class="fas fa-images"></i> Pet Gallery
         </a>
+        {% if current_user and current_user.is_authenticated and current_user.is_admin %}
+        <a href="{{ url_for('admin.admin_dashboard') }}">
+            <i class="fas fa-shield-alt"></i> Admin Panel
+        </a>
+        {% endif %}
         <a href="#" class="resources-menu-toggle">
             <i class="fas fa-book"></i> Pet Resources
             <i class="fas fa-chevron-down"></i>
@@ -138,28 +105,13 @@
     <div class="menu-overlay"></div>
     {% endif %}
 
-    <!-- Flash Messages Container -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="flash-messages-container">
-                {% for category, message in messages[-1:] %}
-                    <div class="flash-message {{ category }}">
-                        <div class="flash-content">
-                            <i class="fas {% if category == 'error' %}fa-exclamation-circle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
-                            <span>{{ message }}</span>
-                        </div>
-                        <button class="close-flash" onclick="this.parentElement.style.display='none';">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-
     <main>
         {% block content %}{% endblock %}
     </main>
+
+    <footer class="view-toggle">
+        <a href="#" id="view-mobile-version">Switch to Mobile View</a>
+    </footer>
 
     {% block scripts %}{% endblock %}
     
@@ -222,22 +174,8 @@
                     }
                 });
             }
-            
-            // Auto-dismiss flash messages after 5 seconds
-            setTimeout(() => {
-                const flashMessages = document.querySelectorAll('.flash-message');
-                flashMessages.forEach(msg => {
-                    msg.style.opacity = '0';
-                    setTimeout(() => {
-                        msg.style.display = 'none';
-                    }, 500);
-                });
-            }, 5000);
         });
     </script>
     {% endif %}
-    
-    <!-- Mobile enhancements JavaScript -->
-    <script src="{{ url_for('static', filename='js/mobile.js') }}"></script>
 </body>
 </html> 

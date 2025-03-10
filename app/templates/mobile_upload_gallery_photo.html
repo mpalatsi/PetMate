@@ -1,0 +1,195 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Upload to Gallery - PetMate (Mobile){% endblock %}
+
+{% block header_title %}Upload Photo{% endblock %}
+
+{% block extra_head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#B3A369">
+<meta name="format-detection" content="telephone=no">
+<style>
+    /* Mobile-specific styles */
+    body {
+        -webkit-text-size-adjust: 100%;
+        touch-action: manipulation;
+        padding: 0;
+        margin: 0;
+        font-size: 16px;
+    }
+    
+    input[type="file"] {
+        font-size: 14px;
+    }
+    
+    /* Make sure form elements are styled properly for mobile */
+    .file-upload-wrapper {
+        margin: 1rem auto;
+        max-width: 100%;
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #f9f9f9;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .photo-preview {
+        width: 100%;
+        margin: 10px 0;
+        max-height: 250px;
+        object-fit: contain;
+    }
+    
+    /* Mobile version indicator */
+    .mobile-indicator {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #B3A369;
+        color: white;
+        text-align: center;
+        padding: 5px;
+        font-size: 12px;
+        z-index: 1000;
+    }
+    
+    /* Override some base styles for better mobile experience */
+    #content {
+        padding: 10px !important;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-control {
+        font-size: 16px; /* Prevent iOS zoom on focus */
+        padding: 10px;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        font-size: 16px;
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    /* Desktop warning banner */
+    .desktop-warning {
+        display: none;
+        background-color: #ff9800;
+        color: white;
+        text-align: center;
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+    
+    @media (min-width: 769px) {
+        .desktop-warning {
+            display: block;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Desktop warning banner -->
+    <div class="desktop-warning">
+        You are viewing the mobile version on a desktop device. 
+        <a href="{{ url_for('gallery.upload_photo', force_mobile='false') }}" style="color: white; text-decoration: underline;">
+            Switch to desktop version
+        </a>
+    </div>
+
+    <h1 class="text-center mb-4">Upload Photo</h1>
+    
+    <div class="file-upload-wrapper">
+        <form method="post" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                <label for="photo">Select Photo:</label>
+                {{ form.photo(class="form-control-file", id="photo") }}
+                <div class="preview-container mt-3" style="display: none;">
+                    <h5>Preview:</h5>
+                    <img id="photoPreview" class="photo-preview" src="#" alt="Photo Preview">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="title">Title:</label>
+                {{ form.title(class="form-control", id="title", placeholder="Give your photo a title") }}
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description:</label>
+                {{ form.description(class="form-control", id="description", rows="3", placeholder="Add a description (optional)") }}
+            </div>
+            
+            <div class="form-group">
+                <label for="pet_id">Select Pet (optional):</label>
+                {{ form.pet_id(class="form-control", id="pet_id") }}
+            </div>
+            
+            <div class="form-check mb-3">
+                {{ form.is_public(class="form-check-input", id="is_public") }}
+                <label class="form-check-label" for="is_public">Make photo public</label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Upload Photo</button>
+        </form>
+    </div>
+    
+    <!-- Mobile indicator at the bottom -->
+    <div class="mobile-indicator">
+        Mobile Version
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const photoInput = document.getElementById('photo');
+        const previewContainer = document.querySelector('.preview-container');
+        const photoPreview = document.getElementById('photoPreview');
+        
+        photoInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    photoPreview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+        
+        // Create a debug element to show detailed information
+        const debugDiv = document.createElement('div');
+        debugDiv.style.cssText = 'padding: 10px; margin-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; background: #f7f7f7; display: none;';
+        
+        let debugContent = '<div style="font-weight: bold;">Debug Info (double-tap to toggle):</div>' +
+                          '<div>User Agent: ' + navigator.userAgent + '</div>' +
+                          '<div>Screen Width: ' + window.innerWidth + 'px</div>' +
+                          '<div>Mobile Template: Yes</div>' +
+                          '<div>URL: ' + window.location.href + '</div>';
+        
+        // Add server-provided information if available
+        debugContent += '<div>Server Detection: Mobile Template</div>';
+        
+        debugDiv.innerHTML = debugContent;
+        document.body.appendChild(debugDiv);
+        
+        // Toggle debug info visibility on double-tap/click
+        let debugVisible = false;
+        document.addEventListener('dblclick', function() {
+            debugVisible = !debugVisible;
+            debugDiv.style.display = debugVisible ? 'block' : 'none';
+        });
+    });
+</script>
+{% endblock %} 

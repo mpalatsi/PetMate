@@ -1,0 +1,342 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Common Admin Mobile Styles */
+    :root {
+        --admin-primary: var(--sage-green, #6B8E6B);
+        --admin-secondary: var(--deep-forest, #2C4C2C);
+        --admin-background: var(--cream, #F8F4E3);
+        --admin-card-bg: #FFFFFF;
+        --admin-border: #E0E0E0;
+        --admin-text: #333333;
+        --admin-text-light: #666666;
+        --admin-text-lighter: #999999;
+        --admin-accent: #E67E22;
+        --admin-success: #2ECC71;
+        --admin-warning: #F39C12;
+        --admin-danger: #E74C3C;
+        --admin-info: #3498DB;
+    }
+
+    body {
+        background-color: var(--admin-background);
+    }
+
+    .admin-container {
+        padding: 15px;
+        margin: 75px 0 20px;
+        background-color: var(--admin-background);
+        border-radius: 10px;
+    }
+
+    .admin-header {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+        border-bottom: 2px solid var(--admin-primary);
+        padding-bottom: 15px;
+        position: relative;
+    }
+
+    .admin-header h1 {
+        color: var(--admin-secondary);
+        margin: 0 0 15px 0;
+        font-size: 24px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        letter-spacing: -0.5px;
+        position: relative;
+    }
+
+    .admin-header h1:before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 24px;
+        background-color: var(--admin-primary);
+        margin-right: 10px;
+        border-radius: 3px;
+    }
+
+    .admin-actions {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .admin-btn {
+        background-color: var(--admin-primary);
+        color: white;
+        text-decoration: none;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+    }
+
+    .admin-btn i {
+        font-size: 16px;
+    }
+
+    .admin-btn:active {
+        transform: scale(0.98);
+        background-color: var(--admin-secondary);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .search-filter-section {
+        background-color: var(--admin-card-bg);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .search-form {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid var(--admin-border);
+        border-radius: 8px;
+        font-size: 14px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        transition: border 0.2s ease;
+    }
+
+    .search-input:focus {
+        border-color: var(--admin-primary);
+        outline: none;
+    }
+
+    .search-btn {
+        background-color: var(--admin-primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0 15px;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .search-btn:active {
+        transform: scale(0.95);
+    }
+
+    .filter-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .filter-btn {
+        background-color: #F5F5F5;
+        border: 1px solid var(--admin-border);
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 13px;
+        color: var(--admin-text-light);
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .filter-btn.active {
+        background-color: var(--admin-primary);
+        color: white;
+        border-color: var(--admin-primary);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Card styles */
+    .card {
+        background-color: var(--admin-card-bg);
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 15px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Section titles */
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 25px 0 15px;
+        color: var(--admin-secondary);
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding-left: 15px;
+    }
+
+    .section-title:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 5px;
+        height: 18px;
+        background-color: var(--admin-primary);
+        border-radius: 3px;
+    }
+
+    .section-title i {
+        margin-right: 10px;
+        color: var(--admin-primary);
+    }
+
+    /* Status badges */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--admin-danger);
+        color: white;
+        border-radius: 50%;
+        min-width: 20px;
+        height: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-left: 8px;
+        padding: 0 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 25px;
+    }
+
+    .page-btn {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: var(--admin-card-bg);
+        color: var(--admin-text);
+        text-decoration: none;
+        font-weight: 600;
+        border: 1px solid var(--admin-border);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+    }
+
+    .page-btn.active {
+        background-color: var(--admin-primary);
+        color: white;
+        border-color: var(--admin-primary);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .page-btn.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    /* Detail items */
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-label {
+        color: var(--admin-text-lighter);
+        font-size: 12px;
+        margin-bottom: 4px;
+        font-weight: 500;
+    }
+
+    .detail-value {
+        font-weight: 600;
+        color: var(--admin-secondary);
+        font-size: 14px;
+    }
+
+    /* Empty states */
+    .empty-state {
+        padding: 30px 20px;
+        text-align: center;
+        background-color: var(--admin-card-bg);
+        border-radius: 12px;
+        border: 1px dashed var(--admin-border);
+        margin: 20px 0;
+    }
+
+    .empty-state i {
+        font-size: 40px;
+        color: var(--admin-text-lighter);
+        margin-bottom: 15px;
+        opacity: 0.7;
+    }
+
+    .empty-state p {
+        color: var(--admin-text-light);
+        font-size: 15px;
+        margin: 0;
+    }
+</style>
+{% block admin_styles %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>{% block admin_title %}Admin Panel{% endblock %}</h1>
+            <div class="admin-actions">
+                <a href="{{ url_for('admin.admin_dashboard') }}" class="admin-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+                {% block admin_actions %}{% endblock %}
+            </div>
+        </div>
+        
+        {% block admin_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% block admin_scripts %}{% endblock %}
+{% endblock %} 

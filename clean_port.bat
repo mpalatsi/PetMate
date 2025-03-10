@@ -1,0 +1,9 @@
+@echo off
+echo Running Port Checker for PetMate...
+python scripts/port_check.py
+echo.
+echo Starting the server...
+python run.py
+echo.
+echo Press any key to exit...
+pause > nul 

@@ -87,47 +87,54 @@
     /* Photo gallery grid */
     .gallery-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 25px;
-        margin-top: 25px;
-        width: 100%;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
     
     .gallery-item {
-        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
-        position: relative;
+        border-radius: 10px;
         background-color: white;
+        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     
     .gallery-item:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
     }
     
     .gallery-image {
         position: relative;
         overflow: hidden;
+        height: 200px;
     }
     
     .gallery-image img {
         width: 100%;
-        height: 220px;
+        height: 100%;
         object-fit: cover;
-        display: block;
-        transition: all 0.3s ease;
+        transition: transform 0.5s;
     }
     
     .gallery-item:hover .gallery-image img {
-        transform: scale(1.03);
+        transform: scale(1.05);
     }
     
     .gallery-caption {
         padding: 15px 20px;
         background-color: #fff;
         border-top: 1px solid #f0f0f0;
+        cursor: pointer !important;
+        transition: background-color 0.2s;
+        position: relative;
+        z-index: 5;
+    }
+    
+    .gallery-caption:hover,
+    .gallery-caption:focus {
+        background-color: #f5f5f5;
     }
     
     .gallery-caption h4 {
@@ -144,10 +151,11 @@
     }
     
     .photo-meta {
+        margin-top: 0.5rem;
         display: flex;
-        gap: 15px;
-        font-size: 0.9rem;
-        color: #666;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
     }
     
     .photo-meta span {
@@ -357,11 +365,248 @@
         box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         background-color: var(--sage-green-dark, #4a7c59);
     }
+
+    /* Enhanced engagement preview styles */
+    .engagement-preview {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.7); /* Solid background instead of gradient for better visibility */
+        padding: 15px 10px;
+        text-align: center;
+        opacity: 1 !important; /* Force visibility */
+        z-index: 20 !important; /* Ensure it's above all other elements */
+        pointer-events: auto !important; /* Ensure clicks register */
+        display: block !important; /* Force display */
+    }
+
+    /* Remove the hover requirement - always show the engagement overlay */
+    .gallery-item .engagement-preview {
+        opacity: 1 !important;
+    }
+
+    .engagement-link {
+        display: inline-block;
+        background-color: #6B8E6B;
+        color: white !important;
+        text-decoration: none;
+        padding: 10px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: background-color 0.2s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        animation: pulse 1.5s infinite alternate;
+        z-index: 25 !important; /* Higher z-index to ensure clickability */
+        pointer-events: auto !important;
+        position: relative;
+    }
+
+    .engagement-link:hover,
+    .engagement-link:focus,
+    .engagement-link:active {
+        background-color: #5a7a5a;
+        transform: scale(1.05);
+        color: white !important;
+        text-decoration: none;
+    }
+
+    .engagement-link i {
+        margin-right: 3px;
+    }
+
+    .engagement-link i.fa-heart {
+        color: #ffcccb;
+    }
+
+    .engagement-link i.fa-comment {
+        color: #add8e6;
+    }
+
+    /* Make gallery caption clickable with visual feedback */
+    .gallery-caption::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background-color: #6B8E6B;
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .gallery-caption:hover::after {
+        transform: scaleX(1);
+    }
+
+    /* Make engagement count more noticeable */
+    .engagement-count {
+        display: inline-flex;
+        align-items: center;
+        background-color: #f0f0f0;
+        color: #444;
+        text-decoration: none;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin-left: auto;
+        transition: all 0.2s;
+        border: 1px solid #ddd;
+    }
+
+    .engagement-count:hover,
+    .engagement-count:focus {
+        background-color: #e0e0e0;
+        transform: scale(1.05);
+        text-decoration: none;
+    }
+
+    .engagement-count i {
+        color: #e74c3c;
+        margin-right: 4px;
+        font-size: 0.9rem;
+    }
+
+    /* Animation for engagement link */
+    @keyframes pulse {
+        from { box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        to { box-shadow: 0 5px 15px rgba(107, 142, 107, 0.5); }
+    }
+
+    /* Ensure photo-meta has flex layout for engagement count positioning */
+    .photo-uploader, .photo-pet {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.85rem;
+        color: #777;
+    }
+
+    .photo-uploader i, .photo-pet i {
+        margin-right: 5px;
+    }
+
+    /* Lightbox engagement button */
+    .lightbox-engagement {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        z-index: 1500 !important; /* Ensure it's above the lightbox */
+        pointer-events: auto !important;
+    }
+
+    .lightbox-engage-btn {
+        display: inline-block;
+        background-color: #6B8E6B;
+        color: white !important;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        animation: pulse 2s infinite alternate;
+        cursor: pointer;
+        pointer-events: auto !important;
+        z-index: 1501 !important;
+    }
+
+    .lightbox-engage-btn:hover,
+    .lightbox-engage-btn:focus,
+    .lightbox-engage-btn:active {
+        transform: translateY(-5px);
+        background-color: #5a7a5a;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        color: white !important;
+        text-decoration: none;
+    }
+
+    /* Create debug outlines for testing - disable in production */
+    .debug-mode .engagement-preview {
+        outline: 2px solid red;
+    }
+    .debug-mode .engagement-link {
+        outline: 2px solid blue;
+    }
+    .debug-mode .gallery-caption {
+        outline: 2px solid green;
+    }
+    .debug-mode .engagement-count {
+        outline: 2px solid purple;
+    }
+
+    /* Standardized action buttons */
+    .photo-actions {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    
+    .action-group {
+        display: flex;
+        gap: 8px;
+        flex: 1;
+    }
+    
+    .action-button, .inline-form button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 15px;
+        background: #fff;
+        color: #555;
+        border: none;
+        border-radius: 20px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        flex: 1;
+        min-width: 120px;
+        height: 40px;
+        white-space: nowrap;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+    
+    .action-button:hover, .inline-form button:hover {
+        background: #f9f9f9;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    }
+    
+    .action-button i, .inline-form button i {
+        font-size: 1rem;
+        margin-right: 6px;
+    }
+    
+    .action-button.liked {
+        background-color: #f8e8e8;
+        color: #e74c3c;
+    }
+    
+    .action-button.danger, .inline-form button.danger {
+        background-color: #fff5f5;
+        color: #e74c3c;
+    }
+    
+    .inline-form {
+        margin: 0;
+        flex: 1;
+        display: inline-block;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container photo-gallery-page">
+<div class="container photo-gallery-page debug-mode">
     <div class="gallery-header">
         <h2>Pet Gallery</h2>
         <div class="gallery-actions">
@@ -430,6 +675,12 @@
                                             <i class="fas fa-lock"></i> Private
                                         </div>
                                     {% endif %}
+                                    <!-- Engagement Preview Badge -->
+                                    <div class="engagement-preview">
+                                        <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="engagement-link">
+                                            <i class="fas fa-heart"></i> <i class="fas fa-comment"></i> View & Engage
+                                        </a>
+                                    </div>
                                 </div>
                                 <div class="gallery-caption">
                                     <h4>{{ photo.title or 'Untitled' }}</h4>
@@ -441,6 +692,10 @@
                                             <span class="photo-pet">
                                                 <i class="fas fa-paw"></i> {{ photo.pet.name }}
                                             </span>
+                                            <!-- Like Count Preview -->
+                                            <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="engagement-count">
+                                                <i class="fas fa-heart"></i> {{ photo.likes|default([])|length }}
+                                            </a>
                                         </div>
                                     {% endif %}
                                 </div>
@@ -475,6 +730,12 @@
                             <div class="gallery-link">
                                 <div class="gallery-image">
                                     <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" alt="{{ photo.title or 'Pet photo' }}">
+                                    <!-- Engagement Preview Badge -->
+                                    <div class="engagement-preview">
+                                        <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="engagement-link">
+                                            <i class="fas fa-heart"></i> <i class="fas fa-comment"></i> View & Engage
+                                        </a>
+                                    </div>
                                 </div>
                                 <div class="gallery-caption">
                                     <h4>{{ photo.title or 'Untitled' }}</h4>
@@ -490,6 +751,10 @@
                                                 <i class="fas fa-paw"></i> {{ photo.pet.name }}
                                             </span>
                                         {% endif %}
+                                        <!-- Like Count Preview -->
+                                        <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="engagement-count">
+                                            <i class="fas fa-heart"></i> {{ photo.likes|default([])|length }}
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -545,79 +810,213 @@
     <div class="lightbox-close">&times;</div>
     <div class="lightbox-content">
         <img class="lightbox-image" src="" alt="Enlarged photo">
+        <!-- Added engagement button in lightbox -->
+        <div class="lightbox-engagement">
+            <a href="#" id="lightbox-engage-link" class="lightbox-engage-btn">
+                <i class="fas fa-heart"></i> <i class="fas fa-comment"></i> Like & Comment
+            </a>
+        </div>
     </div>
 </div>
 
 <script>
-    // Tab switching functionality
-    document.querySelectorAll('.gallery-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Remove active class from all tabs and sections
-            document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
-            
-            // Add active class to clicked tab and corresponding section
-            tab.classList.add('active');
-            document.getElementById(tab.dataset.tab + '-photos').classList.add('active');
+    // Add console logging to help debug
+    console.log("Gallery JavaScript loading...");
+    
+    // Add error handling
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.error("JavaScript error detected:", {
+            message: message,
+            source: source,
+            line: lineno,
+            column: colno,
+            error: error
         });
+        return false;
+    };
+
+    // Log any unhandled promise rejections
+    window.addEventListener('unhandledrejection', function(event) {
+        console.error('Unhandled Promise Rejection:', event.reason);
     });
 
-    // Lightbox functionality
-    const lightbox = document.getElementById('gallery-lightbox');
-    const lightboxImage = lightbox.querySelector('.lightbox-image');
-    const lightboxClose = lightbox.querySelector('.lightbox-close');
-
-    // Open lightbox when clicking on gallery images
-    document.querySelectorAll('.gallery-image img').forEach(img => {
-        img.addEventListener('click', (e) => {
-            e.stopPropagation();
-            lightboxImage.src = img.src;
-            lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
-        });
+    // Ensure DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM fully loaded, initializing gallery features");
+        initializeGallery();
     });
-
-    // Close lightbox when clicking close button or outside the image
-    lightboxClose.addEventListener('click', () => {
-        lightbox.classList.remove('active');
-        document.body.style.overflow = ''; // Restore scrolling
-    });
-
-    lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) {
-            lightbox.classList.remove('active');
-            document.body.style.overflow = ''; // Restore scrolling
-        }
-    });
-
-    // Close lightbox with escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-            lightbox.classList.remove('active');
-            document.body.style.overflow = ''; // Restore scrolling
-        }
-    });
-
-    // Toggle private photos visibility
-    const toggleButton = document.getElementById('toggle-private');
-    if (toggleButton) {
-        toggleButton.addEventListener('click', () => {
-            const privatePhotos = document.querySelectorAll('.private-photo');
-            const isShowingPrivate = toggleButton.classList.contains('showing-private');
-            
-            privatePhotos.forEach(photo => {
-                photo.style.display = isShowingPrivate ? 'none' : 'block';
+    
+    // Initialize all gallery features inside a function
+    function initializeGallery() {
+        // Tab switching functionality
+        document.querySelectorAll('.gallery-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and sections
+                document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding section
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-photos').classList.add('active');
             });
-            
-            toggleButton.classList.toggle('showing-private');
-            toggleButton.textContent = isShowingPrivate 
-                ? 'Show All Photos (Including Private)' 
-                : 'Show Public Photos Only';
-            
-            // Change button style
-            toggleButton.classList.toggle('primary');
-            toggleButton.classList.toggle('secondary');
         });
+
+        // Lightbox functionality
+        const lightbox = document.getElementById('gallery-lightbox');
+        const lightboxImage = lightbox.querySelector('.lightbox-image');
+        const lightboxClose = lightbox.querySelector('.lightbox-close');
+        const lightboxEngageLink = document.getElementById('lightbox-engage-link');
+
+        console.log("Lightbox elements found:", {
+            lightbox: !!lightbox,
+            lightboxImage: !!lightboxImage,
+            lightboxClose: !!lightboxClose,
+            lightboxEngageLink: !!lightboxEngageLink
+        });
+
+        // Setup engagement preview links directly
+        console.log("Setting up engagement preview links");
+        document.querySelectorAll('.engagement-link').forEach(link => {
+            console.log("Found engagement link:", link.href);
+            // Remove any event listeners that might be interfering
+            link.onclick = function(event) {
+                event.preventDefault(); // Prevent default anchor behavior
+                event.stopPropagation(); // Stop event bubbling
+                console.log("Engagement link clicked, navigating to:", link.href);
+                window.location.href = link.href; // Navigate programmatically
+                return false; // Prevent default and stop propagation
+            };
+        });
+
+        // Setup engagement count links
+        console.log("Setting up engagement count links");
+        document.querySelectorAll('.engagement-count').forEach(link => {
+            console.log("Found engagement count:", link.href);
+            // Remove any event listeners that might be interfering
+            link.onclick = function(event) {
+                event.preventDefault(); // Prevent default anchor behavior
+                event.stopPropagation(); // Stop event bubbling
+                console.log("Engagement count clicked, navigating to:", link.href);
+                window.location.href = link.href; // Navigate programmatically
+                return false; // Prevent default and stop propagation
+            };
+        });
+
+        // Setup caption clicks
+        console.log("Setting up caption clicks");
+        document.querySelectorAll('.gallery-caption').forEach(caption => {
+            caption.onclick = function(event) {
+                const galleryItem = caption.closest('.gallery-item');
+                const engagementLink = galleryItem.querySelector('.engagement-link');
+                
+                if (engagementLink && engagementLink.href) {
+                    console.log("Caption clicked, navigating to:", engagementLink.href);
+                    window.location.href = engagementLink.href;
+                }
+            };
+        });
+
+        // Modified: Handle image clicks for lightbox
+        console.log("Setting up image clicks for lightbox");
+        document.querySelectorAll('.gallery-image img').forEach(img => {
+            img.onclick = function(event) {
+                // Don't open lightbox if clicking on engagement-preview or its children
+                if (event.target.closest('.engagement-preview')) {
+                    console.log("Click on engagement preview, ignoring lightbox");
+                    return;
+                }
+                
+                // Find the closest gallery item
+                const galleryItem = img.closest('.gallery-item');
+                
+                // Find the engagement link to get the photo ID
+                const engagementLink = galleryItem.querySelector('.engagement-link');
+                if (engagementLink) {
+                    // Extract photo ID from the URL
+                    const photoUrl = engagementLink.getAttribute('href');
+                    console.log("Opening lightbox with photo URL:", photoUrl);
+                    
+                    // Update the lightbox engage button href
+                    if(lightboxEngageLink) {
+                        lightboxEngageLink.href = photoUrl;
+                    }
+                }
+                
+                event.stopPropagation();
+                lightboxImage.src = img.src;
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            };
+        });
+
+        // Don't open lightbox when clicking on engagement preview
+        console.log("Setting up engagement preview click handlers");
+        document.querySelectorAll('.engagement-preview').forEach(preview => {
+            preview.onclick = function(event) {
+                event.stopPropagation();
+                console.log("Engagement preview clicked");
+                // Let the engagement link handle navigation (should be handled by the link's click event)
+            };
+        });
+
+        // Make lightbox engagement button work correctly
+        if (lightboxEngageLink) {
+            console.log("Setting up lightbox engagement button");
+            lightboxEngageLink.onclick = function(event) {
+                event.preventDefault(); // Prevent default behavior
+                event.stopPropagation(); // Prevent event from closing lightbox
+                console.log("Lightbox engage button clicked, navigating to:", lightboxEngageLink.href);
+                window.location.href = lightboxEngageLink.href;
+                return false;
+            };
+        }
+
+        // Close lightbox when clicking close button or outside the image
+        if (lightboxClose) {
+            lightboxClose.onclick = function() {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = ''; // Restore scrolling
+            };
+        }
+
+        lightbox.onclick = function(event) {
+            if (event.target === lightbox) {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+        };
+
+        // Close lightbox with escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && lightbox.classList.contains('active')) {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+        });
+
+        // Toggle private photos visibility
+        const toggleButton = document.getElementById('toggle-private');
+        if (toggleButton) {
+            toggleButton.addEventListener('click', () => {
+                const privatePhotos = document.querySelectorAll('.private-photo');
+                const isShowingPrivate = toggleButton.classList.contains('showing-private');
+                
+                privatePhotos.forEach(photo => {
+                    photo.style.display = isShowingPrivate ? 'none' : 'block';
+                });
+                
+                toggleButton.classList.toggle('showing-private');
+                toggleButton.textContent = isShowingPrivate 
+                    ? 'Show All Photos (Including Private)' 
+                    : 'Show Public Photos Only';
+                
+                // Change button style
+                toggleButton.classList.toggle('primary');
+                toggleButton.classList.toggle('secondary');
+            });
+        }
+        
+        console.log("Gallery initialization complete");
     }
 </script>
 {% endblock %} 

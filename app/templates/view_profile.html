@@ -64,13 +64,10 @@
     
     .profile-meta {
         opacity: 0.9;
-        display: block;
     }
     
     .profile-joined, .profile-location {
         color: rgba(255, 255, 255, 0.9) !important;
-        display: block;
-        margin: 0 0 0.5rem 0;
     }
     
     .profile-body {
@@ -178,28 +175,7 @@
     }
     
     .profile-actions .button.secondary {
-        background: white;
-        color: var(--deep-forest);
-        border: 2px solid var(--sage-green);
-        font-weight: bold;
-    }
-    
-    .profile-details {
-        display: flex;
-        flex-wrap: wrap;
-    }
-    
-    .profile-detail-item {
-        width: 50%;
-        margin-bottom: 0.5rem;
-    }
-    
-    .detail-label {
-        font-weight: bold;
-    }
-    
-    .detail-value {
-        margin-left: 1rem;
+        background: linear-gradient(135deg, var(--warm-brown), #725f47);
     }
     
     @media (max-width: 768px) {
@@ -250,7 +226,9 @@
             <div class="profile-name-info">
                 <h3>{{ user.username }}</h3>
                 <div class="profile-meta">
-                    <p class="profile-joined">Member since {{ user.created_at.strftime('%B %Y') }}</p>
+                    {% if user is not string and user.created_at %}
+                        <p class="profile-joined">Member since {{ user.created_at.strftime('%B %Y') }}</p>
+                    {% endif %}
                     {% if user.location %}
                         <p class="profile-location"><i class="fas fa-map-marker-alt"></i> {{ user.location }}</p>
                     {% endif %}
@@ -283,7 +261,7 @@
                 {% if 'username' in session and session['username'] != user.username %}
                     {% set current_user = get_current_user() %}
                     {% if current_user and current_user.can_review_user(user.id) %}
-                        <a href="{{ url_for('write_review', user_id=user.id) }}" class="button secondary">
+                        <a href="{{ url_for('reviews.write_review', user_id=user.id) }}" class="button secondary">
                             <i class="fas fa-star"></i> Write a Review
                         </a>
                     {% endif %}

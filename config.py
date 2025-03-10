@@ -9,7 +9,7 @@ class Config:
     
     # Flask
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-please-change-in-production'
-    STATIC_FOLDER = 'static'
+    STATIC_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
     TEMPLATES_FOLDER = 'templates'
     
     # Database

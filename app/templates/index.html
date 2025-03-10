@@ -26,8 +26,8 @@
                 <a href="{{ url_for('auth.register') }}" class="step-link">
                     <div class="step-circle circle-1">1</div>
                     <div class="step-content">
-                        <h3>Create a Profile</h3>
-                        <p>Sign up and create detailed profiles for you and your pets, including personality traits, preferences, and your schedule.</p>
+                        <h3>Create Your Pet Profile</h3>
+                        <p>Sign up and add your furry friends to your profile.</p>
                         <span class="step-button">Get Started</span>
                     </div>
                 </a>
@@ -72,25 +72,18 @@
                 <p>Organize playdates with just a few clicks.</p>
             </a>
             
-            <a href="{{ url_for('playdates.playdates') }}" class="feature-card">
+            <a href="{{ url_for('main.view_playdates') }}" class="feature-card">
                 <i class="fas fa-paw"></i>
                 <h3>Pet Socialization</h3>
                 <p>Help your pets make friends and develop social skills.</p>
             </a>
             
-            <a href="{{ url_for('main.gallery') }}" class="feature-card">
+            <a href="{{ url_for('gallery.index') }}" class="feature-card">
                 <i class="fas fa-users"></i>
                 <h3>Community</h3>
                 <p>Connect with other pet parents who share your interests.</p>
             </a>
         </div>
-    </div>
-    
-    <!-- Mobile version link -->
-    <div style="text-align: center; margin-top: 2rem; padding-bottom: 1rem;">
-        <p style="color: #666; font-size: 0.9rem;">
-            Viewing on a small screen? Try our <a href="/mobile" id="view-mobile-version" style="color: var(--sage-green); text-decoration: underline;">mobile-optimized version</a>
-        </p>
     </div>
 </div>
 {% endblock %}

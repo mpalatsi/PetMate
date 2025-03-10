@@ -8,15 +8,15 @@
     align-items: center;
     font-size: 1.6rem;
     font-weight: 700;
-    gap: 12px;
+    gap: 16px; /* Increased gap between logo and text */
 }
 
 .mobile-logo-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    border-radius: 0; /* Removed border radius for the black logo */
     background-color: transparent;
-    background-image: url('NewPetLogo.png');
+    background-image: url('/static/SmokyPetLogoBlack.png'); /* Updated to use the black logo */
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
@@ -25,8 +25,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 3px solid blue; /* Blue border to make it obvious */
+    transition: transform 0.3s ease;
+    border: none; /* Removed the blue border */
 }
 
 .mobile-logo-icon::before {
@@ -37,6 +37,7 @@
     color: #333;
     font-weight: 700;
     letter-spacing: 0.5px;
+    margin-left: 4px; /* Added some additional spacing */
 }
 
 .mobile-logo-text .highlight {
@@ -46,6 +47,6 @@
 
 /* Add hover effect for better interaction */
 a:hover .mobile-logo-icon {
-    transform: rotate(10deg) scale(1.05);
+    transform: scale(1.05);
     box-shadow: none;
 } 

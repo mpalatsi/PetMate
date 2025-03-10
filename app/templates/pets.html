@@ -226,7 +226,7 @@
     <div class="pets-header-bg">
         <h2>My Pets</h2>
         <a href="{{ url_for('pets.add_pet') }}" class="add-pet-button">
-            <i class="fas fa-plus-circle"></i> Add New Pet
+            <i class="fas fa-plus"></i> Add New Pet
         </a>
     </div>
     
@@ -268,8 +268,10 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="no-pets">
-            <p>You haven't added any pets yet.</p>
+        <div class="empty-state">
+            <img src="{{ url_for('static', filename='images/empty-pets.svg') }}" alt="No pets found">
+            <h3>No pets found</h3>
+            <p>It looks like you haven't added any pets yet.</p>
             <a href="{{ url_for('pets.add_pet') }}">Add your first pet!</a>
         </div>
     {% endif %}

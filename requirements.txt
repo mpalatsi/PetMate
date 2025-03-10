@@ -21,4 +21,8 @@ gevent-websocket==0.10.1
 eventlet==0.33.3
 requests==2.31.0
 phonenumbers==8.13.31
-bcrypt==4.1.2 
+bcrypt==4.1.2
+beautifulsoup4==4.12.2
+pytest==7.4.3
+pytest-flask==1.2.0
+pytest-flask-socketio==1.1.0 

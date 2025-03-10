@@ -13,4 +13,4 @@ if __name__ == '__main__':
     
     # Run with explicit host and port to avoid binding issues
     # and ensure WebSockets are accessible from all interfaces
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True) 
+    socketio.run(app, host='0.0.0.0', port=5006, debug=True, allow_unsafe_werkzeug=True) 

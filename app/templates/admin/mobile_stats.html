@@ -1,0 +1,440 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Statistics{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Critical overrides with !important */
+    body {
+        background-color: #F8F4E3 !important;
+        font-family: 'Poppins', sans-serif !important;
+        padding-bottom: 70px !important;
+    }
+    
+    h1, h2, h3, p {
+        margin: 0 !important;
+    }
+    
+    .mobile-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 100 !important;
+        background-color: #6B8E6B !important;
+        color: white !important;
+        height: 60px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0 15px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+    
+    .mobile-header h1 {
+        margin: 0 !important;
+        font-size: 20px !important;
+        font-weight: 600 !important;
+    }
+    
+    .back-button, .menu-button {
+        background: none !important;
+        border: none !important;
+        color: white !important;
+        font-size: 18px !important;
+        padding: 5px !important;
+        cursor: pointer !important;
+    }
+    
+    /* Admin container and general styles */
+    .admin-container {
+        padding: 15px !important;
+        margin-top: 75px !important;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Mobile Header -->
+<div class="mobile-header">
+    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-button" style="text-decoration: none; color: white;">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1>Statistics</h1>
+    <button id="menuButton" class="menu-button">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<div class="admin-container" style="padding: 15px; margin-top: 75px;">
+    <!-- Time Period Selector -->
+    <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="font-size: 16px; color: #2C4C2C; margin-bottom: 12px;">Time Period</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 5px;">
+            <a href="{{ url_for('admin.stats', period='week') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if period == 'week' else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if period == 'week' else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if period == 'week' else '#ddd' }}; white-space: nowrap;">Last Week</a>
+            <a href="{{ url_for('admin.stats', period='month') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if period == 'month' else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if period == 'month' else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if period == 'month' else '#ddd' }}; white-space: nowrap;">Last Month</a>
+            <a href="{{ url_for('admin.stats', period='quarter') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if period == 'quarter' else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if period == 'quarter' else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if period == 'quarter' else '#ddd' }}; white-space: nowrap;">Last Quarter</a>
+            <a href="{{ url_for('admin.stats', period='year') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if period == 'year' else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if period == 'year' else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if period == 'year' else '#ddd' }}; white-space: nowrap;">Last Year</a>
+        </div>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="font-size: 16px; color: #2C4C2C; margin-bottom: 12px; display: flex; align-items: center;">
+            <i class="fas fa-chart-line" style="margin-right: 8px; color: #6B8E6B;"></i> Key Metrics
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+            <div style="background-color: rgba(246, 246, 246, 0.5); border-radius: 8px; padding: 15px; text-align: center;">
+                <h4 style="font-size: 14px; color: #666; margin-bottom: 5px;">New Users</h4>
+                <p style="font-size: 22px; font-weight: 600; color: #2C4C2C;">{{ stats.new_users }}</p>
+                <span style="font-size: 12px; color: {{ '#27AE60' if stats.user_trend > 0 else '#E74C3C' }};">
+                    <i class="fas fa-{{ 'arrow-up' if stats.user_trend > 0 else 'arrow-down' }}"></i> 
+                    {{ stats.user_trend|abs }}%
+                </span>
+            </div>
+            <div style="background-color: rgba(246, 246, 246, 0.5); border-radius: 8px; padding: 15px; text-align: center;">
+                <h4 style="font-size: 14px; color: #666; margin-bottom: 5px;">New Pets</h4>
+                <p style="font-size: 22px; font-weight: 600; color: #2C4C2C;">{{ stats.new_pets }}</p>
+                <span style="font-size: 12px; color: {{ '#27AE60' if stats.pet_trend > 0 else '#E74C3C' }};">
+                    <i class="fas fa-{{ 'arrow-up' if stats.pet_trend > 0 else 'arrow-down' }}"></i> 
+                    {{ stats.pet_trend|abs }}%
+                </span>
+            </div>
+            <div style="background-color: rgba(246, 246, 246, 0.5); border-radius: 8px; padding: 15px; text-align: center;">
+                <h4 style="font-size: 14px; color: #666; margin-bottom: 5px;">New Playdates</h4>
+                <p style="font-size: 22px; font-weight: 600; color: #2C4C2C;">{{ stats.new_playdates }}</p>
+                <span style="font-size: 12px; color: {{ '#27AE60' if stats.playdate_trend > 0 else '#E74C3C' }};">
+                    <i class="fas fa-{{ 'arrow-up' if stats.playdate_trend > 0 else 'arrow-down' }}"></i> 
+                    {{ stats.playdate_trend|abs }}%
+                </span>
+            </div>
+            <div style="background-color: rgba(246, 246, 246, 0.5); border-radius: 8px; padding: 15px; text-align: center;">
+                <h4 style="font-size: 14px; color: #666; margin-bottom: 5px;">New Photos</h4>
+                <p style="font-size: 22px; font-weight: 600; color: #2C4C2C;">{{ stats.new_photos }}</p>
+                <span style="font-size: 12px; color: {{ '#27AE60' if stats.photo_trend > 0 else '#E74C3C' }};">
+                    <i class="fas fa-{{ 'arrow-up' if stats.photo_trend > 0 else 'arrow-down' }}"></i> 
+                    {{ stats.photo_trend|abs }}%
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Engagement -->
+    <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="font-size: 16px; color: #2C4C2C; margin-bottom: 12px; display: flex; align-items: center;">
+            <i class="fas fa-users" style="margin-right: 8px; color: #6B8E6B;"></i> User Engagement
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+            <div style="background-color: rgba(246, 246, 246, 0.5); border-radius: 8px; padding: 15px; text-align: center;">
+                <h4 style="font-size: 14px; color: #666; margin-bottom: 5px;">Daily Active</h4>
+                <p style="font-size: 22px; font-weight: 600; color: #2C4C2C;">{{ stats.daily_active_users }}</p>
+            </div>
+            <div style="background-color: rgba(246, 246, 246, 0.5); border-radius: 8px; padding: 15px; text-align: center;">
+                <h4 style="font-size: 14px; color: #666; margin-bottom: 5px;">Weekly Active</h4>
+                <p style="font-size: 22px; font-weight: 600; color: #2C4C2C;">{{ stats.weekly_active_users }}</p>
+            </div>
+            <div style="background-color: rgba(246, 246, 246, 0.5); border-radius: 8px; padding: 15px; text-align: center;">
+                <h4 style="font-size: 14px; color: #666; margin-bottom: 5px;">Monthly Active</h4>
+                <p style="font-size: 22px; font-weight: 600; color: #2C4C2C;">{{ stats.monthly_active_users }}</p>
+            </div>
+        </div>
+        
+        <!-- Growth Chart -->
+        <div style="margin-top: 20px;">
+            <h4 style="font-size: 14px; color: #666; margin-bottom: 10px;">Growth Trends</h4>
+            <div style="height: 250px; width: 100%;">
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Activity Analysis -->
+    <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="font-size: 16px; color: #2C4C2C; margin-bottom: 12px; display: flex; align-items: center;">
+            <i class="fas fa-chart-bar" style="margin-right: 8px; color: #6B8E6B;"></i> Activity Analysis
+        </h3>
+        
+        <!-- Weekly Activity -->
+        <h4 style="font-size: 14px; color: #666; margin-bottom: 10px;">Activity by Day of Week</h4>
+        <div style="height: 200px; width: 100%; margin-bottom: 20px;">
+            <canvas id="activityChart"></canvas>
+        </div>
+        
+        <!-- Pet Types Distribution -->
+        <h4 style="font-size: 14px; color: #666; margin-bottom: 10px; margin-top: 20px;">Pet Types Distribution</h4>
+        <div style="display: flex; width: 100%; margin-bottom: 20px;">
+            <div style="width: 50%; height: 150px;">
+                <canvas id="petTypesChart"></canvas>
+            </div>
+            <div style="width: 50%; padding-left: 15px;">
+                <div style="margin-bottom: 15px;">
+                    {% for pet_type in stats.pet_types %}
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px;">
+                        <span>{{ pet_type.name }}</span>
+                        <span style="font-weight: 600;">{{ pet_type.percentage }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Popular Locations -->
+    <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="font-size: 16px; color: #2C4C2C; margin-bottom: 12px; display: flex; align-items: center;">
+            <i class="fas fa-map-marker-alt" style="margin-right: 8px; color: #6B8E6B;"></i> Popular Locations
+        </h3>
+        
+        {% for location in stats.top_locations %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; {% if not loop.last %}border-bottom: 1px solid #f0f0f0;{% endif %}">
+            <div>
+                <div style="font-weight: 500; font-size: 15px; color: #2C4C2C;">{{ location.name }}</div>
+                <div style="font-size: 13px; color: #666;">{{ location.details }}</div>
+            </div>
+            <div style="font-weight: 600; font-size: 16px; color: #6B8E6B;">{{ location.count }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Most Active Users -->
+    <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="font-size: 16px; color: #2C4C2C; margin-bottom: 12px; display: flex; align-items: center;">
+            <i class="fas fa-trophy" style="margin-right: 8px; color: #6B8E6B;"></i> Most Active Users
+        </h3>
+        
+        {% for user in stats.top_users %}
+        <div style="display: flex; align-items: center; padding: 10px 0; {% if not loop.last %}border-bottom: 1px solid #f0f0f0;{% endif %}">
+            <div style="width: 30px; height: 30px; border-radius: 50%; background-color: {{ '#F1C40F' if loop.index == 1 else '#BDC3C7' if loop.index == 2 else '#D35400' if loop.index == 3 else '#f0f0f0' }}; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 15px;">
+                {{ loop.index }}
+            </div>
+            <div style="flex: 1;">
+                <div style="font-weight: 500; font-size: 15px; color: #2C4C2C;">{{ user.username }}</div>
+                <div style="font-size: 13px; color: #666;">
+                    {{ user.pets|length }} pets · {{ user.hosted_playdates|length }} playdates
+                </div>
+            </div>
+            <div style="font-weight: 600; font-size: 16px; color: #6B8E6B; display: flex; align-items: center;">
+                {{ user.activity_score }}
+                <i class="fas fa-star" style="font-size: 12px; margin-left: 5px; color: #F39C12;"></i>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Menu Overlay -->
+<div id="menuOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 200; display: none;"></div>
+
+<!-- Menu -->
+<div id="adminMenu" style="position: fixed; top: 0; right: -80%; width: 80%; height: 100%; background-color: white; z-index: 300; transition: right 0.3s ease; box-shadow: -2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column;">
+    <div style="background-color: #6B8E6B; padding: 20px; color: white; position: relative;">
+        <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Admin Menu</h2>
+        <button id="closeMenu" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div style="padding: 20px; flex: 1; overflow-y: auto;">
+        <a href="{{ url_for('admin.admin_dashboard') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-tachometer-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Dashboard
+        </a>
+        <a href="{{ url_for('admin.user_management') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-users" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Users
+        </a>
+        <a href="{{ url_for('admin.pets_management') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-paw" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Pets
+        </a>
+        <a href="{{ url_for('admin.playdates_management') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-calendar-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Playdates
+        </a>
+        <a href="{{ url_for('admin.photos_management') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-images" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Photos
+        </a>
+        <a href="{{ url_for('admin.stats') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid #6B8E6B; background-color: rgba(107, 142, 107, 0.1); margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-chart-bar" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Statistics
+        </a>
+        <a href="{{ url_for('admin.incident_reports') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-flag" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Reports
+        </a>
+    </div>
+    <div style="padding: 15px; border-top: 1px solid #eee;">
+        <a href="{{ url_for('main.index') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-home" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Back to Site
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Menu functionality
+        const menuButton = document.getElementById('menuButton');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const adminMenu = document.getElementById('adminMenu');
+        const closeMenu = document.getElementById('closeMenu');
+        
+        menuButton.addEventListener('click', function() {
+            adminMenu.style.right = '0';
+            menuOverlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+        
+        function closeAdminMenu() {
+            adminMenu.style.right = '-80%';
+            menuOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        
+        closeMenu.addEventListener('click', closeAdminMenu);
+        menuOverlay.addEventListener('click', closeAdminMenu);
+        
+        // Growth Chart
+        const growthCtx = document.getElementById('growthChart').getContext('2d');
+        const growthChart = new Chart(growthCtx, {
+            type: 'line',
+            data: {
+                labels: {{ stats.time_labels|safe }},
+                datasets: [
+                    {
+                        label: 'Users',
+                        data: {{ stats.users_data }},
+                        borderColor: '#3498DB',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#3498DB'
+                    },
+                    {
+                        label: 'Pets',
+                        data: {{ stats.pets_data }},
+                        borderColor: '#2ECC71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#2ECC71'
+                    },
+                    {
+                        label: 'Playdates',
+                        data: {{ stats.playdates_data }},
+                        borderColor: '#E67E22',
+                        backgroundColor: 'rgba(230, 126, 34, 0.1)',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#E67E22'
+                    },
+                    {
+                        label: 'Photos',
+                        data: {{ stats.photos_data }},
+                        borderColor: '#9B59B6',
+                        backgroundColor: 'rgba(155, 89, 182, 0.1)',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#9B59B6'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            usePointStyle: true,
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Activity by Day of Week Chart
+        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        const activityChart = new Chart(activityCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ stats.activity_labels|safe }},
+                datasets: [{
+                    label: 'User Activity',
+                    data: {{ stats.activity_data }},
+                    backgroundColor: 'rgba(107, 142, 107, 0.7)',
+                    borderColor: 'rgba(107, 142, 107, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Pet Types Chart
+        const petTypesCtx = document.getElementById('petTypesChart').getContext('2d');
+        const petTypesChart = new Chart(petTypesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ stats.pet_type_labels|safe }},
+                datasets: [{
+                    data: {{ stats.pet_type_data }},
+                    backgroundColor: [
+                        '#3498DB', // Blue
+                        '#2ECC71', // Green
+                        '#E67E22', // Orange
+                        '#9B59B6', // Purple
+                        '#F1C40F', // Yellow
+                        '#95A5A6'  // Gray
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    });
+</script>
+{% endblock %} 

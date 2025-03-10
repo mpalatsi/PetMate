@@ -6,9 +6,23 @@
 <div class="container">
     <h1>Debug User Object</h1>
     
+    <h2>Current User Debug Info</h2>
+    {% if debug_info %}
+        <div style="background: #f8f8f8; border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 10px;">
+            <p><strong>Username:</strong> {{ debug_info.username }}</p>
+            <p><strong>Is Authenticated:</strong> {{ debug_info.is_authenticated }}</p>
+            <p><strong>Is Admin:</strong> {{ debug_info.is_admin }}</p>
+            <p><strong>Is Admin Type:</strong> {{ debug_info.is_admin_type }}</p>
+            <p><strong>Account Status:</strong> {{ debug_info.account_status }}</p>
+            <p><strong>Session Username:</strong> {{ debug_info.session_username }}</p>
+        </div>
+    {% else %}
+        <p>No debug info provided</p>
+    {% endif %}
+    
     <h2>User Type Information</h2>
-    <pre>User is {{ user is string and 'String' or 'Not a string' }}</pre>
-    <pre>User type: {{ user.__class__.__name__ }}</pre>
+    <pre>User is {{ user is defined and 'Defined' or 'Not defined' }}</pre>
+    <pre>User type: {{ user.__class__.__name__ if user is defined else 'Not defined' }}</pre>
     
     <h2>User Details</h2>
     {% if user is defined %}
@@ -25,10 +39,10 @@
     
     <h2>Context</h2>
     <pre>
-    User ID: {{ user_id }}
-    User is string: {{ user is string }}
-    User is not string: {{ user is not string }}
-    User account_status: {% if user is not string %}{{ user.account_status }}{% else %}N/A{% endif %}
+    {% if user_id is defined %}User ID: {{ user_id }}{% else %}User ID: Not defined{% endif %}
+    User is string: {{ user is defined and user is string }}
+    User is not string: {{ user is defined and user is not string }}
+    User account_status: {% if user is defined and user is not string and user.account_status is defined %}{{ user.account_status }}{% else %}N/A{% endif %}
     </pre>
 </div>
 {% endblock %} 

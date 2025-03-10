@@ -1,0 +1,184 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Report Photo - PetMate{% endblock %}
+
+{% block header_title %}Report Photo{% endblock %}
+
+{% block styles %}
+<style>
+    .mobile-report-container {
+        padding: 15px;
+        background-color: #f8f9fa;
+    }
+    
+    .report-photo-container {
+        background-color: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        margin-bottom: 15px;
+    }
+    
+    .report-photo-image {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+        object-fit: contain;
+        display: block;
+    }
+    
+    .report-form {
+        background-color: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        box-sizing: border-box;
+    }
+    
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .report-reason {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .reason-option {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        cursor: pointer;
+    }
+    
+    .reason-option input {
+        margin-right: 10px;
+    }
+    
+    .reason-option.selected {
+        border-color: #6B8E6B;
+        background-color: rgba(107, 142, 107, 0.1);
+    }
+    
+    .report-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .btn-cancel {
+        flex: 1;
+        padding: 12px 0;
+        background-color: #f0f0f0;
+        color: #333;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        font-size: 15px;
+    }
+    
+    .btn-report {
+        flex: 1;
+        padding: 12px 0;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+        font-size: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mobile-report-container">
+    <div class="report-photo-container">
+        <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" alt="{{ photo.title or 'Pet photo' }}" class="report-photo-image">
+    </div>
+    
+    <div class="report-form">
+        <form method="POST" action="{{ url_for('main.report_gallery_photo', photo_id=photo.id) }}">
+            <div class="form-group">
+                <label>Why are you reporting this photo?</label>
+                <div class="report-reason">
+                    <label class="reason-option">
+                        <input type="radio" name="reason" value="inappropriate_content" required>
+                        <span>Inappropriate content</span>
+                    </label>
+                    <label class="reason-option">
+                        <input type="radio" name="reason" value="spam">
+                        <span>Spam</span>
+                    </label>
+                    <label class="reason-option">
+                        <input type="radio" name="reason" value="harassment">
+                        <span>Harassment</span>
+                    </label>
+                    <label class="reason-option">
+                        <input type="radio" name="reason" value="copyright">
+                        <span>Copyright violation</span>
+                    </label>
+                    <label class="reason-option">
+                        <input type="radio" name="reason" value="other">
+                        <span>Other</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="details">Additional details (optional)</label>
+                <textarea name="details" id="details" class="form-control" placeholder="Please provide any additional information that might help us review this report."></textarea>
+            </div>
+            
+            <div class="report-buttons">
+                <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="btn-cancel">Cancel</a>
+                <button type="submit" class="btn-report">Submit Report</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add the 'selected' class to the clicked reason option
+        const reasonOptions = document.querySelectorAll('.reason-option');
+        reasonOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove 'selected' class from all options
+                reasonOptions.forEach(opt => opt.classList.remove('selected'));
+                // Add 'selected' class to the clicked option
+                this.classList.add('selected');
+            });
+        });
+    });
+</script>
+{% endblock %} 

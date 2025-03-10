@@ -315,9 +315,16 @@
                     <span class="badge">{{ unread_messages }}</span>
                     {% endif %}
                 </a>
-                <a href="{{ url_for('main.gallery') }}" class="main-menu-link">
+                <a href="{{ url_for('gallery.index') }}" class="main-menu-link">
                     <i class="fas fa-images"></i> Gallery
                 </a>
+                
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <a href="{{ url_for('admin.admin_dashboard') }}" class="main-menu-link">
+                    <i class="fas fa-shield-alt"></i> Admin Panel
+                </a>
+                {% endif %}
+                
                 <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>

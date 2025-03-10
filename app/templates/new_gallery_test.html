@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Gallery Test - PetMate{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 40px; text-align: center;">
+    <h1 style="color: #6B8E6B;">Gallery Test Page</h1>
+    <p>This is a test to see if template changes are being detected properly.</p>
+    <a href="{{ url_for('gallery.index') }}" class="btn btn-primary">Go to Regular Gallery</a>
+</div>
+{% endblock %} 

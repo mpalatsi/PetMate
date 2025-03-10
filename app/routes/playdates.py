@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, session, request, flash, jsonify
+from flask import Blueprint, render_template, redirect, url_for, session, request, flash, jsonify, current_app
 from app.models.user import User
 from app.models.pet import Pet
 from app.models.playdate import Playdate
@@ -279,7 +279,7 @@ def add_photos(playdate_id):
         if file and allowed_file(file.filename, {'jpg', 'jpeg', 'png', 'gif'}):
             filename = save_uploaded_file(
                 file, 
-                'app/static/playdate_photos', 
+                os.path.join(current_app.static_folder, 'playdate_photos'), 
                 f"playdate_{playdate_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
             )
             
@@ -390,7 +390,7 @@ def delete_photo(playdate_id, photo_id):
     
     try:
         # Delete the file from the server
-        file_path = os.path.join('app/static/playdate_photos', filename)
+        file_path = os.path.join('static/playdate_photos', filename)
         if os.path.exists(file_path):
             os.remove(file_path)
         
@@ -580,7 +580,7 @@ def delete_playdate(playdate_id):
         photos = PlaydatePhoto.query.filter_by(playdate_id=playdate_id).all()
         for photo in photos:
             # Delete the file from the server if it exists
-            photo_path = os.path.join('app/static/playdate_photos', photo.photo_path)
+            photo_path = os.path.join('static/playdate_photos', photo.photo_path)
             if os.path.exists(photo_path):
                 os.remove(photo_path)
             db.session.delete(photo)

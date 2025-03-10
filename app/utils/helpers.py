@@ -147,11 +147,15 @@ def get_file_url(filename, folder):
     if not filename:
         return None
     
-    # Remove 'app/static/' from the beginning if present
+    # Remove any static folder prefixes to ensure compatibility with the consolidated folder
     if folder.startswith('app/static/'):
         folder = folder[11:]
     elif folder.startswith('/app/static/'):
         folder = folder[12:]
+    elif folder.startswith('/app/app/static/'):
+        folder = folder[13:]
+    elif folder.startswith('static/'):
+        folder = folder[7:]
     
     return f"/static/{folder}/{filename}"
 
@@ -226,4 +230,47 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     
     # Calculate distance
     distance = radius * c
-    return distance 
+    return distance
+
+def is_mobile_device(request):
+    """
+    Enhanced detection for mobile devices with more aggressive desktop detection
+    to ensure desktop browsers always get desktop version.
+    """
+    # First check user agent as the most reliable indicator
+    user_agent = request.headers.get('User-Agent', '').lower()
+    
+    # Definite desktop indicators - these should always get desktop version
+    desktop_indicators = [
+        'windows nt', 'macintosh', 'win64', 'x11',
+        'windows', 'ubuntu', 'debian', 'fedora', 'mint',
+        'msie', 'trident', 'edge/',
+    ]
+    
+    # If any desktop indicator found, it's definitely a desktop
+    for indicator in desktop_indicators:
+        if indicator in user_agent:
+            # Override - this is definitely a desktop
+            return False
+    
+    # Check for mobile indicators
+    mobile_indicators = [
+        'android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone',
+        'mobile', 'opera mini', 'opera mobi', 'fennec', 'tablet'
+    ]
+    
+    # If any mobile indicator found, it's a mobile device
+    for indicator in mobile_indicators:
+        if indicator in user_agent:
+            return True
+            
+    # Check viewport size if available (from a cookie or header)
+    viewport_width = request.cookies.get('viewportWidth', '')
+    try:
+        if viewport_width and int(viewport_width) < 768:
+            return True
+    except (ValueError, TypeError):
+        pass
+    
+    # Default to desktop for unknown agents (safer assumption)
+    return False 

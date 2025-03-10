@@ -153,6 +153,7 @@
     .photo-meta {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         color: #777;
         font-size: 0.85rem;
         margin-top: auto;
@@ -160,14 +161,16 @@
         border-top: 1px solid rgba(0, 0, 0, 0.05);
     }
     
-    .photo-meta .meta-item {
+    .meta-left, .meta-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .meta-item {
         display: flex;
         align-items: center;
         gap: 5px;
-    }
-    
-    .photo-meta i {
-        color: var(--sage-green);
     }
 
     /* Action buttons - Improved styling */
@@ -494,13 +497,293 @@
     .photo-meta .owner-badge i {
         color: white;
     }
+
+    /* Engagement features */
+    .photo-engagement {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.7);
+        padding: 15px 10px;
+        text-align: center;
+        opacity: 1;
+        z-index: 20;
+        pointer-events: auto;
+    }
+
+    .engagement-button {
+        display: inline-block;
+        background-color: var(--sage-green);
+        color: white !important;
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        animation: pulse 1.5s infinite alternate;
+        z-index: 25;
+        pointer-events: auto;
+    }
+
+    .engagement-button:hover,
+    .engagement-button:focus {
+        background-color: #4a7c59;
+        transform: scale(1.05);
+        color: white !important;
+        text-decoration: none;
+    }
+
+    .engagement-button i {
+        margin-right: 5px;
+    }
+
+    /* Pulse animation for engagement button */
+    @keyframes pulse {
+        from { box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        to { box-shadow: 0 5px 15px rgba(74, 124, 89, 0.5); }
+    }
+
+    /* Lightbox engagement button */
+    .lightbox-actions {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        z-index: 1500;
+    }
+
+    .lightbox-engage-btn {
+        display: inline-block;
+        background-color: var(--sage-green);
+        color: white !important;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        animation: pulse 2s infinite alternate;
+        cursor: pointer;
+    }
+
+    .lightbox-engage-btn:hover {
+        transform: translateY(-5px);
+        background-color: #4a7c59;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        color: white !important;
+        text-decoration: none;
+    }
+
+    /* Engagement metrics in photo card */
+    .photo-engagement-stats {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 5px;
+    }
+
+    .engagement-stat {
+        display: inline-flex;
+        align-items: center;
+        color: #666;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .engagement-stat:hover {
+        color: var(--sage-green);
+    }
+
+    .engagement-stat i {
+        margin-right: 4px;
+        font-size: 0.9rem;
+    }
+
+    .engagement-stat.likes i {
+        color: #e74c3c;
+    }
+
+    .engagement-stat.comments i {
+        color: #3498db;
+    }
+
+    /* Visibility badges */
+    .visibility-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        z-index: 5;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .private-badge {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .public-badge {
+        background-color: #28a745;
+        color: white;
+    }
+
+    /* Social engagement overlay */
+    .social-engagement-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%);
+        padding: 30px 15px 15px;
+        text-align: center;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+        z-index: 10;
+    }
+
+    .photo-img-container:hover .social-engagement-overlay {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Enhanced engagement button */
+    .engagement-button {
+        display: inline-block;
+        background-color: var(--sage-green);
+        color: white !important;
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        animation: pulse 1.5s infinite alternate;
+    }
+
+    .engagement-button:hover {
+        background-color: #4a7c59;
+        transform: scale(1.05);
+        color: white !important;
+        text-decoration: none;
+    }
+
+    /* Share button */
+    .share-btn {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        transition: color 0.2s;
+        padding: 0;
+        font-size: 0.85rem;
+    }
+
+    .share-btn:hover {
+        color: var(--sage-green);
+    }
+
+    /* Owner indicator */
+    .owner-indicator {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: var(--sage-green);
+        color: white;
+        font-size: 0.7rem;
+    }
+
+    /* Content moderation styles */
+    .moderation-flag {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #dc3545;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 5;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        cursor: pointer;
+    }
+
+    .moderation-flag i {
+        font-size: 0.9rem;
+    }
+
+    .moderation-tooltip {
+        position: absolute;
+        top: 45px;
+        right: 0;
+        background-color: #343a40;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 6;
+    }
+
+    .moderation-flag:hover .moderation-tooltip {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .explicit-content-blur {
+        filter: blur(15px);
+        transition: filter 0.3s ease;
+    }
+
+    .explicit-content-blur:hover {
+        filter: blur(5px);
+    }
+
+    .explicit-content-warning {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0,0,0,0.7);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        z-index: 5;
+        text-align: center;
+        pointer-events: none;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container gallery-container">
     <div class="gallery-header">
-        <h1>Pet Photo Gallery</h1>
+        <h1>Pet Photo Gallery - Redesigned</h1>
         <p>Share and explore pet photos from our community</p>
         <a href="{{ url_for('main.upload_to_gallery') }}" class="upload-btn">
             <i class="fas fa-upload"></i> Upload New Photo
@@ -508,8 +791,8 @@
     </div>
     
     <div class="gallery-nav">
-        <div class="gallery-tab active" data-tab="personal">My Photos</div>
-        <div class="gallery-tab" data-tab="public">Public Gallery</div>
+        <div class="gallery-tab active" data-tab="personal-photos">My Photos</div>
+        <div class="gallery-tab" data-tab="public-photos">Public Gallery</div>
     </div>
     
     <!-- Personal Photos Section -->
@@ -546,7 +829,7 @@
                             <div class="photo-img-container">
                                 <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" 
                                      alt="{{ photo.title or 'Pet photo' }}" 
-                                     class="gallery-photo"
+                                     class="gallery-photo{% if photo.is_explicit %} explicit-content-blur{% endif %}"
                                      data-photo-id="{{ photo.id }}"
                                      data-title="{{ photo.title or 'Untitled' }}"
                                      data-description="{{ photo.description or '' }}">
@@ -565,13 +848,36 @@
                                         </button>
                                     </form>
                                     
-                                    <form method="POST" action="{{ url_for('main.delete_gallery_photo', photo_id=photo.id) }}" style="margin: 0;">
-                                        <button type="submit" class="action-btn delete-btn" 
-                                                onclick="return confirm('Are you sure you want to delete this photo? This action cannot be undone.')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <button class="action-btn delete-btn" onclick="confirmDelete('{{ photo.id }}')" title="Delete photo">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </div>
+                                
+                                {% if not photo.is_public %}
+                                    <div class="visibility-badge private-badge">
+                                        <i class="fas fa-lock"></i> Private
+                                    </div>
+                                {% else %}
+                                    <div class="visibility-badge public-badge">
+                                        <i class="fas fa-globe"></i> Public
+                                    </div>
+                                {% endif %}
+
+                                <!-- Social Engagement Overlay -->
+                                <div class="social-engagement-overlay">
+                                    <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="engagement-button" onclick="event.stopPropagation();">
+                                        <i class="fas fa-heart"></i> <i class="fas fa-comment"></i> View & Engage
+                                    </a>
+                                </div>
+
+                                <!-- Add content moderation flag -->
+                                {% if photo.is_explicit %}
+                                    <div class="moderation-flag">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <div class="moderation-tooltip">Potentially sensitive content</div>
+                                    </div>
+                                    <div class="explicit-content-warning">Potentially sensitive content</div>
+                                {% endif %}
                             </div>
                             
                             <div class="photo-content">
@@ -579,25 +885,32 @@
                                 <p class="photo-description">{{ photo.description or 'No description provided.' }}</p>
                                 
                                 <div class="photo-meta">
-                                    <div class="meta-item">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        <span>{{ photo.created_at.strftime('%b %d, %Y') }}</span>
+                                    <div class="meta-left">
+                                        <div class="meta-item date">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <span>{{ photo.created_at.strftime('%b %d, %Y') }}</span>
+                                        </div>
+                                        
+                                        {% if photo.pet %}
+                                            <div class="meta-item pet">
+                                                <i class="fas fa-paw"></i>
+                                                <span>{{ photo.pet.name }}</span>
+                                            </div>
+                                        {% endif %}
                                     </div>
                                     
-                                    {% if photo.pet %}
-                                        <div class="meta-item">
-                                            <i class="fas fa-paw"></i>
-                                            <span>{{ photo.pet.name }}</span>
-                                        </div>
-                                    {% endif %}
-                                    
-                                    <!-- Add private badge to metadata section -->
-                                    {% if not photo.is_public %}
-                                        <div class="meta-item private-badge">
-                                            <i class="fas fa-lock"></i>
-                                            <span>Private</span>
-                                        </div>
-                                    {% endif %}
+                                    <div class="meta-right">
+                                        <!-- Social Engagement Stats -->
+                                        <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="engagement-stat likes">
+                                            <i class="fas fa-heart"></i> {{ photo.likes|default([])|length }}
+                                        </a>
+                                        <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="engagement-stat comments">
+                                            <i class="fas fa-comment"></i> {{ photo.comments|default([])|length }}
+                                        </a>
+                                        <button class="share-btn" onclick="sharePhoto('{{ photo.id }}', event)">
+                                            <i class="fas fa-share-alt"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -644,51 +957,55 @@
         
         <!-- Pass photos data to JavaScript -->
         <script>
-            // Photo data from server
-            const allPhotos = [
-                {% for photo in all_photos %}
-                {
-                    id: {{ photo.id }},
-                    title: "{{ photo.title|default('Untitled', true)|e }}",
-                    description: "{{ photo.description|default('No description provided.', true)|e }}",
-                    filename: "{{ photo.filename }}",
-                    isPublic: {{ 'true' if photo.is_public == True else 'false' }},
-                    userId: "{{ photo.user_id }}",
-                    {% if photo.uploader %}
-                    uploaderUsername: "{{ photo.uploader.username|e }}",
-                    {% else %}
-                    uploaderUsername: "Unknown",
-                    {% endif %}
-                    {% if photo.pet %}
-                    petName: "{{ photo.pet.name|e }}",
-                    hasPet: true,
-                    {% else %}
-                    hasPet: false,
-                    {% endif %}
-                    createdAt: "{{ photo.created_at.strftime('%b %d, %Y') if photo.created_at else 'Unknown date' }}"
-                }{% if not loop.last %},{% endif %}
-                {% endfor %}
-            ];
+            // Photo data will be loaded from server-rendered HTML elements 
+            // rather than directly creating JavaScript objects with Jinja templating
+            let allPhotos = [];
             
-            const userId = "{{ user_id }}";
-            const isValidUser = {{ 'true' if is_valid_user else 'false' }};
+            // Function to initialize the photo data from the DOM
+            function initializePhotoData() {
+                // Get all photo card elements
+                const photoCards = document.querySelectorAll('.photo-card');
+                
+                photoCards.forEach(card => {
+                    // Get the image element
+                    const img = card.querySelector('.gallery-photo');
+                    
+                    // Extract data from the image's data attributes
+                    if (img) {
+                        const photoId = img.dataset.photoId || '';
+                        const isPublic = card.querySelector('.public-badge') !== null;
+                        
+                        // Add photo data to the array
+                        allPhotos.push({
+                            id: photoId,
+                            isPublic: isPublic
+                        });
+                    }
+                });
+                
+                console.log('Initialized photo data:', allPhotos);
+            }
             
-            // Separate photos into public and private
-            const publicPhotos = allPhotos.filter(photo => photo.isPublic === true);
-            // We don't need private photos anymore since the toggle is removed
+            // Call initialization when DOM is loaded
+            document.addEventListener('DOMContentLoaded', initializePhotoData);
+            
+            // Function to filter photos by visibility
+            function filterPhotosByVisibility(isPublic) {
+                return allPhotos.filter(photo => photo.isPublic === isPublic);
+            }
             
             // Update containers with collected photos
             document.addEventListener('DOMContentLoaded', function() {
                 const publicContainer = document.getElementById('public-photos-container');
                 
                 // Generate HTML for photos
-                if (publicPhotos.length > 0) {
+                if (filterPhotosByVisibility(true).length > 0) {
                     // Create grid for public photos
                     const publicGrid = document.createElement('div');
                     publicGrid.className = 'gallery-grid';
                     
                     // Add each public photo
-                    publicPhotos.forEach(photo => {
+                    filterPhotosByVisibility(true).forEach(photo => {
                         publicGrid.innerHTML += createPhotoCardHTML(photo, false);
                     });
                     
@@ -715,48 +1032,34 @@
             
             // Helper function to create photo card HTML
             function createPhotoCardHTML(photo, isPrivate) {
+                // Create a view URL that works reliably
+                const viewUrl = '/gallery/photo/' + photo.id;
+                
                 return `
                     <div class="photo-card">
                         <div class="photo-img-container">
-                            <img src="{{ url_for('static', filename='pet_images/gallery_photos/') }}${photo.filename}" 
-                                 alt="${photo.title}" 
+                            <img src="/static/pet_images/gallery_photos/${photo.filename || 'default.jpg'}" 
+                                 alt="Pet photo"
                                  class="gallery-photo"
-                                 data-photo-id="${photo.id}"
-                                 data-title="${photo.title}"
-                                 data-description="${photo.description}">
+                                 data-photo-id="${photo.id}">
+                            
+                            <!-- Simple badge based on visibility -->
+                            <div class="visibility-badge ${isPrivate ? 'private-badge' : 'public-badge'}">
+                                <i class="fas ${isPrivate ? 'fa-lock' : 'fa-globe'}"></i>
+                                ${isPrivate ? 'Private' : 'Public'}
+                            </div>
+                            
+                            <!-- Engagement overlay with correct URL structure -->
+                            <div class="social-engagement-overlay">
+                                <a href="${viewUrl}" class="engagement-button" onclick="event.stopPropagation();">
+                                    <i class="fas fa-heart"></i> <i class="fas fa-comment"></i> View & Engage
+                                </a>
+                            </div>
                         </div>
                         
-                        <div class="photo-content">
-                            <h3 class="photo-title">${photo.title}</h3>
-                            <p class="photo-description">${photo.description}</p>
-                            
-                            <div class="photo-meta">
-                                <div class="meta-item">
-                                    <i class="fas fa-user"></i>
-                                    <span>${photo.uploaderUsername}</span>
-                                </div>
-                                
-                                ${photo.hasPet ? `
-                                    <div class="meta-item">
-                                        <i class="fas fa-paw"></i>
-                                        <span>${photo.petName}</span>
-                                    </div>
-                                ` : ''}
-                                
-                                ${isValidUser && photo.userId === userId ? `
-                                    <div class="meta-item owner-badge">
-                                        <i class="fas fa-user-check"></i>
-                                        <span>You</span>
-                                    </div>
-                                ` : ''}
-                                
-                                ${isPrivate ? `
-                                    <div class="meta-item private-badge">
-                                        <i class="fas fa-lock"></i>
-                                        <span>Private</span>
-                                    </div>
-                                ` : ''}
-                            </div>
+                        <div class="photo-content" onclick="location.href='${viewUrl}';">
+                            <h3 class="photo-title">Photo</h3>
+                            <p class="photo-description">View this photo</p>
                         </div>
                     </div>
                 `;
@@ -764,18 +1067,38 @@
             
             // Setup lightbox for dynamic photos
             function setupLightbox() {
-                // Update to select dynamically added photos
+                // Select all gallery photos
                 document.querySelectorAll('.gallery-photo').forEach(img => {
-                    img.addEventListener('click', () => {
+                    img.addEventListener('click', (e) => {
+                        // Don't open lightbox if clicking on social engagement overlay
+                        if (e.target.closest('.social-engagement-overlay')) {
+                            console.log("Click on engagement overlay, ignoring lightbox");
+                            return;
+                        }
+                        
                         const lightbox = document.getElementById('photo-lightbox');
                         const lightboxImg = lightbox.querySelector('.lightbox-img');
                         const lightboxCaption = lightbox.querySelector('.lightbox-caption');
+                        const lightboxEngageLink = document.getElementById('lightbox-engage-link');
                         
+                        // Set lightbox content
                         lightboxImg.src = img.src;
-                        lightboxCaption.textContent = img.dataset.title;
+                        lightboxCaption.textContent = img.dataset.title || 'Untitled';
                         if (img.dataset.description) {
                             lightboxCaption.textContent += ': ' + img.dataset.description;
                         }
+                        
+                        // Set engagement link URL
+                        if (lightboxEngageLink) {
+                            const photoId = img.dataset.photoId;
+                            if (photoId) {
+                                const viewUrl = `{{ url_for('main.view_gallery_photo', photo_id=0) }}`.replace('0', photoId);
+                                lightboxEngageLink.href = viewUrl;
+                                console.log("Set lightbox engagement link to:", viewUrl);
+                            }
+                        }
+                        
+                        // Show lightbox
                         lightbox.classList.add('active');
                         document.body.style.overflow = 'hidden'; // Prevent scrolling
                     });
@@ -790,22 +1113,60 @@
         <div class="lightbox-content">
             <img src="" alt="Enlarged photo" class="lightbox-img">
             <div class="lightbox-caption"></div>
+            <!-- Add lightbox engagement button -->
+            <div class="lightbox-actions">
+                <a href="#" id="lightbox-engage-link" class="lightbox-engage-btn">
+                    <i class="fas fa-heart"></i> <i class="fas fa-comment"></i> Like & Comment
+                </a>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Tab switching
-    document.querySelectorAll('.gallery-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Remove active class from all tabs and sections
-            document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
-            
-            // Add active class to clicked tab and corresponding section
-            tab.classList.add('active');
-            document.getElementById(tab.dataset.tab + '-photos').classList.add('active');
+    // Tab switching functionality with proper event handling
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up tab switching
+        document.querySelectorAll('.gallery-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Get the tab identifier from the data attribute
+                const tabId = this.getAttribute('data-tab');
+                
+                // First, hide all sections
+                document.querySelectorAll('.gallery-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // Show the selected section
+                const activeSection = document.getElementById(tabId);
+                if (activeSection) {
+                    activeSection.style.display = 'block';
+                }
+                
+                // Update active tab styling
+                document.querySelectorAll('.gallery-tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // Add active class to this tab
+                this.classList.add('active');
+            });
         });
+        
+        // Initial check to ensure the right section is visible
+        const activeTab = document.querySelector('.gallery-tab.active');
+        if (activeTab) {
+            const tabId = activeTab.getAttribute('data-tab');
+            const activeSection = document.getElementById(tabId);
+            if (activeSection) {
+                // Hide all sections first
+                document.querySelectorAll('.gallery-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                // Show only the active section
+                activeSection.style.display = 'block';
+            }
+        }
     });
     
     // Lightbox functionality
@@ -813,20 +1174,64 @@
     const lightboxImg = lightbox.querySelector('.lightbox-img');
     const lightboxCaption = lightbox.querySelector('.lightbox-caption');
     const lightboxClose = lightbox.querySelector('.lightbox-close');
+    const lightboxEngageLink = document.getElementById('lightbox-engage-link');
     
     // Open lightbox when clicking on gallery images
     document.querySelectorAll('.gallery-photo').forEach(img => {
-        img.addEventListener('click', () => {
+        img.addEventListener('click', (e) => {
+            // Don't open lightbox if clicking on photo-engagement overlay
+            if (e.target.closest('.photo-engagement')) {
+                console.log("Click on engagement overlay, ignoring lightbox");
+                return;
+            }
+            
             lightboxImg.src = img.src;
             lightboxCaption.textContent = img.dataset.title;
             if (img.dataset.description) {
                 lightboxCaption.textContent += ': ' + img.dataset.description;
             }
+            
+            // Set engagement link URL to the view page for this photo
+            if (lightboxEngageLink) {
+                // Find the closest engagement button and copy its href
+                const engagementButton = img.closest('.photo-image').querySelector('.engagement-button');
+                if (engagementButton && engagementButton.href) {
+                    lightboxEngageLink.href = engagementButton.href;
+                    console.log("Set lightbox engagement link to:", engagementButton.href);
+                }
+            }
+            
             lightbox.classList.add('active');
             document.body.style.overflow = 'hidden'; // Prevent scrolling
         });
     });
     
+    // Make lightbox engagement button work correctly
+    if (lightboxEngageLink) {
+        lightboxEngageLink.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent default behavior
+            e.stopPropagation(); // Prevent event from closing lightbox
+            console.log("Lightbox engage button clicked, navigating to:", lightboxEngageLink.href);
+            if (lightboxEngageLink.href) {
+                window.location.href = lightboxEngageLink.href;
+            }
+            return false;
+        });
+    }
+
+    // Make photo info clickable to navigate to detail view
+    document.querySelectorAll('.photo-info').forEach(info => {
+        info.style.cursor = 'pointer';
+    });
+
+    // Ensure engagement buttons are clickable
+    document.querySelectorAll('.engagement-button, .engagement-stat').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event from triggering lightbox
+            // Navigation will be handled by the link's href
+        });
+    });
+
     // Close lightbox
     lightboxClose.addEventListener('click', closeLightbox);
     lightbox.addEventListener('click', e => {
@@ -845,6 +1250,53 @@
     function closeLightbox() {
         lightbox.classList.remove('active');
         document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    // Photo deletion confirmation
+    function confirmDelete(photoId) {
+        if (confirm('Are you sure you want to delete this photo? This action cannot be undone.')) {
+            // Create a form for submission
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `{{ url_for('main.delete_gallery_photo', photo_id=0) }}`.replace('0', photoId);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    // Share photo functionality
+    function sharePhoto(photoId, event) {
+        event.stopPropagation(); // Prevent parent click events
+        
+        // Generate shareable URL
+        const shareUrl = `${window.location.origin}{{ url_for('main.view_gallery_photo', photo_id=0) }}`.replace('0', photoId);
+        
+        // Check if Web Share API is available
+        if (navigator.share) {
+            navigator.share({
+                title: 'Check out this pet photo!',
+                url: shareUrl
+            }).catch(error => {
+                console.log('Error sharing:', error);
+                fallbackShare(shareUrl);
+            });
+        } else {
+            fallbackShare(shareUrl);
+        }
+    }
+
+    // Fallback sharing method (copy to clipboard)
+    function fallbackShare(shareUrl) {
+        // Create temporary input for copying
+        const input = document.createElement('input');
+        input.value = shareUrl;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        
+        // Show feedback
+        alert('Link copied to clipboard: ' + shareUrl);
     }
 </script>
 {% endblock %} 

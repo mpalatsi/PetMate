@@ -251,7 +251,7 @@
     </div>
     
     <div class="review-form-body">
-        <form method="POST" action="{{ url_for('write_review', user_id=user.id) }}" class="review-form">
+        <form method="POST" action="{{ url_for('reviews.write_review', user_id=user.id) }}" class="review-form">
             <div class="form-group">
                 <label for="playdate_id">
                     Select Playdate

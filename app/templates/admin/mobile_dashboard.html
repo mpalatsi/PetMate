@@ -1,0 +1,288 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Critical overrides with !important */
+    body {
+        background-color: #F8F4E3 !important;
+        font-family: 'Poppins', sans-serif !important;
+        padding-bottom: 70px !important;
+    }
+    
+    h1, h2, h3, p {
+        margin: 0 !important;
+    }
+    
+    .mobile-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 100 !important;
+        background-color: #6B8E6B !important;
+        color: white !important;
+        height: 60px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0 15px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+    
+    .mobile-header h1 {
+        margin: 0 !important;
+        font-size: 20px !important;
+        font-weight: 600 !important;
+    }
+    
+    .back-button, .menu-button {
+        background: none !important;
+        border: none !important;
+        color: white !important;
+        font-size: 18px !important;
+        padding: 5px !important;
+        cursor: pointer !important;
+    }
+    
+    /* Dashboard container and cards */
+    .admin-container {
+        padding: 15px !important;
+        margin-top: 75px !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Mobile Header -->
+<div class="mobile-header">
+    <a href="{{ url_for('main.index') }}" class="back-button" style="text-decoration: none; color: white;">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1>Admin Dashboard</h1>
+    <button id="menuButton" class="menu-button">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<div class="admin-container" style="padding: 15px; margin-top: 75px;">
+    <!-- Welcome Card -->
+    <div style="background-color: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #6B8E6B;">
+        <h1 style="margin: 0 0 10px 0; color: #2C4C2C; font-size: 22px; font-weight: 700;">Welcome to Admin Dashboard</h1>
+        <p style="margin: 0; color: #666; line-height: 1.5; font-size: 14px;">Manage users, pets, playdates and monitor site activity from this central admin panel.</p>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px;">
+        <a href="{{ url_for('admin.user_management') }}" style="text-decoration: none; cursor: pointer; display: block; position: relative;">
+            <div style="background-color: white; padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; overflow: hidden; border-bottom: 3px solid #6B8E6B; transition: transform 0.2s, box-shadow 0.2s;">
+                <i class="fas fa-users" style="position: absolute; top: 10px; right: 10px; font-size: 14px; opacity: 0.3; color: #6B8E6B;"></i>
+                <h3 style="font-size: 14px; color: #666; margin: 0 0 8px 0; font-weight: 500;">Users</h3>
+                <p style="font-size: 24px; font-weight: 700; color: #2C4C2C; margin: 0;">{{ stats.total_users }}</p>
+                <div style="position: absolute; bottom: 8px; right: 8px; color: #6B8E6B; font-size: 10px;">
+                    <i class="fas fa-link"></i>
+                </div>
+            </div>
+        </a>
+        <a href="{{ url_for('admin.pets_management') }}" style="text-decoration: none; cursor: pointer; display: block; position: relative;">
+            <div style="background-color: white; padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; overflow: hidden; border-bottom: 3px solid #3498DB; transition: transform 0.2s, box-shadow 0.2s;">
+                <i class="fas fa-paw" style="position: absolute; top: 10px; right: 10px; font-size: 14px; opacity: 0.3; color: #3498DB;"></i>
+                <h3 style="font-size: 14px; color: #666; margin: 0 0 8px 0; font-weight: 500;">Pets</h3>
+                <p style="font-size: 24px; font-weight: 700; color: #2C4C2C; margin: 0;">{{ stats.total_pets }}</p>
+                <div style="position: absolute; bottom: 8px; right: 8px; color: #3498DB; font-size: 10px;">
+                    <i class="fas fa-link"></i>
+                </div>
+            </div>
+        </a>
+        <a href="{{ url_for('admin.playdates_management') }}" style="text-decoration: none; cursor: pointer; display: block; position: relative;">
+            <div style="background-color: white; padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; overflow: hidden; border-bottom: 3px solid #E67E22; transition: transform 0.2s, box-shadow 0.2s;">
+                <i class="fas fa-calendar-alt" style="position: absolute; top: 10px; right: 10px; font-size: 14px; opacity: 0.3; color: #E67E22;"></i>
+                <h3 style="font-size: 14px; color: #666; margin: 0 0 8px 0; font-weight: 500;">Playdates</h3>
+                <p style="font-size: 24px; font-weight: 700; color: #2C4C2C; margin: 0;">{{ stats.total_playdates }}</p>
+                <div style="position: absolute; bottom: 8px; right: 8px; color: #E67E22; font-size: 10px;">
+                    <i class="fas fa-link"></i>
+                </div>
+            </div>
+        </a>
+        <a href="{{ url_for('admin.photos_management') }}" style="text-decoration: none; cursor: pointer; display: block; position: relative;">
+            <div style="background-color: white; padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; overflow: hidden; border-bottom: 3px solid #2ECC71; transition: transform 0.2s, box-shadow 0.2s;">
+                <i class="fas fa-images" style="position: absolute; top: 10px; right: 10px; font-size: 14px; opacity: 0.3; color: #2ECC71;"></i>
+                <h3 style="font-size: 14px; color: #666; margin: 0 0 8px 0; font-weight: 500;">Photos</h3>
+                <p style="font-size: 24px; font-weight: 700; color: #2C4C2C; margin: 0;">{{ stats.total_photos }}</p>
+                <div style="position: absolute; bottom: 8px; right: 8px; color: #2ECC71; font-size: 10px;">
+                    <i class="fas fa-link"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <!-- Recent Users Section -->
+    <h2 style="margin: 25px 0 15px; font-size: 18px; font-weight: 600; color: #2C4C2C; display: flex; align-items: center; position: relative; padding-left: 15px;">
+        <span style="position: absolute; left: 0; width: 5px; height: 20px; background-color: #6B8E6B; border-radius: 3px;"></span>
+        <i class="fas fa-users" style="margin-right: 8px; color: #6B8E6B;"></i> Recent Users
+    </h2>
+    
+    <ul style="display: flex; flex-direction: column; gap: 10px; list-style: none; padding: 0; margin: 0;">
+        {% for user in recent_users %}
+        <li style="background-color: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center;">
+            <div style="width: 45px; height: 45px; border-radius: 50%; background-color: #6B8E6B; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 18px; margin-right: 15px; text-transform: uppercase;">
+                {{ user.username[0] }}
+            </div>
+            <div style="flex: 1;">
+                <p style="font-weight: 600; margin: 0; color: #2C4C2C;">{{ user.username }}</p>
+                <p style="color: #666; margin: 3px 0; font-size: 14px;">{{ user.email }}</p>
+                <p style="color: #999; font-size: 12px; font-style: italic;">Joined {{ user.created_at.strftime('%b %d, %Y') }}</p>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    
+    <!-- Quick Actions Section -->
+    <h2 style="margin: 25px 0 15px; font-size: 18px; font-weight: 600; color: #2C4C2C; display: flex; align-items: center; position: relative; padding-left: 15px;">
+        <span style="position: absolute; left: 0; width: 5px; height: 20px; background-color: #6B8E6B; border-radius: 3px;"></span>
+        <i class="fas fa-bolt" style="margin-right: 8px; color: #6B8E6B;"></i> Quick Actions
+    </h2>
+    
+    <ul style="display: flex; flex-direction: column; gap: 10px; list-style: none; padding: 0; margin: 0;">
+        <li style="background-color: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+            <a href="{{ url_for('admin.incident_reports') }}" style="display: flex; align-items: center; padding: 15px; text-decoration: none; color: #2C4C2C; position: relative;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background-color: rgba(231, 76, 60, 0.1); display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <i class="fas fa-flag" style="font-size: 16px; color: #E74C3C;"></i>
+                </div>
+                <span style="font-weight: 500;">Incident Reports</span>
+                {% if stats.unresolved_reports > 0 %}
+                <span style="display: inline-flex; align-items: center; justify-content: center; background-color: #E74C3C; color: white; border-radius: 50%; min-width: 20px; height: 20px; font-size: 11px; font-weight: 700; margin-left: 8px; padding: 0 5px;">
+                    {{ stats.unresolved_reports }}
+                </span>
+                {% endif %}
+                <i class="fas fa-chevron-right" style="position: absolute; right: 15px; font-size: 12px; color: #999;"></i>
+            </a>
+        </li>
+        <li style="background-color: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+            <a href="{{ url_for('admin.user_management', filter='new') }}" style="display: flex; align-items: center; padding: 15px; text-decoration: none; color: #2C4C2C; position: relative;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background-color: rgba(230, 126, 34, 0.1); display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <i class="fas fa-user-plus" style="font-size: 16px; color: #E67E22;"></i>
+                </div>
+                <span style="font-weight: 500;">New User Registrations</span>
+                <i class="fas fa-chevron-right" style="position: absolute; right: 15px; font-size: 12px; color: #999;"></i>
+            </a>
+        </li>
+        <li style="background-color: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+            <a href="{{ url_for('admin.playdates_management', filter='today') }}" style="display: flex; align-items: center; padding: 15px; text-decoration: none; color: #2C4C2C; position: relative;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background-color: rgba(52, 152, 219, 0.1); display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <i class="fas fa-calendar-day" style="font-size: 16px; color: #3498DB;"></i>
+                </div>
+                <span style="font-weight: 500;">Today's Playdates</span>
+                <i class="fas fa-chevron-right" style="position: absolute; right: 15px; font-size: 12px; color: #999;"></i>
+            </a>
+        </li>
+        <li style="background-color: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+            <a href="{{ url_for('admin.stats') }}" style="display: flex; align-items: center; padding: 15px; text-decoration: none; color: #2C4C2C; position: relative;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background-color: rgba(46, 204, 113, 0.1); display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <i class="fas fa-chart-bar" style="font-size: 16px; color: #2ECC71;"></i>
+                </div>
+                <span style="font-weight: 500;">Analytics & Statistics</span>
+                <i class="fas fa-chevron-right" style="position: absolute; right: 15px; font-size: 12px; color: #999;"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<!-- Main Menu -->
+<div id="menuOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 200; display: none;"></div>
+<div id="mainMenu" style="position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background-color: white; z-index: 300; transition: right 0.3s ease; box-shadow: -2px 0 5px rgba(0,0,0,0.1);">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background-color: #6B8E6B; color: white;">
+        <h2 style="margin: 0; font-size: 18px;">Menu</h2>
+        <button id="closeMenu" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div style="padding: 15px 0;">
+        <a href="{{ url_for('main.index') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-home" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Home
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-tachometer-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Dashboard
+        </a>
+        <a href="{{ url_for('pets.my_pets') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-paw" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> My Pets
+        </a>
+        <a href="{{ url_for('playdates.playdates') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-calendar" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Playdates
+        </a>
+        <a href="{{ url_for('gallery.index') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-images" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Photo Gallery
+        </a>
+        <a href="{{ url_for('messages.new_message') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-comments" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Messages
+        </a>
+        <a href="{{ url_for('main.search') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-search" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Search
+        </a>
+        
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <a href="{{ url_for('admin.admin_dashboard') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid #6B8E6B; background-color: rgba(107, 142, 107, 0.1);">
+            <i class="fas fa-shield-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Admin Panel
+        </a>
+        {% endif %}
+        
+        <a href="{{ url_for('auth.logout') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-sign-out-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Logout
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Menu functionality
+        const menuButton = document.getElementById('menuButton');
+        const closeMenuButton = document.getElementById('closeMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const mainMenu = document.getElementById('mainMenu');
+        
+        menuButton.addEventListener('click', function() {
+            menuOverlay.style.display = 'block';
+            mainMenu.style.right = '0';
+            document.body.style.overflow = 'hidden';
+        });
+        
+        function closeMenu() {
+            menuOverlay.style.display = 'none';
+            mainMenu.style.right = '-280px';
+            document.body.style.overflow = '';
+        }
+        
+        closeMenuButton.addEventListener('click', closeMenu);
+        menuOverlay.addEventListener('click', closeMenu);
+        
+        // Stat card hover effects
+        const statCards = document.querySelectorAll('.stats-grid a > div');
+        statCards.forEach(card => {
+            card.parentElement.addEventListener('mousedown', function() {
+                card.style.transform = 'scale(0.98)';
+                card.style.boxShadow = '0 1px 4px rgba(0,0,0,0.1)';
+            });
+            
+            card.parentElement.addEventListener('mouseup', function() {
+                card.style.transform = 'scale(1)';
+                card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            });
+            
+            card.parentElement.addEventListener('touchstart', function() {
+                card.style.transform = 'scale(0.98)';
+                card.style.boxShadow = '0 1px 4px rgba(0,0,0,0.1)';
+            });
+            
+            card.parentElement.addEventListener('touchend', function() {
+                setTimeout(() => {
+                    card.style.transform = 'scale(1)';
+                    card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                }, 150);
+            });
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,245 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Pet Management{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Critical overrides with !important */
+    body {
+        background-color: #F8F4E3 !important;
+        font-family: 'Poppins', sans-serif !important;
+        padding-bottom: 70px !important;
+    }
+    
+    h1, h2, h3, p {
+        margin: 0 !important;
+    }
+    
+    .mobile-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 100 !important;
+        background-color: #6B8E6B !important;
+        color: white !important;
+        height: 60px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0 15px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+    
+    .mobile-header h1 {
+        margin: 0 !important;
+        font-size: 20px !important;
+        font-weight: 600 !important;
+    }
+    
+    .back-button, .menu-button {
+        background: none !important;
+        border: none !important;
+        color: white !important;
+        font-size: 18px !important;
+        padding: 5px !important;
+        cursor: pointer !important;
+    }
+    
+    /* Admin container and general styles */
+    .admin-container {
+        padding: 15px !important;
+        margin-top: 75px !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Mobile Header -->
+<div class="mobile-header">
+    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-button" style="text-decoration: none; color: white;">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1>Pet Management</h1>
+    <button id="menuButton" class="menu-button">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<div class="admin-container" style="padding: 15px; margin-top: 75px;">
+    <!-- Search and Filter Section -->
+    <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <form method="GET" action="{{ url_for('admin.pets_management') }}" style="display: flex; gap: 8px; margin-bottom: 15px;">
+            <input type="text" name="search" placeholder="Search pets..." value="{{ request.args.get('search', '') }}" style="flex: 1; padding: 10px 15px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; outline: none;">
+            <button type="submit" style="background-color: #6B8E6B; color: white; border: none; border-radius: 8px; width: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+    </div>
+    
+    <!-- Pets List -->
+    <div style="margin-bottom: 20px;">
+        {% if pets %}
+            {% for pet in pets %}
+            <div style="background-color: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <div style="width: 60px; height: 60px; background-color: #ddd; border-radius: 50%; overflow: hidden; margin-right: 15px; flex-shrink: 0;">
+                        {% if pet.profile_image %}
+                        <img src="{{ url_for('static', filename='uploads/' + pet.profile_image) }}" alt="{{ pet.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                        <div style="width: 100%; height: 100%; background-color: #6B8E6B; color: white; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-paw" style="font-size: 22px;"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h3 style="font-size: 18px; font-weight: 600; color: #2C4C2C; margin-bottom: 4px;">{{ pet.name }}</h3>
+                        <div style="color: #666; font-size: 14px; display: flex; align-items: center;">
+                            <i class="fas fa-user" style="margin-right: 8px; color: #3498DB;"></i> <span style="font-weight: 500;">Owner:</span> <span style="margin-left: 4px;">{{ pet.owner.username }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background-color: rgba(107, 142, 107, 0.05); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 12px; color: #666; margin-bottom: 4px;">Breed</span>
+                        <span style="font-size: 14px; font-weight: 600; color: #2C4C2C;">{{ pet.breed }}</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 12px; color: #666; margin-bottom: 4px;">Age</span>
+                        <span style="font-size: 14px; font-weight: 600; color: #2C4C2C;">{{ pet.age }} {{ 'year' if pet.age == 1 else 'years' }}</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 12px; color: #666; margin-bottom: 4px;">Species</span>
+                        <span style="font-size: 14px; font-weight: 600; color: #2C4C2C;">{{ pet.species }}</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 12px; color: #666; margin-bottom: 4px;">Created</span>
+                        <span style="font-size: 14px; font-weight: 600; color: #2C4C2C;">{{ pet.created_at.strftime('%b %d, %Y') if pet.created_at else 'N/A' }}</span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 8px;">
+                    <a href="{{ url_for('admin.pet_details', pet_id=pet.id) }}" style="flex: 1; background-color: #f9f9f9; color: #2C4C2C; border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px 0; text-align: center; text-decoration: none; font-weight: 500; font-size: 14px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-eye" style="margin-right: 6px;"></i> View
+                    </a>
+                    <a href="{{ url_for('admin.pet_edit', pet_id=pet.id) }}" style="flex: 1; background-color: #6B8E6B; color: white; border-radius: 8px; padding: 8px 0; text-align: center; text-decoration: none; font-weight: 500; font-size: 14px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-edit" style="margin-right: 6px;"></i> Edit
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="background-color: white; border-radius: 12px; padding: 25px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <i class="fas fa-paw" style="font-size: 40px; color: #ccc; margin-bottom: 15px;"></i>
+                <p style="font-size: 16px; color: #666; margin-bottom: 5px;">No pets found</p>
+                <p style="font-size: 14px; color: #999;">Try adjusting your search</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <div style="display: flex; justify-content: center; margin-top: 20px; gap: 5px;">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('admin.pets_management', page=pagination.prev_num, search=request.args.get('search', '')) }}" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #f9f9f9; color: #2C4C2C; border: 1px solid #e0e0e0; text-decoration: none;">
+            <i class="fas fa-chevron-left" style="font-size: 12px;"></i>
+        </a>
+        {% endif %}
+        
+        {% for page in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if page %}
+                {% if page == pagination.page %}
+                <span style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #6B8E6B; color: white; border: 1px solid #6B8E6B; font-weight: 600; font-size: 14px;">
+                    {{ page }}
+                </span>
+                {% else %}
+                <a href="{{ url_for('admin.pets_management', page=page, search=request.args.get('search', '')) }}" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #f9f9f9; color: #2C4C2C; border: 1px solid #e0e0e0; text-decoration: none; font-size: 14px;">
+                    {{ page }}
+                </a>
+                {% endif %}
+            {% else %}
+                <span style="display: flex; align-items: center; padding: 0 5px; color: #999;">...</span>
+            {% endif %}
+        {% endfor %}
+        
+        {% if pagination.has_next %}
+        <a href="{{ url_for('admin.pets_management', page=pagination.next_num, search=request.args.get('search', '')) }}" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #f9f9f9; color: #2C4C2C; border: 1px solid #e0e0e0; text-decoration: none;">
+            <i class="fas fa-chevron-right" style="font-size: 12px;"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Main Menu -->
+<div id="menuOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 200; display: none;"></div>
+<div id="mainMenu" style="position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background-color: white; z-index: 300; transition: right 0.3s ease; box-shadow: -2px 0 5px rgba(0,0,0,0.1);">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background-color: #6B8E6B; color: white;">
+        <h2 style="margin: 0; font-size: 18px;">Menu</h2>
+        <button id="closeMenu" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div style="padding: 15px 0;">
+        <a href="{{ url_for('main.index') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-home" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Home
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-tachometer-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Dashboard
+        </a>
+        <a href="{{ url_for('pets.my_pets') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-paw" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> My Pets
+        </a>
+        <a href="{{ url_for('playdates.playdates') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-calendar" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Playdates
+        </a>
+        <a href="{{ url_for('gallery.index') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-images" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Photo Gallery
+        </a>
+        <a href="{{ url_for('messages.new_message') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-comments" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Messages
+        </a>
+        <a href="{{ url_for('main.search') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-search" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Search
+        </a>
+        
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <a href="{{ url_for('admin.admin_dashboard') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid #6B8E6B; background-color: rgba(107, 142, 107, 0.1);">
+            <i class="fas fa-shield-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Admin Panel
+        </a>
+        {% endif %}
+        
+        <a href="{{ url_for('auth.logout') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-sign-out-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Logout
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Menu functionality
+        const menuButton = document.getElementById('menuButton');
+        const closeMenuButton = document.getElementById('closeMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const mainMenu = document.getElementById('mainMenu');
+        
+        menuButton.addEventListener('click', function() {
+            menuOverlay.style.display = 'block';
+            mainMenu.style.right = '0';
+            document.body.style.overflow = 'hidden';
+        });
+        
+        function closeMenu() {
+            menuOverlay.style.display = 'none';
+            mainMenu.style.right = '-280px';
+            document.body.style.overflow = '';
+        }
+        
+        closeMenuButton.addEventListener('click', closeMenu);
+        menuOverlay.addEventListener('click', closeMenu);
+    });
+</script>
+{% endblock %} 

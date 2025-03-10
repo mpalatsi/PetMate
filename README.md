@@ -6,7 +6,7 @@
 
 ## 📋 Overview
 
-PetMate is a web application that helps pet owners find playmates for their pets. It allows users to create profiles for their pets, search for compatible playmates, schedule playdates, and communicate with other pet owners.
+PetMate is a Flask-based web application for pet owners to connect, schedule playdates, and share photos of their pets.
 
 ## ✨ Features
 
@@ -16,6 +16,9 @@ PetMate is a web application that helps pet owners find playmates for their pets
 - **Schedule Meetups**: Organize playdates at convenient times and locations
 - **RSVP System**: Confirm, tentatively accept, or decline playdate invitations
 - **User Profiles**: Customize your profile with a photo and bio
+- **Photo Gallery**: Share photos of your pets
+- **Messaging System**: Communicate with other pet owners
+- **Admin Panel**: Manage site features and user data
 
 ### For Pets
 - **Socialization**: Help your pets make friends and develop social skills
@@ -32,55 +35,48 @@ PetMate is a web application that helps pet owners find playmates for their pets
 ### Installation
 
 1. Clone the repository:
-   ```
+   ```bash
    git clone https://github.com/yourusername/petmate.git
    cd petmate
    ```
 
-2. Create and activate a virtual environment:
-   ```
+2. Create a virtual environment and activate it:
+   ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. Install dependencies:
-   ```
+   ```bash
    pip install -r requirements.txt
    ```
 
 4. Set up environment variables:
-   ```
-   export FLASK_APP=petmate.py
-   export FLASK_ENV=development
-   ```
-   On Windows:
-   ```
-   set FLASK_APP=petmate.py
-   set FLASK_ENV=development
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
    ```
 
 5. Initialize the database:
-   ```
-   flask create-tables
+   ```bash
+   flask db init
+   flask db migrate
+   flask db upgrade
    ```
 
-6. (Optional) Seed the database with sample data:
-   ```
-   flask seed-data
+6. Create an admin user:
+   ```bash
+   flask create-admin
    ```
 
 7. Run the application:
-   ```
-   flask run
-   ```
-   or
-   ```
-   python petmate.py
+   ```bash
+   python app.py
    ```
 
 8. Access the application at http://localhost:5000
 
-## 🛠️ Technology Stack
+## ��️ Technology Stack
 
 - **Backend**: Flask, SQLAlchemy
 - **Database**: SQLite (development), PostgreSQL (production)
@@ -122,6 +118,38 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 📬 Contact
 
 Project Link: [https://github.com/yourusername/petmate](https://github.com/yourusername/petmate)
+
+## Testing
+
+PetMate includes a comprehensive test suite. To run the tests:
+
+```bash
+python -m pytest
+```
+
+To run specific test files:
+
+```bash
+python -m pytest tests/test_auth.py
+```
+
+To run specific test functions:
+
+```bash
+python -m pytest tests/test_auth.py::TestAuth::test_register_and_login
+```
+
+To run tests with specific markers:
+
+```bash
+python -m pytest -m gallery
+```
+
+For more information on testing, see [tests/README.md](tests/README.md).
+
+## Mobile Interface
+
+PetMate includes a mobile-friendly interface that is automatically served to mobile devices. To force the mobile interface on desktop browsers, add `?mobile=1` to any URL.
 
 ---
 

@@ -1,0 +1,260 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}User Management{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Critical overrides with !important */
+    body {
+        background-color: #F8F4E3 !important;
+        font-family: 'Poppins', sans-serif !important;
+        padding-bottom: 70px !important;
+    }
+    
+    h1, h2, h3, p {
+        margin: 0 !important;
+    }
+    
+    .mobile-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 100 !important;
+        background-color: #6B8E6B !important;
+        color: white !important;
+        height: 60px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0 15px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+    
+    .mobile-header h1 {
+        margin: 0 !important;
+        font-size: 20px !important;
+        font-weight: 600 !important;
+    }
+    
+    .back-button, .menu-button {
+        background: none !important;
+        border: none !important;
+        color: white !important;
+        font-size: 18px !important;
+        padding: 5px !important;
+        cursor: pointer !important;
+    }
+    
+    /* Admin container and general styles */
+    .admin-container {
+        padding: 15px !important;
+        margin-top: 75px !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Mobile Header -->
+<div class="mobile-header">
+    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-button" style="text-decoration: none; color: white;">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1>User Management</h1>
+    <button id="menuButton" class="menu-button">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<div class="admin-container" style="padding: 15px; margin-top: 75px;">
+    <!-- Search and Filter Section -->
+    <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <form method="GET" action="{{ url_for('admin.user_management') }}" style="display: flex; gap: 8px; margin-bottom: 15px;">
+            <input type="text" name="search" placeholder="Search users..." value="{{ request.args.get('search', '') }}" style="flex: 1; padding: 10px 15px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; outline: none;">
+            <button type="submit" style="background-color: #6B8E6B; color: white; border: none; border-radius: 8px; width: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+            <a href="{{ url_for('admin.user_management') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if not request.args.get('filter') else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if not request.args.get('filter') else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if not request.args.get('filter') else '#ddd' }};">All</a>
+            <a href="{{ url_for('admin.user_management', filter='admin') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if request.args.get('filter') == 'admin' else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if request.args.get('filter') == 'admin' else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if request.args.get('filter') == 'admin' else '#ddd' }};">Admins</a>
+            <a href="{{ url_for('admin.user_management', filter='active') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if request.args.get('filter') == 'active' else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if request.args.get('filter') == 'active' else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if request.args.get('filter') == 'active' else '#ddd' }};">Active</a>
+            <a href="{{ url_for('admin.user_management', filter='inactive') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if request.args.get('filter') == 'inactive' else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if request.args.get('filter') == 'inactive' else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if request.args.get('filter') == 'inactive' else '#ddd' }};">Inactive</a>
+            <a href="{{ url_for('admin.user_management', filter='new') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if request.args.get('filter') == 'new' else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if request.args.get('filter') == 'new' else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if request.args.get('filter') == 'new' else '#ddd' }};">New</a>
+        </div>
+    </div>
+    
+    <!-- Users List -->
+    <div style="margin-bottom: 20px;">
+        {% if users %}
+            {% for user in users %}
+            <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background-color: #6B8E6B; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: white; font-weight: 600; font-size: 18px; text-transform: uppercase;">
+                        {{ user.username[0] }}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                            <p style="font-weight: 600; color: #2C4C2C; font-size: 16px;">{{ user.username }}</p>
+                            {% if user.is_admin %}
+                            <span style="background-color: #6B8E6B; color: white; font-size: 11px; border-radius: 12px; padding: 2px 8px; margin-left: 8px; font-weight: 500;">Admin</span>
+                            {% endif %}
+                            {% if not user.is_active %}
+                            <span style="background-color: #E74C3C; color: white; font-size: 11px; border-radius: 12px; padding: 2px 8px; margin-left: 8px; font-weight: 500;">Inactive</span>
+                            {% endif %}
+                        </div>
+                        <p style="color: #666; font-size: 14px; margin-bottom: 2px;">{{ user.email }}</p>
+                        <p style="color: #999; font-size: 12px; font-style: italic;">Joined {{ user.created_at.strftime('%b %d, %Y') }}</p>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background-color: rgba(107, 142, 107, 0.05); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 12px; color: #666; margin-bottom: 2px;">Pets</span>
+                        <span style="font-size: 16px; font-weight: 600; color: #2C4C2C;">{{ user.pets|length }}</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 12px; color: #666; margin-bottom: 2px;">Playdates</span>
+                        <span style="font-size: 16px; font-weight: 600; color: #2C4C2C;">{{ user.hosted_playdates|length }}</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 12px; color: #666; margin-bottom: 2px;">Last Login</span>
+                        <span style="font-size: 14px; color: #2C4C2C;">{{ user.last_login.strftime('%b %d, %Y') if user.last_login else 'Never' }}</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 12px; color: #666; margin-bottom: 2px;">Status</span>
+                        <span style="font-size: 14px; font-weight: 500; color: {{ '#2ECC71' if user.is_active else '#E74C3C' }};">{{ 'Active' if user.is_active else 'Inactive' }}</span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 8px;">
+                    <a href="{{ url_for('admin.user_details', user_id=user.id) }}" style="flex: 1; background-color: #f9f9f9; color: #2C4C2C; border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px 0; text-align: center; text-decoration: none; font-weight: 500; font-size: 14px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-eye" style="margin-right: 6px;"></i> View
+                    </a>
+                    {# Replace Edit with span since it doesn't exist #}
+                    <span style="flex: 1; background-color: #6B8E6B; color: white; border-radius: 8px; padding: 8px 0; text-align: center; text-decoration: none; font-weight: 500; font-size: 14px; display: flex; align-items: center; justify-content: center; opacity: 0.6; cursor: not-allowed;">
+                        <i class="fas fa-edit" style="margin-right: 6px;"></i> Edit
+                    </span>
+                    {% if not user.is_admin or current_user.id != user.id %}
+                    {# Replace Delete with span since it doesn't exist #}
+                    <span style="flex: 1; background-color: #E74C3C; color: white; border-radius: 8px; padding: 8px 0; text-align: center; text-decoration: none; font-weight: 500; font-size: 14px; display: flex; align-items: center; justify-content: center; opacity: 0.6; cursor: not-allowed;">
+                        <i class="fas fa-trash" style="margin-right: 6px;"></i> Delete
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="background-color: white; border-radius: 12px; padding: 25px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <i class="fas fa-users" style="font-size: 40px; color: #ccc; margin-bottom: 15px;"></i>
+                <p style="font-size: 16px; color: #666; margin-bottom: 5px;">No users found</p>
+                <p style="font-size: 14px; color: #999;">Try adjusting your search or filters</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <div style="display: flex; justify-content: center; margin-top: 20px; gap: 5px;">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('admin.user_management', page=pagination.prev_num, search=request.args.get('search', ''), filter=request.args.get('filter', '')) }}" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #f9f9f9; color: #2C4C2C; border: 1px solid #e0e0e0; text-decoration: none;">
+            <i class="fas fa-chevron-left" style="font-size: 12px;"></i>
+        </a>
+        {% endif %}
+        
+        {% for page in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if page %}
+                {% if page == pagination.page %}
+                <span style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #6B8E6B; color: white; border: 1px solid #6B8E6B; font-weight: 600; font-size: 14px;">
+                    {{ page }}
+                </span>
+                {% else %}
+                <a href="{{ url_for('admin.user_management', page=page, search=request.args.get('search', ''), filter=request.args.get('filter', '')) }}" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #f9f9f9; color: #2C4C2C; border: 1px solid #e0e0e0; text-decoration: none; font-size: 14px;">
+                    {{ page }}
+                </a>
+                {% endif %}
+            {% else %}
+                <span style="display: flex; align-items: center; padding: 0 5px; color: #999;">...</span>
+            {% endif %}
+        {% endfor %}
+        
+        {% if pagination.has_next %}
+        <a href="{{ url_for('admin.user_management', page=pagination.next_num, search=request.args.get('search', ''), filter=request.args.get('filter', '')) }}" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #f9f9f9; color: #2C4C2C; border: 1px solid #e0e0e0; text-decoration: none;">
+            <i class="fas fa-chevron-right" style="font-size: 12px;"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Main Menu -->
+<div id="menuOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 200; display: none;"></div>
+<div id="mainMenu" style="position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background-color: white; z-index: 300; transition: right 0.3s ease; box-shadow: -2px 0 5px rgba(0,0,0,0.1);">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background-color: #6B8E6B; color: white;">
+        <h2 style="margin: 0; font-size: 18px;">Menu</h2>
+        <button id="closeMenu" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div style="padding: 15px 0;">
+        <a href="{{ url_for('main.index') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-home" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Home
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-tachometer-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Dashboard
+        </a>
+        <a href="{{ url_for('pets.my_pets') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-paw" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> My Pets
+        </a>
+        <a href="{{ url_for('playdates.playdates') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-calendar" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Playdates
+        </a>
+        <a href="{{ url_for('gallery.index') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-images" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Photo Gallery
+        </a>
+        <a href="{{ url_for('messages.new_message') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-comments" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Messages
+        </a>
+        <a href="{{ url_for('main.search') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-search" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Search
+        </a>
+        
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <a href="{{ url_for('admin.admin_dashboard') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid #6B8E6B; background-color: rgba(107, 142, 107, 0.1);">
+            <i class="fas fa-shield-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Admin Panel
+        </a>
+        {% endif %}
+        
+        <a href="{{ url_for('auth.logout') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-sign-out-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Logout
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Menu functionality
+        const menuButton = document.getElementById('menuButton');
+        const closeMenuButton = document.getElementById('closeMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const mainMenu = document.getElementById('mainMenu');
+        
+        menuButton.addEventListener('click', function() {
+            menuOverlay.style.display = 'block';
+            mainMenu.style.right = '0';
+            document.body.style.overflow = 'hidden';
+        });
+        
+        function closeMenu() {
+            menuOverlay.style.display = 'none';
+            mainMenu.style.right = '-280px';
+            document.body.style.overflow = '';
+        }
+        
+        closeMenuButton.addEventListener('click', closeMenu);
+        menuOverlay.addEventListener('click', closeMenu);
+    });
+</script>
+{% endblock %} 

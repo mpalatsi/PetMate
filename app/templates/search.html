@@ -3,60 +3,196 @@
 {% block title %}Find Playdates - PetMate{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/search-page.css') }}">
+<style>
+    /* Reset and base styles */
+    * {
+        box-sizing: border-box;
+    }
+    
+    /* Main layout and card styling */
+    .playdate-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .page-title {
+        margin-bottom: 25px;
+        color: var(--deep-forest);
+        text-align: center;
+        font-size: 1.8rem;
+    }
+    
+    .search-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+        width: 100%;
+    }
+    
+    /* Header styling */
+    .card-header {
+        background-color: var(--sage-green);
+        color: white;
+        padding: 15px 20px;
+        position: relative;
+        width: 100%;
+    }
+    
+    .card-header h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: white;
+    }
+    
+    /* Card content styling */
+    .card-body {
+        padding: 20px;
+        width: 100%;
+    }
+    
+    /* Form styling */
+    .search-form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        width: 100%;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+        width: 100%;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--deep-forest);
+    }
+    
+    .form-group input, 
+    .form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-group input:focus, 
+    .form-group select:focus {
+        border-color: var(--sage-green);
+        box-shadow: 0 0 0 2px rgba(121, 163, 107, 0.2);
+        outline: none;
+    }
+    
+    .form-helper {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .search-form-actions {
+        grid-column: 1;
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .search-form-actions button {
+        padding: 12px 25px;
+        font-size: 1rem;
+        font-weight: 500;
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    /* Actions bar */
+    .action-bar {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 30px;
+    }
+    
+    .action-bar a {
+        text-decoration: none;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .search-form-grid {
+            gap: 10px;
+        }
+        
+        .action-bar {
+            flex-direction: column;
+        }
+        
+        .action-bar a {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .card-body {
+            padding: 15px;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container search-container">
-    <h2>Find Playdates</h2>
+<div class="playdate-container">
+    <h1 class="page-title">Find Playdates</h1>
     
-    <div class="search-intro">
-        <p>Looking for playdates for your fur babies? Search for nearby gatherings or find events on specific dates.</p>
+    <div class="search-card">
+        <div class="card-header">
+            <h3><i class="fas fa-search"></i> Search Criteria</h3>
+        </div>
+        
+        <div class="card-body">
+            <form action="{{ url_for('main.search_results') }}" method="GET">
+                <div class="search-form-grid">
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location" placeholder="Enter city, zip code, or address" value="{{ request.args.get('location', '') }}" required>
+                        <div class="form-helper">Search for playdates near a specific location</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="distance">Distance (miles)</label>
+                        <select id="distance" name="distance">
+                            <option value="5" {% if request.args.get('distance') == '5' %}selected{% endif %}>5 miles</option>
+                            <option value="10" {% if request.args.get('distance') == '10' %}selected{% endif %}>10 miles</option>
+                            <option value="25" {% if request.args.get('distance', '25') == '25' %}selected{% endif %}>25 miles</option>
+                            <option value="50" {% if request.args.get('distance') == '50' %}selected{% endif %}>50 miles</option>
+                            <option value="100" {% if request.args.get('distance') == '100' %}selected{% endif %}>100 miles</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="date">Date (optional)</label>
+                        <input type="date" id="date" name="date" value="{{ request.args.get('date', '') }}">
+                        <div class="form-helper">Leave blank to see all upcoming playdates</div>
+                    </div>
+                    
+                    <div class="search-form-actions">
+                        <button type="submit" class="button primary">
+                            <i class="fas fa-search"></i> Search Playdates
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
     
-    <div class="search-form">
-        <form action="{{ url_for('main.search_results') }}" method="GET">
-            <div class="search-form-grid">
-                <div class="form-group">
-                    <label for="location">
-                        <i class="fas fa-map-marker-alt"></i> Location
-                    </label>
-                    <input type="text" id="location" name="location" placeholder="Enter city, zip code, or address" value="{{ request.args.get('location', '') }}" required>
-                    <div class="form-helper">Search for playdates near a specific location</div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="distance">
-                        <i class="fas fa-road"></i> Distance
-                    </label>
-                    <select id="distance" name="distance">
-                        <option value="5" {% if request.args.get('distance') == '5' %}selected{% endif %}>5 miles</option>
-                        <option value="10" {% if request.args.get('distance') == '10' %}selected{% endif %}>10 miles</option>
-                        <option value="25" {% if request.args.get('distance', '25') == '25' %}selected{% endif %}>25 miles</option>
-                        <option value="50" {% if request.args.get('distance') == '50' %}selected{% endif %}>50 miles</option>
-                        <option value="100" {% if request.args.get('distance') == '100' %}selected{% endif %}>100 miles</option>
-                    </select>
-                    <div class="form-helper">How far you're willing to travel</div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="date">
-                        <i class="fas fa-calendar-day"></i> Date
-                    </label>
-                    <input type="date" id="date" name="date" value="{{ request.args.get('date', '') }}">
-                    <div class="form-helper">Leave blank to see all upcoming playdates</div>
-                </div>
-                
-                <div class="search-form-actions">
-                    <button type="submit" class="button primary">
-                        <i class="fas fa-search"></i> Search Playdates
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-    
-    <div class="playdate-actions">
+    <div class="action-bar">
         <a href="{{ url_for('playdates.create_playdate') }}" class="button primary">
             <i class="fas fa-plus"></i> Schedule New Playdate
         </a>

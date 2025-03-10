@@ -1,0 +1,121 @@
+/* Enhanced Search Page Styling */
+.search-container {
+    background-color: var(--bg-white);
+    border-radius: 12px;
+    padding: 2.5rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-light);
+    max-width: 900px;
+}
+
+.search-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--deep-forest);
+    position: relative;
+}
+
+.search-container h2:after {
+    content: '';
+    position: absolute;
+    bottom: -0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: var(--sage-green);
+    border-radius: 2px;
+}
+
+.search-intro {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    padding: 0 1rem;
+    line-height: 1.6;
+}
+
+.search-form {
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(124, 144, 130, 0.15);
+}
+
+.search-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.form-group {
+    background: var(--bg-white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(124, 144, 130, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.search-form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.search-form-actions .button {
+    min-width: 180px;
+}
+
+.search-form .form-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--deep-forest);
+}
+
+.search-form .form-group label i {
+    color: var(--sage-green);
+}
+
+.playdate-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.playdate-actions .button {
+    min-width: 200px;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .search-form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .form-group {
+        padding: 1rem;
+    }
+    
+    .playdate-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .playdate-actions .button {
+        width: 100%;
+        max-width: 300px;
+        margin-bottom: 0.5rem;
+    }
+} 

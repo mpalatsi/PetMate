@@ -4,19 +4,19 @@
 
 {% block content %}
 <div class="container" style="margin-top: 30px;">
-    <div style="max-width: 800px; margin: 0 auto; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1);">
-        <h2 style="text-align: center; color: #68a063;">Upload to Pet Gallery</h2>
+    <div style="max-width: 800px; margin: 0 auto; border: 1px solid #ddd; padding: 20px; border-radius: 10px;">
+        <h2 style="text-align: center;">Upload to Pet Gallery</h2>
         
         <form method="POST" enctype="multipart/form-data" class="upload-photo-form" id="uploadForm">
             <div style="margin-bottom: 20px;">
                 <label for="photo" style="display: block; margin-bottom: 10px; font-weight: bold;">Select Photo:</label>
-                <div style="border: 2px dashed #68a063; padding: 30px; text-align: center; background-color: #f8f9fa; border-radius: 10px; transition: all 0.3s ease;">
+                <div style="border: 3px dashed green; padding: 30px; text-align: center; background-color: #f0fff0; border-radius: 10px;">
                     <input type="file" id="photo" name="photos[]" accept="image/*" required>
-                    <div id="photoSelectedMessage" style="display: none; background-color: #68a063; color: white; padding: 8px; margin-top: 10px; border-radius: 5px; font-weight: bold;">
+                    <div id="photoSelectedMessage" style="display: none; background-color: green; color: white; padding: 8px; margin-top: 10px; border-radius: 5px; font-weight: bold;">
                         ✓ Photo Selected
                     </div>
                     <div id="previewContainer" style="margin-top: 15px; max-width: 100%; display: none;">
-                        <img id="photoPreview" src="#" alt="Preview" style="max-width: 100%; max-height: 300px; border-radius: 5px; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+                        <img id="photoPreview" src="#" alt="Preview" style="max-width: 100%; max-height: 300px; border-radius: 5px;">
                     </div>
                 </div>
             </div>
@@ -50,7 +50,7 @@
             
             <div style="text-align: center;">
                 <button type="submit" style="background-color: #68a063; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 10px;">Upload Photo</button>
-                <a href="{{ url_for('main.gallery') }}" style="background-color: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block;">Cancel</a>
+                <a href="{{ url_for('gallery.index') }}" style="background-color: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block;">Cancel</a>
             </div>
         </form>
     </div>
@@ -62,7 +62,6 @@
         const photoPreview = document.getElementById('photoPreview');
         const previewContainer = document.getElementById('previewContainer');
         const photoSelectedMessage = document.getElementById('photoSelectedMessage');
-        const uploadZone = photoInput.parentElement;
         
         photoInput.addEventListener('change', function() {
             if (this.files && this.files[0]) {
@@ -72,8 +71,6 @@
                     photoPreview.src = e.target.result;
                     previewContainer.style.display = 'block';
                     photoSelectedMessage.style.display = 'block';
-                    uploadZone.style.backgroundColor = '#f0fff0';
-                    uploadZone.style.borderColor = '#68a063';
                 }
                 
                 reader.readAsDataURL(this.files[0]);

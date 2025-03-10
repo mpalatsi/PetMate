@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Report Photo - PetMate{% endblock %}
+
+{% block extra_head %}
+<style>
+    .report-form-container {
+        background-color: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        max-width: 800px;
+        margin: 2rem auto;
+    }
+    
+    .report-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--border-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .report-header h2 {
+        margin: 0;
+        color: var(--deep-forest);
+        font-size: 1.8rem;
+    }
+    
+    .report-content {
+        display: flex;
+        padding: 2rem;
+    }
+    
+    .report-photo {
+        width: 250px;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-right: 2rem;
+    }
+    
+    .report-photo img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .report-form {
+        flex: 1;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--deep-forest);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--sage-green);
+        box-shadow: 0 0 0 2px rgba(107, 142, 107, 0.2);
+    }
+    
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    .report-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .report-reason {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .reason-option {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    
+    .reason-option:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .reason-option input {
+        margin-right: 10px;
+    }
+    
+    .reason-option.selected {
+        border-color: var(--sage-green);
+        background-color: rgba(107, 142, 107, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="report-form-container">
+        <div class="report-header">
+            <h2>Report Photo</h2>
+            <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="button secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+        
+        <div class="report-content">
+            <div class="report-photo">
+                <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" alt="{{ photo.title or 'Pet photo' }}">
+            </div>
+            
+            <div class="report-form">
+                <form method="POST" action="{{ url_for('main.report_gallery_photo', photo_id=photo.id) }}">
+                    <div class="form-group">
+                        <label>Why are you reporting this photo?</label>
+                        <div class="report-reason">
+                            <label class="reason-option">
+                                <input type="radio" name="reason" value="inappropriate_content" required>
+                                Inappropriate content
+                            </label>
+                            <label class="reason-option">
+                                <input type="radio" name="reason" value="spam">
+                                Spam
+                            </label>
+                            <label class="reason-option">
+                                <input type="radio" name="reason" value="harassment">
+                                Harassment
+                            </label>
+                            <label class="reason-option">
+                                <input type="radio" name="reason" value="copyright">
+                                Copyright violation
+                            </label>
+                            <label class="reason-option">
+                                <input type="radio" name="reason" value="other">
+                                Other
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="details">Additional details (optional)</label>
+                        <textarea name="details" id="details" class="form-control" placeholder="Please provide any additional information that might help us review this report."></textarea>
+                    </div>
+                    
+                    <div class="report-buttons">
+                        <a href="{{ url_for('main.view_gallery_photo', photo_id=photo.id) }}" class="button secondary">Cancel</a>
+                        <button type="submit" class="button danger">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add the 'selected' class to the clicked reason option
+        const reasonOptions = document.querySelectorAll('.reason-option');
+        reasonOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove 'selected' class from all options
+                reasonOptions.forEach(opt => opt.classList.remove('selected'));
+                // Add 'selected' class to the clicked option
+                this.classList.add('selected');
+            });
+        });
+    });
+</script>
+{% endblock %} 

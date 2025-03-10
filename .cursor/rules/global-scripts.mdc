@@ -1,0 +1,49 @@
+---
+description: Delete any scripts that you use once
+globs: 
+alwaysApply: true
+---
+
+# Delete any scripts that you use once
+
+- If there is a script you make that is only going to be used once, after it has served it's purpose, delete it. 
+
+document-functions: Add docstrings to all new functions and classes
+
+auth-verification: Always verify user authentication and permissions before allowing access to protected resources
+
+delete-one-time-scripts: Delete any scripts that are created for one-time use after they have served their purpose
+
+db-migrations: Run Flask-Migrate commands for any database schema changes and commit the migration files
+
+template-consistency: Ensure both mobile_*.html and desktop templates are updated when making UI changes
+
+error-handling: Add appropriate error handling with flash messages and status codes for all routes
+
+port-management: Always terminate existing processes on port 5006 before starting the development server
+
+session-management: Verify session variables are properly set and cleared during login/logout operations
+
+mobile-testing: Test all features on mobile viewport before committing changes
+
+security-checks: Never store sensitive information like API keys or passwords in version control
+
+clean-imports: Keep import statements organized and remove unused imports
+
+responsive-design: Use responsive design principles for all CSS changes to support various screen sizes
+
+logging-standard: Use app.logger for all logging rather than print statements
+
+api-versioning: Version all API endpoints to maintain backward compatibility
+
+asset-versioning: Add version query parameters to static asset URLs to prevent caching issues
+
+form-validation: Add client-side and server-side validation for all form submissions
+
+config-separation: Keep configuration variables in config.py and environment-specific values in .env files
+
+test-coverage: Write unit tests for all new features and maintain test coverage
+
+accessibility: Ensure all UI elements meet WCAG 2.1 AA standards for accessibility
+
+documentation-updates: Update README.md when adding new features or changing setup requirements

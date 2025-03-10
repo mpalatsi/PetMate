@@ -1,0 +1,206 @@
+/* Pet Avatars Container */
+.pet-avatars-container {
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+    margin: 0.5rem 0;
+}
+
+.pet-avatars {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 15px;
+    padding: 5px 0;
+    min-height: 80px;
+    align-items: center;
+}
+
+/* Individual Pet Avatar */
+.pet-avatar {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+    text-align: center;
+    position: relative;
+    min-height: 90px;
+    padding-bottom: 10px;
+}
+
+.pet-avatar img,
+.pet-avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-bottom: 5px;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+/* Image specific styles */
+.pet-avatar img {
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    background-color: var(--sage-green-lighter, #E8F5E9);
+}
+
+/* Placeholder specific styles */
+.pet-avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sage-green, #6B8E23);
+    font-size: 1.2rem;
+    background-color: var(--sage-green-lighter, #E8F5E9);
+}
+
+.pet-avatar:hover img,
+.pet-avatar:hover .pet-avatar-placeholder {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.pet-name {
+    font-size: 0.85rem;
+    width: 100%;
+    padding: 0 2px;
+    margin-top: 3px;
+    white-space: normal;
+    overflow: visible;
+    text-align: center;
+    color: var(--text-dark, #333);
+    font-weight: 500;
+    line-height: 1.2;
+    display: block;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .pet-avatar {
+        width: 70px;
+        min-height: 85px;
+    }
+
+    .pet-avatar img,
+    .pet-avatar-placeholder {
+        width: 45px;
+        height: 45px;
+    }
+
+    .pet-name {
+        font-size: 0.8rem;
+    }
+}
+
+/* Large Pet Avatars */
+.pet-avatar-large {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    border: 3px solid white;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pet-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.pet-avatar-placeholder-large {
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-sage-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sage-green);
+    font-size: 1.8rem;
+}
+
+/* Small Pet Avatars */
+.pet-avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pet-avatar-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.pet-avatar-placeholder-small {
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-sage-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sage-green);
+    font-size: 1rem;
+}
+
+/* Animation for new pets */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pet-avatar.new-pet {
+    animation: pulse 2s ease-in-out;
+}
+
+/* No pets message */
+.no-pets-message {
+    color: var(--text-muted, #777);
+    font-style: italic;
+    text-align: center;
+    padding: 15px 0;
+    width: 100%;
+}
+
+.pet-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100px;
+    min-height: 100px;
+}
+
+.pet-preview img, .pet-avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+}
+
+.pet-preview span {
+    font-size: 0.85rem;
+    color: var(--text-dark);
+    text-align: center;
+    width: 100%;
+    word-wrap: break-word;
+    line-height: 1.2;
+    padding: 0 5px;
+} 

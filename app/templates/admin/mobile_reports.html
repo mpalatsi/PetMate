@@ -1,0 +1,307 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Incident Reports{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Critical overrides with !important */
+    body {
+        background-color: #F8F4E3 !important;
+        font-family: 'Poppins', sans-serif !important;
+        padding-bottom: 70px !important;
+    }
+    
+    h1, h2, h3, p {
+        margin: 0 !important;
+    }
+    
+    .mobile-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 100 !important;
+        background-color: #6B8E6B !important;
+        color: white !important;
+        height: 60px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0 15px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+    
+    .mobile-header h1 {
+        margin: 0 !important;
+        font-size: 20px !important;
+        font-weight: 600 !important;
+    }
+    
+    .back-button, .menu-button {
+        background: none !important;
+        border: none !important;
+        color: white !important;
+        font-size: 18px !important;
+        padding: 5px !important;
+        cursor: pointer !important;
+    }
+    
+    /* Admin container and general styles */
+    .admin-container {
+        padding: 15px !important;
+        margin-top: 75px !important;
+    }
+    
+    /* Status colors */
+    .status-new {
+        background-color: #E74C3C !important;
+        color: white !important;
+    }
+    
+    .status-investigating {
+        background-color: #F39C12 !important;
+        color: white !important;
+    }
+    
+    .status-resolved {
+        background-color: #2ECC71 !important;
+        color: white !important;
+    }
+    
+    .status-dismissed {
+        background-color: #95A5A6 !important;
+        color: white !important;
+    }
+    
+    /* Category colors */
+    .report-category.harassment {
+        background-color: #E74C3C !important;
+        color: white !important;
+    }
+    
+    .report-category.inappropriate {
+        background-color: #E67E22 !important;
+        color: white !important;
+    }
+    
+    .report-category.spam {
+        background-color: #F1C40F !important;
+        color: #555 !important;
+    }
+    
+    .report-category.other {
+        background-color: #95A5A6 !important;
+        color: white !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Mobile Header -->
+<div class="mobile-header">
+    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-button" style="text-decoration: none; color: white;">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1>Incident Reports</h1>
+    <button id="menuButton" class="menu-button">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<div class="admin-container" style="padding: 15px; margin-top: 75px;">
+    <!-- Search and Filters -->
+    <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="font-size: 16px; color: #2C4C2C; margin-bottom: 12px; display: flex; align-items: center;">
+            <i class="fas fa-search" style="margin-right: 8px; color: #6B8E6B;"></i> Find Reports
+        </h3>
+        
+        <form method="GET" action="{{ url_for('admin.incident_reports') }}" style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input type="text" name="search" placeholder="Search by title or description..." style="flex: 1; padding: 10px 15px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px;" value="{{ request.args.get('search', '') }}">
+            <button type="submit" style="background-color: #6B8E6B; color: white; border: none; border-radius: 8px; padding: 0 15px; font-weight: 500;">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+        
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 5px;">
+            <a href="{{ url_for('admin.incident_reports') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if not request.args.get('filter') else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if not request.args.get('filter') else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if not request.args.get('filter') else '#ddd' }}; white-space: nowrap;">All Reports</a>
+            <a href="{{ url_for('admin.incident_reports', filter='new') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if request.args.get('filter') == 'new' else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if request.args.get('filter') == 'new' else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if request.args.get('filter') == 'new' else '#ddd' }}; white-space: nowrap;">New</a>
+            <a href="{{ url_for('admin.incident_reports', filter='investigating') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if request.args.get('filter') == 'investigating' else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if request.args.get('filter') == 'investigating' else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if request.args.get('filter') == 'investigating' else '#ddd' }}; white-space: nowrap;">Investigating</a>
+            <a href="{{ url_for('admin.incident_reports', filter='resolved') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if request.args.get('filter') == 'resolved' else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if request.args.get('filter') == 'resolved' else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if request.args.get('filter') == 'resolved' else '#ddd' }}; white-space: nowrap;">Resolved</a>
+            <a href="{{ url_for('admin.incident_reports', filter='dismissed') }}" style="background-color: {{ 'rgba(107, 142, 107, 0.9)' if request.args.get('filter') == 'dismissed' else 'rgba(246, 246, 246, 0.5)' }}; color: {{ 'white' if request.args.get('filter') == 'dismissed' else '#555' }}; text-decoration: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid {{ '#6B8E6B' if request.args.get('filter') == 'dismissed' else '#ddd' }}; white-space: nowrap;">Dismissed</a>
+        </div>
+    </div>
+    
+    <!-- Reports List -->
+    <div style="margin-bottom: 20px;">
+        {% for report in reports %}
+        <div style="background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                <div>
+                    <h3 style="font-size: 16px; color: #2C4C2C; margin-bottom: 5px; font-weight: 600; display: flex; align-items: center;">
+                        <i class="fas fa-flag" style="color: #E74C3C; margin-right: 8px;"></i> {{ report.title }}
+                    </h3>
+                    <div style="display: flex; gap: 5px; flex-wrap: wrap; margin: 5px 0;">
+                        <span style="display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 500; background-color: #F0F0F0; color: #555; white-space: nowrap;" class="report-category {{ report.category.lower() }}">{{ report.category }}</span>
+                        <span style="display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 500; text-transform: uppercase; white-space: nowrap;" class="status-{{ report.status.lower() }}">{{ report.status }}</span>
+                    </div>
+                </div>
+                <div style="font-size: 12px; color: #999; display: flex; align-items: center;">
+                    <i class="fas fa-clock" style="font-size: 10px; margin-right: 5px; color: #6B8E6B;"></i> {{ report.created_at.strftime('%b %d, %Y') }}
+                </div>
+            </div>
+            
+            <div style="background-color: rgba(246, 246, 246, 0.5); border-radius: 8px; padding: 12px; margin: 10px 0; border-left: 3px solid #6B8E6B;">
+                <p style="font-size: 14px; color: #333; line-height: 1.4;">{{ report.description }}</p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 15px 0;">
+                <div>
+                    <div style="color: #999; font-size: 12px;">Reporter</div>
+                    <div style="font-weight: 500; color: #2C4C2C; font-size: 14px;">{{ report.reporter.username }}</div>
+                </div>
+                <div>
+                    <div style="color: #999; font-size: 12px;">Reported User</div>
+                    <div style="font-weight: 500; color: #2C4C2C; font-size: 14px;">{{ report.reported_user.username }}</div>
+                </div>
+                <div>
+                    <div style="color: #999; font-size: 12px;">Related</div>
+                    <div style="font-weight: 500; color: #2C4C2C; font-size: 14px;">
+                        {% if report.playdate_id %}Playdate{% elif report.photo_id %}Photo{% elif report.message_id %}Message{% else %}User{% endif %}
+                    </div>
+                </div>
+                <div>
+                    <div style="color: #999; font-size: 12px;">Last Updated</div>
+                    <div style="font-weight: 500; color: #2C4C2C; font-size: 14px;">{{ report.updated_at.strftime('%b %d, %Y') }}</div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 8px; margin-top: 15px;">
+                <a href="{{ url_for('admin.report_details', report_id=report.id) }}" style="flex: 1; padding: 10px 0; text-align: center; border-radius: 8px; background-color: #6B8E6B; color: white; text-decoration: none; font-weight: 500; font-size: 14px;">
+                    View Details
+                </a>
+                
+                {% if report.status == 'New' or report.status == 'Investigating' %}
+                <!-- Placeholder buttons since the routes don't exist yet -->
+                <button style="flex: 1; padding: 10px 0; text-align: center; border-radius: 8px; background-color: #2ECC71; color: white; border: none; font-weight: 500; font-size: 14px;">
+                    Resolve
+                </button>
+                <button style="flex: 1; padding: 10px 0; text-align: center; border-radius: 8px; background-color: #95A5A6; color: white; border: none; font-weight: 500; font-size: 14px;">
+                    Dismiss
+                </button>
+                {% endif %}
+            </div>
+            
+            {% if report.status == 'New' or report.status == 'Investigating' %}
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button style="flex: 1; padding: 10px 0; text-align: center; border-radius: 8px; background-color: #F39C12; color: white; border: none; font-weight: 500; font-size: 14px;">
+                    Warn User
+                </button>
+                <button style="flex: 1; padding: 10px 0; text-align: center; border-radius: 8px; background-color: #E74C3C; color: white; border: none; font-weight: 500; font-size: 14px;" onclick="return confirm('Are you sure you want to ban this user?');">
+                    Ban User
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div style="background-color: white; border-radius: 12px; padding: 30px 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center;">
+            <i class="fas fa-check-circle" style="font-size: 48px; color: #6B8E6B; margin-bottom: 15px;"></i>
+            <h3 style="font-size: 18px; color: #2C4C2C; margin-bottom: 10px;">No Reports Found</h3>
+            <p style="color: #666; font-size: 14px;">There are no incident reports matching your criteria.</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <div style="display: flex; justify-content: center; gap: 5px; margin-top: 20px;">
+        <a href="{{ url_for('admin.incident_reports', page=pagination.prev_num, **request.args) if pagination.has_prev else '#' }}" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: {{ '#F5F1E8' if pagination.has_prev else 'rgba(245, 241, 232, 0.5)' }}; color: {{ '#2C4C2C' if pagination.has_prev else '#aaa' }}; text-decoration: none; border: 1px solid {{ '#ddd' if pagination.has_prev else '#eee' }}; pointer-events: {{ 'auto' if pagination.has_prev else 'none' }};">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        
+        {% for page in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=1) %}
+            {% if page %}
+                {% if page == pagination.page %}
+                <a href="{{ url_for('admin.incident_reports', page=page, **request.args) }}" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #6B8E6B; color: white; text-decoration: none; border: 1px solid #6B8E6B;">{{ page }}</a>
+                {% else %}
+                <a href="{{ url_for('admin.incident_reports', page=page, **request.args) }}" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #F5F1E8; color: #2C4C2C; text-decoration: none; border: 1px solid #ddd;">{{ page }}</a>
+                {% endif %}
+            {% else %}
+                <span style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: rgba(245, 241, 232, 0.5); color: #aaa; text-decoration: none; border: 1px solid #eee;">...</span>
+            {% endif %}
+        {% endfor %}
+        
+        <a href="{{ url_for('admin.incident_reports', page=pagination.next_num, **request.args) if pagination.has_next else '#' }}" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: {{ '#F5F1E8' if pagination.has_next else 'rgba(245, 241, 232, 0.5)' }}; color: {{ '#2C4C2C' if pagination.has_next else '#aaa' }}; text-decoration: none; border: 1px solid {{ '#ddd' if pagination.has_next else '#eee' }}; pointer-events: {{ 'auto' if pagination.has_next else 'none' }};">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Menu Overlay -->
+<div id="menuOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 200; display: none;"></div>
+
+<!-- Menu -->
+<div id="adminMenu" style="position: fixed; top: 0; right: -80%; width: 80%; height: 100%; background-color: white; z-index: 300; transition: right 0.3s ease; box-shadow: -2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column;">
+    <div style="background-color: #6B8E6B; padding: 20px; color: white; position: relative;">
+        <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Admin Menu</h2>
+        <button id="closeMenu" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div style="padding: 20px; flex: 1; overflow-y: auto;">
+        <a href="{{ url_for('admin.admin_dashboard') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-tachometer-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Dashboard
+        </a>
+        <a href="{{ url_for('admin.user_management') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-users" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Users
+        </a>
+        <a href="{{ url_for('admin.pets_management') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-paw" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Pets
+        </a>
+        <a href="{{ url_for('admin.playdates_management') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-calendar-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Playdates
+        </a>
+        <a href="{{ url_for('admin.photos_management') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-images" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Photos
+        </a>
+        <a href="{{ url_for('admin.stats') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-chart-bar" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Statistics
+        </a>
+        <a href="{{ url_for('admin.incident_reports') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid #6B8E6B; background-color: rgba(107, 142, 107, 0.1); margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-flag" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Reports
+        </a>
+    </div>
+    <div style="padding: 15px; border-top: 1px solid #eee;">
+        <a href="{{ url_for('main.index') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; margin-bottom: 8px; border-radius: 8px; transition: background-color 0.2s;">
+            <i class="fas fa-home" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Back to Site
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Menu functionality
+        const menuButton = document.getElementById('menuButton');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const adminMenu = document.getElementById('adminMenu');
+        const closeMenu = document.getElementById('closeMenu');
+        
+        menuButton.addEventListener('click', function() {
+            adminMenu.style.right = '0';
+            menuOverlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+        
+        function closeAdminMenu() {
+            adminMenu.style.right = '-80%';
+            menuOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        
+        closeMenu.addEventListener('click', closeAdminMenu);
+        menuOverlay.addEventListener('click', closeAdminMenu);
+    });
+</script>
+{% endblock %} 

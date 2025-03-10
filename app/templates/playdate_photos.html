@@ -1,330 +1,119 @@
 {% extends "base.html" %}
 
-{% block title %}Photo Gallery: {{ playdate.description|truncate(30) }} - PetMate{% endblock %}
+{% block title %}Photo Gallery: {{ playdate.title }} - PetMate{% endblock %}
 
 {% block extra_head %}
 <style>
-    /* Overall page styling */
-    .photo-gallery-page {
-        background-color: #fbfbfb;
-        padding-bottom: 40px;
-    }
-    
-    .gallery-header {
-        text-align: center;
-        padding: 30px 0 10px;
-        position: relative;
-    }
-    
-    .gallery-header h2 {
-        color: #333;
-        font-size: 2rem;
-        font-weight: 600;
-        margin: 0 0 10px;
-        position: relative;
-        display: inline-block;
-    }
-    
-    .gallery-header h2:after {
-        content: '';
-        display: block;
-        width: 80px;
-        height: 3px;
-        background-color: var(--sage-green);
-        margin: 10px auto 0;
-        border-radius: 2px;
-    }
-    
-    .back-link {
-        position: absolute;
-        left: 0;
-        top: 40px;
-    }
-    
-    /* Playdate info card */
-    .playdate-info-card {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 30px;
-        background-color: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.07);
-        margin: 10px 0 30px;
-        text-align: center;
-    }
-    
-    .playdate-info-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 0 15px;
-    }
-    
-    .playdate-info-item i {
-        font-size: 1.5rem;
-        color: var(--sage-green);
-        margin-bottom: 8px;
-    }
-    
-    .playdate-info-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        color: #666;
-        margin-bottom: 3px;
-    }
-    
-    .playdate-info-value {
-        font-size: 1rem;
-        font-weight: 500;
-        color: #333;
-    }
-    
-    /* Photo gallery */
     .photo-gallery {
-        margin: 40px 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        align-self: flex-start;
-    }
-    
-    .section-title i {
-        color: var(--sage-green);
-        margin-right: 10px;
+        margin: 30px 0;
+        width: 100%;
     }
     
     .gallery-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 25px;
-        margin-top: 25px;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
         width: 100%;
     }
     
     .gallery-item {
-        border-radius: 12px;
+        border-radius: 10px;
         overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
         position: relative;
-        background-color: white;
+        background-color: #fff;
+    }
+    
+    @media (max-width: 768px) {
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .gallery-item img {
+            height: 180px;
+        }
+    }
+    
+    @media (max-width: 500px) {
+        .gallery-grid {
+            grid-template-columns: 1fr;
+        }
     }
     
     .gallery-item:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        transform: translateY(-5px);
     }
     
     .gallery-item img {
         width: 100%;
-        height: 220px;
+        height: 200px;
         object-fit: cover;
         display: block;
-        transition: all 0.3s ease;
-    }
-    
-    .gallery-item:hover img {
-        transform: scale(1.03);
-    }
-    
-    /* Delete photo button */
-    .delete-photo-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: rgba(0, 0, 0, 0.6);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        opacity: 0;
-        transition: all 0.2s ease;
-        z-index: 5;
-    }
-    
-    .gallery-item:hover .delete-photo-btn {
-        opacity: 1;
-    }
-    
-    .delete-photo-btn:hover {
-        background-color: #dc3545;
-        transform: scale(1.1);
-    }
-    
-    .delete-photo-form {
-        position: absolute;
-        top: 0;
-        right: 0;
     }
     
     .photo-info {
-        padding: 15px 20px;
+        padding: 10px 15px;
         background-color: #fff;
-        border-top: 1px solid #f0f0f0;
     }
     
-    .photo-uploader {
+    .photo-uploader, .photo-date {
         display: flex;
         align-items: center;
         margin-top: 5px;
-        font-size: 0.9rem;
-        color: #444;
-    }
-    
-    .photo-uploader i {
-        color: var(--sage-green);
-        margin-right: 6px;
+        font-size: 0.85rem;
+        color: #666;
     }
     
     .photo-date {
         font-size: 0.85rem;
-        color: #777;
+        color: #888;
+        margin-top: 5px;
+    }
+    
+    .photo-actions {
         margin-top: 8px;
         display: flex;
-        align-items: center;
+        justify-content: flex-end;
     }
     
-    .photo-date i {
-        margin-right: 5px;
+    .delete-button {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 4px;
         font-size: 0.8rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
     }
     
-    /* No photos state */
+    .delete-button:hover {
+        background-color: #c0392b;
+    }
+    
+    .delete-button i {
+        margin-right: 4px;
+    }
+    
     .no-photos {
         text-align: center;
-        padding: 60px 30px;
-        background-color: white;
-        border-radius: 12px;
+        padding: 50px 0;
+        background-color: #f9f9f9;
+        border-radius: 10px;
         margin-top: 20px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
     }
     
-    .no-photos h4 {
-        font-size: 2rem;
-        color: #444;
-        margin-bottom: 15px;
-        font-weight: 600;
-    }
-    
-    .no-photos p {
-        color: #666;
-        margin-bottom: 25px;
-        font-size: 1.1rem;
-        line-height: 1.6;
-        max-width: 500px;
-    }
-    
-    .no-photos .camera-icon-wrapper {
-        width: 140px;
-        height: 140px;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background-color: rgba(144, 180, 144, 0.1);
-        border: 2px dashed var(--sage-green);
-        margin: 0 auto 25px;
-    }
-    
-    .no-photos .camera-icon-wrapper i {
-        font-size: 4rem;
-        color: var(--sage-green);
-    }
-    
-    .no-photos .upload-cta {
-        display: inline-block;
-        padding: 12px 25px;
-        background-color: var(--sage-green);
-        color: white;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 1rem;
-        box-shadow: 0 4px 12px rgba(144, 180, 144, 0.3);
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-        margin-top: 10px;
-    }
-    
-    .no-photos .upload-cta:hover {
-        background-color: var(--sage-green-dark, #6a8f6a);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(144, 180, 144, 0.4);
-    }
-    
-    .no-photos .upload-cta i {
-        color: white;
-        font-size: 1rem;
-        margin-right: 8px;
-        display: inline;
-    }
-    
-    /* Upload section */
     .upload-section {
         margin: 30px 0;
-        padding: 25px;
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.07);
-        border-top: 4px solid var(--sage-green);
-        transition: all 0.3s ease;
-    }
-    
-    @keyframes highlight-pulse {
-        0% { box-shadow: 0 3px 10px rgba(0,0,0,0.07); }
-        50% { box-shadow: 0 0 30px rgba(144, 180, 144, 0.4); }
-        100% { box-shadow: 0 3px 10px rgba(0,0,0,0.07); }
-    }
-    
-    .highlight-section {
-        animation: highlight-pulse 1.5s ease;
-    }
-    
-    .upload-section h3 {
-        font-size: 1.5rem;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-    }
-    
-    .upload-section h3 i {
-        color: var(--sage-green);
-        margin-right: 10px;
-    }
-    
-    .upload-section p {
-        color: #666;
-        margin-bottom: 20px;
+        padding: 20px;
+        background-color: #f5f7f5;
+        border-radius: 10px;
+        border: 1px dashed var(--sage-green);
     }
     
     .upload-form {
@@ -343,9 +132,9 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 35px;
-        border: 2px dashed #dde6dd;
-        border-radius: 10px;
+        padding: 30px;
+        border: 2px dashed var(--sage-green-lighter);
+        border-radius: 8px;
         cursor: pointer;
         transition: all 0.3s ease;
         background-color: rgba(144, 180, 144, 0.05);
@@ -353,23 +142,12 @@
     
     .file-input-label:hover {
         background-color: rgba(144, 180, 144, 0.1);
-        border-color: var(--sage-green-lighter);
     }
     
     .file-input-label i {
-        font-size: 2.5rem;
+        font-size: 2rem;
         color: var(--sage-green);
-        margin-bottom: 15px;
-    }
-    
-    .file-input-label span {
-        color: #444;
-        margin-bottom: 5px;
-        font-weight: 500;
-    }
-    
-    .file-input-label small {
-        color: #888;
+        margin-bottom: 10px;
     }
     
     input[type="file"] {
@@ -379,7 +157,6 @@
         opacity: 0;
     }
     
-    /* Lightbox styling */
     .lightbox {
         display: none;
         position: fixed;
@@ -391,33 +168,21 @@
         z-index: 1000;
         justify-content: center;
         align-items: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
     }
     
     .lightbox.active {
         display: flex;
-        opacity: 1;
     }
     
     .lightbox-content {
-        max-width: 85%;
-        max-height: 85%;
-        position: relative;
-        animation: zoomIn 0.3s ease;
-    }
-    
-    @keyframes zoomIn {
-        from { transform: scale(0.9); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
+        max-width: 80%;
+        max-height: 80%;
     }
     
     .lightbox-content img {
         max-width: 100%;
-        max-height: 85vh;
+        max-height: 100%;
         object-fit: contain;
-        border-radius: 4px;
-        box-shadow: 0 5px 30px rgba(0,0,0,0.3);
     }
     
     .lightbox-close {
@@ -425,120 +190,100 @@
         top: 20px;
         right: 20px;
         color: white;
-        font-size: 35px;
+        font-size: 30px;
         cursor: pointer;
-        width: 50px;
-        height: 50px;
+    }
+    
+    .playdate-info-card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .playdate-info-grid {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background-color: rgba(0,0,0,0.3);
-        transition: all 0.2s ease;
+        flex-wrap: wrap;
+        gap: 15px;
     }
     
-    .lightbox-close:hover {
-        background-color: rgba(0,0,0,0.5);
-        transform: rotate(90deg);
+    .playdate-info-item {
+        flex: 1 1 200px;
+        min-width: 200px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: flex-start;
     }
     
-    /* Responsive styling */
-    @media (max-width: 768px) {
-        .gallery-grid {
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 15px;
-        }
-        
-        .gallery-item img {
-            height: 160px;
-        }
-        
-        .playdate-info-card {
-            gap: 15px;
-            padding: 15px;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .playdate-info-item {
-            flex-direction: row;
-            width: 100%;
-            padding: 0;
-        }
-        
-        .playdate-info-item i {
-            margin-right: 15px;
-            margin-bottom: 0;
-        }
-        
-        .back-link {
-            position: static;
-            display: block;
-            margin: 15px auto;
-        }
-        
-        .no-photos {
-            padding: 40px 20px;
-        }
-        
-        .no-photos .camera-icon-wrapper {
-            width: 120px;
-            height: 120px;
-        }
-        
-        .no-photos .camera-icon-wrapper i {
-            font-size: 3.5rem;
-        }
+    .playdate-info-icon {
+        margin-right: 12px;
+        min-width: 20px;
+        color: var(--sage-green);
+        font-size: 1.1rem;
+        padding-top: 2px;
+    }
+    
+    .playdate-info-content {
+        flex: 1;
+        font-size: 1rem;
+        color: #444;
+        line-height: 1.4;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+        width: 100%;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container photo-gallery-page">
-    <div class="gallery-header">
-        <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="button secondary back-link">
+<div class="container">
+    <div class="page-header">
+        <h2>Photo Gallery: {{ playdate.title }}</h2>
+        <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="button secondary">
             <i class="fas fa-arrow-left"></i> Back to Playdate
         </a>
-        <h2>Photo Gallery</h2>
     </div>
     
     <div class="playdate-info-card">
-        <div class="playdate-info-item">
-            <i class="fas fa-calendar-day"></i>
-            <div class="playdate-info-text">
-                <div class="playdate-info-label">Date</div>
-                <div class="playdate-info-value">{{ playdate.date.strftime('%B %d, %Y') }}</div>
-            </div>
-        </div>
-        
-        <div class="playdate-info-item">
-            <i class="fas fa-clock"></i>
-            <div class="playdate-info-text">
-                <div class="playdate-info-label">Time</div>
-                <div class="playdate-info-value">{{ playdate.date.strftime('%I:%M %p') }}</div>
-            </div>
-        </div>
-        
-        <div class="playdate-info-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <div class="playdate-info-text">
-                <div class="playdate-info-label">Location</div>
-                <div class="playdate-info-value">
-                {% set location_parts = playdate.location.split(',') %}
-                {% if location_parts|length >= 3 %}
-                    {{ location_parts[2].strip() }}{% if location_parts|length >= 4 %}, {{ location_parts[3].strip().split(' ')[0] }}{% endif %}
-                {% else %}
-                    {{ playdate.location }}
-                {% endif %}
+        <div class="playdate-info-grid">
+            <div class="playdate-info-item">
+                <div class="playdate-info-icon">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div class="playdate-info-content">
+                    {{ playdate.date.strftime('%B %d, %Y') }}
                 </div>
             </div>
-        </div>
-        
-        <div class="playdate-info-item">
-            <i class="fas fa-user"></i>
-            <div class="playdate-info-text">
-                <div class="playdate-info-label">Host</div>
-                <div class="playdate-info-value">{{ playdate.host.username }}</div>
+            <div class="playdate-info-item">
+                <div class="playdate-info-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="playdate-info-content">
+                    {{ playdate.date.strftime('%I:%M %p') }}
+                </div>
+            </div>
+            <div class="playdate-info-item">
+                <div class="playdate-info-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="playdate-info-content">
+                    {{ playdate.location }}
+                </div>
+            </div>
+            <div class="playdate-info-item">
+                <div class="playdate-info-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="playdate-info-content">
+                    Hosted by {{ playdate.host.username }}
+                </div>
             </div>
         </div>
     </div>
@@ -564,44 +309,38 @@
     </div>
     
     <div class="photo-gallery">
-        <h3 class="section-title"><i class="fas fa-images"></i> Playdate Photos</h3>
+        <h3><i class="fas fa-images"></i> Playdate Photos</h3>
         
         {% if photos %}
             <div class="gallery-grid">
                 {% for photo in photos %}
                     <div class="gallery-item">
                         <img src="{{ url_for('static', filename='playdate_photos/' + photo.photo_path) }}" alt="Playdate photo" class="gallery-image" data-src="{{ url_for('static', filename='playdate_photos/' + photo.photo_path) }}">
-                        {% if photo.user_id == current_user.id or playdate.host_id == current_user.id %}
-                            <form class="delete-photo-form" method="POST" action="{{ url_for('playdates.delete_photo', playdate_id=playdate.id, photo_id=photo.id) }}" onsubmit="return confirm('Are you sure you want to delete this photo? This action cannot be undone.');">
-                                <button type="submit" class="delete-photo-btn" title="Delete photo">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
-                        {% endif %}
                         <div class="photo-info">
                             <div class="photo-uploader">
-                                <i class="fas fa-user"></i> 
-                                {% if photo.uploader %}
-                                    {{ photo.uploader.username }}
-                                {% else %}
-                                    Unknown
-                                {% endif %}
+                                Uploaded by: {{ photo.uploader.username if photo.uploader else 'Unknown' }}
                             </div>
                             <div class="photo-date">
-                                <i class="far fa-calendar-alt"></i>
-                                {{ photo.uploaded_at.strftime('%B %d, %Y') }}
+                                {{ photo.created_at.strftime('%B %d, %Y') if photo.created_at else '' }}
                             </div>
+                            {% if photo.uploader.id == current_user.id or playdate.host_id == current_user.id %}
+                            <div class="photo-actions">
+                                <form method="POST" action="{{ url_for('playdates.delete_photo', playdate_id=playdate.id, photo_id=photo.id) }}" onsubmit="return confirm('Are you sure you want to delete this photo?');">
+                                    <button type="submit" class="delete-button">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}
             </div>
         {% else %}
             <div class="no-photos">
-                <div class="camera-icon-wrapper">
-                    <i class="fas fa-camera"></i>
-                </div>
+                <i class="fas fa-camera" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
                 <h4>No Photos Yet</h4>
-                <p>Capture and share memorable moments from this playdate with other participants. Photos help everyone remember the fun times!</p>
+                <p>Be the first to upload photos from this playdate!</p>
             </div>
         {% endif %}
     </div>
@@ -623,45 +362,20 @@
         const lightboxClose = document.querySelector('.lightbox-close');
         const galleryImages = document.querySelectorAll('.gallery-image');
         
-        // Scroll to upload section when button is clicked
-        const scrollToUploadBtn = document.getElementById('scrollToUploadBtn');
-        if (scrollToUploadBtn) {
-            scrollToUploadBtn.addEventListener('click', function() {
-                const uploadSection = document.querySelector('.upload-section');
-                uploadSection.scrollIntoView({ behavior: 'smooth' });
-                // Add a nice highlight effect to draw attention
-                uploadSection.classList.add('highlight-section');
-                setTimeout(function() {
-                    uploadSection.classList.remove('highlight-section');
-                }, 1500);
-            });
-        }
-        
         galleryImages.forEach(function(image) {
             image.addEventListener('click', function() {
                 lightboxImage.src = this.getAttribute('data-src');
                 lightbox.classList.add('active');
-                document.body.style.overflow = 'hidden'; // Prevent scrolling when lightbox is open
             });
         });
         
         lightboxClose.addEventListener('click', function() {
             lightbox.classList.remove('active');
-            document.body.style.overflow = ''; // Restore scrolling
         });
         
         lightbox.addEventListener('click', function(e) {
             if (e.target === lightbox) {
                 lightbox.classList.remove('active');
-                document.body.style.overflow = ''; // Restore scrolling
-            }
-        });
-        
-        // Enable keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-                lightbox.classList.remove('active');
-                document.body.style.overflow = ''; // Restore scrolling
             }
         });
         
@@ -673,12 +387,8 @@
             if (this.files.length > 0) {
                 let fileCount = this.files.length;
                 fileLabel.querySelector('span').textContent = `${fileCount} file${fileCount !== 1 ? 's' : ''} selected`;
-                fileLabel.style.borderColor = 'var(--sage-green)';
-                fileLabel.style.backgroundColor = 'rgba(144, 180, 144, 0.1)';
             } else {
                 fileLabel.querySelector('span').textContent = 'Click to select photos or drag and drop here';
-                fileLabel.style.borderColor = '#dde6dd';
-                fileLabel.style.backgroundColor = 'rgba(144, 180, 144, 0.05)';
             }
         });
     });

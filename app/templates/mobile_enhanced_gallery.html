@@ -1,0 +1,502 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Photo Gallery{% endblock %}
+
+{% block header_title %}
+Pet Gallery 
+<a href="{{ url_for('gallery.upload_photo') }}" class="btn-upload" style="position: absolute; right: 55px; top: 12px;">
+    <i class="fas fa-upload"></i>
+</a>
+{% endblock %}
+
+{% block styles %}
+<style>
+    /* Mobile Gallery Styles */
+    :root {
+        --gallery-highlight: #6B8E6B;
+        --gallery-accent: #CD5C5C;
+    }
+    
+    .gallery-container {
+        padding: 0 15px;
+        margin-bottom: 80px; /* Account for mobile navbar */
+    }
+    
+    /* Upload button in header */
+    .btn-upload {
+        background-color: var(--deep-forest);
+        color: white;
+        border: none;
+        padding: 10px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: all 0.2s ease;
+    }
+    
+    .btn-upload i {
+        font-size: 1.1rem;
+        margin: 0;
+    }
+    
+    .btn-upload:hover, .btn-upload:active {
+        background-color: var(--sage-green);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    /* Improved Tabs */
+    .gallery-tabs {
+        display: flex;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        margin-bottom: 15px;
+        margin-top: 15px; /* Add top margin now that we removed the header */
+        border: 1px solid var(--light-sage);
+        padding: 4px;
+    }
+    
+    .gallery-tab {
+        flex: 1;
+        position: relative;
+    }
+    
+    .gallery-tab a {
+        display: block;
+        text-align: center;
+        padding: 12px 5px;
+        font-weight: 600;
+        color: #666;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+    
+    .gallery-tab.active a {
+        color: white;
+        background-color: var(--deep-forest);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    
+    .filter-toggle-container {
+        margin-bottom: 12px;
+    }
+    
+    .toggle-filters-btn {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #555;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    /* Filters */
+    .gallery-filters {
+        background: white;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .filter-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .filter-group {
+        flex: 1;
+    }
+    
+    .filter-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #555;
+    }
+    
+    .filter-group select {
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        font-size: 0.9rem;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 12px;
+        background-color: white;
+    }
+    
+    .filter-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .btn-filter {
+        background-color: var(--deep-forest);
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* Photo Grid */
+    .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+    }
+    
+    .photo-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        height: 100%;
+    }
+    
+    .photo-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        position: relative;
+        aspect-ratio: 1 / 1;
+        border: 1px solid #eaeaea;
+    }
+    
+    .photo-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .photo-badge {
+        position: absolute;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .private-badge {
+        top: 8px;
+        right: 8px;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+    }
+    
+    .featured-badge {
+        top: 8px;
+        left: 8px;
+        background-color: rgba(255, 193, 7, 0.9);
+        color: #333;
+    }
+    
+    .photo-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.7));
+        padding: 8px;
+        color: white;
+    }
+    
+    .photo-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .photo-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 5px;
+        font-size: 0.75rem;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 30px 15px;
+        background: #fff;
+        border-radius: 8px;
+        margin: 15px 0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    
+    .empty-state i {
+        font-size: 2.5rem;
+        color: #ccc;
+        margin-bottom: 10px;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.2rem;
+        margin: 0 0 8px 0;
+        color: #666;
+    }
+    
+    .empty-state p {
+        color: #888;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+    }
+    
+    .full-width {
+        width: 100%;
+        justify-content: center;
+        padding: 12px !important; /* Override the padding for full-width buttons */
+        height: auto !important; /* Allow height to adjust naturally */
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .full-width i {
+        margin-right: 6px !important; /* Restore margin for icon in full-width button */
+    }
+    
+    /* Action buttons for photo cards */
+    .photo-actions {
+        padding: 10px;
+    }
+    
+    /* Table-like fixed layout */
+    .button-table {
+        display: table;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    }
+    
+    .button-row {
+        display: table-row;
+    }
+    
+    .button-cell {
+        display: table-cell;
+        width: 50%;
+        padding: 0 4px;
+    }
+    
+    /* Reset all button styling */
+    .action-button {
+        display: block;
+        width: 100%;
+        height: 38px;
+        line-height: 38px;
+        text-align: center;
+        background: #f5f7f5;
+        color: #555;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border: none;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        text-decoration: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        position: relative;
+    }
+    
+    .action-button i {
+        margin-right: 4px;
+        font-size: 0.9rem;
+        vertical-align: middle;
+    }
+    
+    .action-button:active {
+        background: #e9ece9;
+    }
+    
+    .action-button.liked {
+        background-color: #fce8e6;
+        color: #e74c3c;
+    }
+    
+    .action-button.danger {
+        background-color: #fce8e6;
+        color: #e74c3c;
+    }
+    
+    /* Reset form styling */
+    .inline-form {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gallery-container">
+    <!-- Gallery header has been moved to the base template header_title block -->
+    
+    <div class="gallery-tabs">
+        <div class="gallery-tab {% if active_tab == 'all' %}active{% endif %}" data-tab="all">
+            <a href="{{ url_for('gallery.index') }}">All</a>
+        </div>
+        <div class="gallery-tab {% if active_tab == 'my' %}active{% endif %}" data-tab="my">
+            <a href="{{ url_for('gallery.index', filter='personal') }}">Mine</a>
+        </div>
+        <div class="gallery-tab {% if active_tab == 'public' %}active{% endif %}" data-tab="public">
+            <a href="{{ url_for('gallery.index', filter='public') }}">Public</a>
+        </div>
+        {% if current_user and current_user.is_admin %}
+        <div class="gallery-tab {% if active_tab == 'featured' %}active{% endif %}" data-tab="featured">
+            <a href="{{ url_for('gallery.index', filter='featured') }}">Featured</a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="filter-toggle-container">
+        <button id="toggle-filters" class="toggle-filters-btn">
+            <i class="fas fa-filter"></i> Filters <i class="fas fa-chevron-down"></i>
+        </button>
+    </div>
+    
+    <div class="gallery-filters" id="filters-panel" style="display: none;">
+        <form id="filter-form" method="GET" action="{{ url_for('gallery.filter_gallery') }}">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="filter-label" for="filter-type">Filter By:</label>
+                    <select name="filter" id="filter-type" class="form-control">
+                        <option value="all" {% if request.args.get('filter') == 'all' %}selected{% endif %}>All Photos</option>
+                        <option value="personal" {% if request.args.get('filter') == 'personal' %}selected{% endif %}>My Photos</option>
+                        <option value="public" {% if request.args.get('filter') == 'public' %}selected{% endif %}>Public Photos</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="filter-label" for="sort-by">Sort By:</label>
+                    <select name="sort_by" id="sort-by" class="form-control">
+                        <option value="newest" {% if request.args.get('sort_by') == 'newest' or not request.args.get('sort_by') %}selected{% endif %}>Newest First</option>
+                        <option value="oldest" {% if request.args.get('sort_by') == 'oldest' %}selected{% endif %}>Oldest First</option>
+                        <option value="most_liked" {% if request.args.get('sort_by') == 'most_liked' %}selected{% endif %}>Most Liked</option>
+                        <option value="most_viewed" {% if request.args.get('sort_by') == 'most_viewed' %}selected{% endif %}>Most Viewed</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    {% if photos %}
+        <div class="photo-grid">
+            {% for photo in photos %}
+            <a href="{{ url_for('gallery.view_photo', photo_id=photo.id) }}" class="photo-card-link">
+                <div class="photo-card">
+                    <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" alt="{{ photo.title or 'Pet photo' }}" class="photo-image">
+                    
+                    {% if not photo.is_public %}
+                    <div class="photo-badge private-badge">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    {% endif %}
+                    
+                    {% if photo.featured %}
+                    <div class="photo-badge featured-badge">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="photo-overlay">
+                        <h3 class="photo-title">{{ photo.title or 'Untitled' }}</h3>
+                        <div class="photo-stats">
+                            <span><i class="fas fa-heart"></i> {{ like_counts.get(photo.id, 0) }}</span>
+                            <span><i class="fas fa-comment"></i> {{ comment_counts.get(photo.id, 0) }}</span>
+                            <span><i class="fas fa-eye"></i> {{ photo.view_count or 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-images"></i>
+            </div>
+            <h2>No photos found</h2>
+            <p>Be the first to share a photo!</p>
+            <a href="{{ url_for('gallery.upload_photo') }}" class="btn-upload full-width">
+                <i class="fas fa-upload"></i> Upload Photo
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle filters panel
+        const toggleFiltersBtn = document.getElementById('toggle-filters');
+        const filtersPanel = document.getElementById('filters-panel');
+        
+        if (toggleFiltersBtn && filtersPanel) {
+            toggleFiltersBtn.addEventListener('click', function() {
+                const isHidden = filtersPanel.style.display === 'none';
+                filtersPanel.style.display = isHidden ? 'block' : 'none';
+                
+                // Change the icon
+                const icon = this.querySelector('.fa-chevron-down, .fa-chevron-up');
+                if (icon) {
+                    icon.classList.toggle('fa-chevron-down');
+                    icon.classList.toggle('fa-chevron-up');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

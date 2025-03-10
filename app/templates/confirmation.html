@@ -14,7 +14,7 @@
 
     <main>
         <div class="container">
-            {% if error %}
+            {% if action_type == 'registration_fail' %}
                 <h2>Registration Failed</h2>
                 <p class="error-message">{{ error }}</p>
                 <p>Please <a href="{{ url_for('auth.register') }}">try again</a> or contact support if the problem persists.</p>

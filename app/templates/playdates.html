@@ -4,37 +4,33 @@
 
 {% block extra_head %}
 <style>
-    /* Fix for the pets attending section */
+    /* Pet avatars section */
     .pet-avatars-container {
-        max-width: 100%;
+        width: 100%;
         overflow-x: auto;
-        padding-bottom: 10px;
+        padding: 10px 0;
     }
     
     .pet-avatars {
         display: flex;
-        flex-wrap: nowrap;
-        gap: 15px;
-        padding: 5px 0;
-        min-height: 80px;
+        gap: 20px;
+        padding: 5px;
     }
     
     .pet-avatar {
-        flex: 0 0 auto;
         display: flex;
         flex-direction: column;
         align-items: center;
-        width: 80px;
-        text-align: center;
+        min-width: 60px;
     }
     
     .pet-avatar-wrapper {
         width: 50px;
         height: 50px;
+        margin-bottom: 8px;
         border-radius: 50%;
         border: 2px solid white;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 5px;
         background-color: var(--sage-green-lighter);
         background-position: center;
         background-size: cover;
@@ -53,32 +49,24 @@
     
     .pet-name {
         font-size: 0.85rem;
-        width: 100%;
-        padding: 0 2px;
-        margin-top: 3px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-align: center;
         color: #333;
         font-weight: 500;
-        line-height: 1.2;
-        min-height: 1.2em;
-        display: block;
+        text-align: center;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     
-    /* Improve mobile responsiveness */
+    /* Mobile responsiveness */
     @media (max-width: 768px) {
-        .playdate-content {
-            padding: 15px;
+        .pet-avatar-wrapper {
+            width: 45px;
+            height: 45px;
         }
         
-        .playdate-pets {
-            margin-bottom: 15px;
-        }
-        
-        .pet-avatar {
-            width: 70px;
+        .pet-name {
+            font-size: 0.8rem;
         }
     }
 </style>
@@ -178,7 +166,7 @@
                                         <a href="{{ url_for('main.join_playdate', playdate_id=playdate.id) }}" class="button secondary small">
                                             <i class="fas fa-exchange-alt"></i> Change Status
                                         </a>
-                                        <a href="{{ url_for('main.view_playdate', playdate_id=playdate.id) }}" class="button primary small">
+                                        <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="button primary small">
                                             <i class="fas fa-eye"></i> View Details
                                         </a>
                                     </div>
@@ -190,7 +178,7 @@
                                         <a href="{{ url_for('main.join_playdate', playdate_id=playdate.id) }}" class="button primary small">
                                             <i class="fas fa-plus-circle"></i> Join Playdate
                                         </a>
-                                        <a href="{{ url_for('main.view_playdate', playdate_id=playdate.id) }}" class="button secondary small">
+                                        <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="button secondary small">
                                             <i class="fas fa-eye"></i> View Details
                                         </a>
                                     </div>
@@ -200,7 +188,7 @@
                                     <a href="{{ url_for('playdates.edit_playdate', playdate_id=playdate.id) }}" class="button secondary small">
                                         <i class="fas fa-edit"></i> Edit Playdate
                                     </a>
-                                    <a href="{{ url_for('main.view_playdate', playdate_id=playdate.id) }}" class="button primary small">
+                                    <a href="{{ url_for('playdates.view_playdate', playdate_id=playdate.id) }}" class="button primary small">
                                         <i class="fas fa-eye"></i> View Details
                                     </a>
                                 </div>

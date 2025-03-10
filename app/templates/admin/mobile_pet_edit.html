@@ -1,0 +1,213 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Edit Pet{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Critical overrides with !important */
+    body {
+        background-color: #F8F4E3 !important;
+        font-family: 'Poppins', sans-serif !important;
+        padding-bottom: 70px !important;
+    }
+    
+    h1, h2, h3, p {
+        margin: 0 !important;
+    }
+    
+    .mobile-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 100 !important;
+        background-color: #6B8E6B !important;
+        color: white !important;
+        height: 60px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0 15px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+    
+    .mobile-header h1 {
+        margin: 0 !important;
+        font-size: 20px !important;
+        font-weight: 600 !important;
+    }
+    
+    .back-button, .menu-button {
+        background: none !important;
+        border: none !important;
+        color: white !important;
+        font-size: 18px !important;
+        padding: 5px !important;
+        cursor: pointer !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Mobile Header -->
+<div class="mobile-header">
+    <a href="{{ url_for('admin.pet_details', pet_id=pet.id) }}" class="back-button" style="text-decoration: none; color: white;">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1>Edit Pet</h1>
+    <button id="menuButton" class="menu-button">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<div style="padding: 15px; margin-top: 75px;">
+    <div style="background-color: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <!-- Pet Profile Header -->
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <div style="width: 60px; height: 60px; background-color: #ddd; border-radius: 50%; overflow: hidden; margin-right: 15px; flex-shrink: 0;">
+                {% if pet.profile_image %}
+                <img src="{{ url_for('static', filename='uploads/pets/' + pet.profile_image) }}" alt="{{ pet.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                <div style="width: 100%; height: 100%; background-color: #6B8E6B; color: white; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-paw" style="font-size: 22px;"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div>
+                <h3 style="font-size: 18px; font-weight: 600; color: #2C4C2C; margin-bottom: 4px;">Editing: {{ pet.name }}</h3>
+                <p style="color: #666; font-size: 14px; display: flex; align-items: center;">
+                    <i class="fas fa-user" style="margin-right: 8px; color: #3498DB;"></i> Owner: {{ pet.owner.username }}
+                </p>
+            </div>
+        </div>
+        
+        <!-- Pet Edit Form -->
+        <form method="POST" action="{{ url_for('admin.pet_edit', pet_id=pet.id) }}">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 14px; font-weight: 500; color: #2C4C2C; margin-bottom: 6px;">Pet Name</label>
+                <input type="text" name="name" value="{{ pet.name }}" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background-color: white; box-sizing: border-box;">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #2C4C2C; margin-bottom: 6px;">Species</label>
+                    <select name="species" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background-color: white; appearance: none; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 width=%2216%22 height=%2216%22%3E%3Cpath fill=%22%23555%22 d=%22M7 10l5 5 5-5z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; box-sizing: border-box;">
+                        <option value="Dog" {% if pet.species == 'Dog' %}selected{% endif %}>Dog</option>
+                        <option value="Cat" {% if pet.species == 'Cat' %}selected{% endif %}>Cat</option>
+                        <option value="Bird" {% if pet.species == 'Bird' %}selected{% endif %}>Bird</option>
+                        <option value="Rabbit" {% if pet.species == 'Rabbit' %}selected{% endif %}>Rabbit</option>
+                        <option value="Hamster" {% if pet.species == 'Hamster' %}selected{% endif %}>Hamster</option>
+                        <option value="Other" {% if pet.species not in ['Dog', 'Cat', 'Bird', 'Rabbit', 'Hamster'] %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #2C4C2C; margin-bottom: 6px;">Breed</label>
+                    <input type="text" name="breed" value="{{ pet.breed }}" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background-color: white; box-sizing: border-box;">
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #2C4C2C; margin-bottom: 6px;">Age (years)</label>
+                    <input type="number" name="age" min="0" max="30" step="1" value="{{ pet.age }}" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background-color: white; box-sizing: border-box;">
+                </div>
+                
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #2C4C2C; margin-bottom: 6px;">Gender</label>
+                    <select name="gender" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background-color: white; appearance: none; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 width=%2216%22 height=%2216%22%3E%3Cpath fill=%22%23555%22 d=%22M7 10l5 5 5-5z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; box-sizing: border-box;">
+                        <option value="Male" {% if pet.gender == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if pet.gender == 'Female' %}selected{% endif %}>Female</option>
+                        <option value="Unknown" {% if pet.gender == 'Unknown' or not pet.gender %}selected{% endif %}>Unknown</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 500; color: #2C4C2C; margin-bottom: 6px;">Description</label>
+                <textarea name="description" rows="4" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background-color: white; resize: vertical; min-height: 100px; box-sizing: border-box;">{{ pet.description }}</textarea>
+            </div>
+            
+            <div style="display: flex; gap: 12px; margin-top: 15px;">
+                <a href="{{ url_for('admin.pet_details', pet_id=pet.id) }}" style="flex: 1; background-color: #f9f9f9; color: #2C4C2C; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 0; text-align: center; text-decoration: none; font-weight: 500; font-size: 14px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-times" style="margin-right: 6px;"></i> Cancel
+                </a>
+                <button type="submit" style="flex: 1; background-color: #6B8E6B; color: white; border: none; border-radius: 8px; padding: 12px 0; text-align: center; font-weight: 500; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                    <i class="fas fa-save" style="margin-right: 6px;"></i> Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Main Menu -->
+<div id="menuOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 200; display: none;"></div>
+<div id="mainMenu" style="position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background-color: white; z-index: 300; transition: right 0.3s ease; box-shadow: -2px 0 5px rgba(0,0,0,0.1);">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background-color: #6B8E6B; color: white;">
+        <h2 style="margin: 0; font-size: 18px;">Menu</h2>
+        <button id="closeMenu" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div style="padding: 15px 0;">
+        <a href="{{ url_for('main.index') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-home" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Home
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-tachometer-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Dashboard
+        </a>
+        <a href="{{ url_for('pets.my_pets') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-paw" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> My Pets
+        </a>
+        <a href="{{ url_for('playdates.playdates') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-calendar" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Playdates
+        </a>
+        <a href="{{ url_for('gallery.index') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-images" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Photo Gallery
+        </a>
+        <a href="{{ url_for('messages.new_message') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-comments" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Messages
+        </a>
+        <a href="{{ url_for('main.search') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-search" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Search
+        </a>
+        
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <a href="{{ url_for('admin.admin_dashboard') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid #6B8E6B; background-color: rgba(107, 142, 107, 0.1);">
+            <i class="fas fa-shield-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Admin Panel
+        </a>
+        {% endif %}
+        
+        <a href="{{ url_for('auth.logout') }}" style="display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #2C4C2C; border-left: 3px solid transparent;">
+            <i class="fas fa-sign-out-alt" style="margin-right: 10px; width: 20px; text-align: center; font-size: 16px;"></i> Logout
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Menu functionality
+        const menuButton = document.getElementById('menuButton');
+        const closeMenuButton = document.getElementById('closeMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const mainMenu = document.getElementById('mainMenu');
+        
+        menuButton.addEventListener('click', function() {
+            menuOverlay.style.display = 'block';
+            mainMenu.style.right = '0';
+            document.body.style.overflow = 'hidden';
+        });
+        
+        function closeMenu() {
+            menuOverlay.style.display = 'none';
+            mainMenu.style.right = '-280px';
+            document.body.style.overflow = '';
+        }
+        
+        closeMenuButton.addEventListener('click', closeMenu);
+        menuOverlay.addEventListener('click', closeMenu);
+    });
+</script>
+{% endblock %} 
