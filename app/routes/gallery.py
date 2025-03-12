@@ -86,41 +86,50 @@ def index():
         flash('Please log in to view the gallery', 'error')
         return redirect(url_for('auth.login'))
     
+    # Force a completely fresh session to ensure we get the latest data
+    db.session.close()
+    db.session.expire_all()
+    
+    # Add diagnostic logging
+    current_app.logger.info(f"Gallery index: User={user.username}, ID={user.id}")
+    
     # Fetch all photos visible to this user - with eager loading of relationships
     personal_photos = GalleryPhoto.query.options(
         db.joinedload(GalleryPhoto.uploader),
         db.joinedload(GalleryPhoto.pet)
     ).filter_by(user_id=user.id).order_by(GalleryPhoto.created_at.desc()).all()
     
+    # Log personal photos
+    current_app.logger.info(f"Personal photos found: {len(personal_photos)}")
+    
+    # Fetch public photos - these should be visible to all users
     public_photos = GalleryPhoto.query.options(
         db.joinedload(GalleryPhoto.uploader),
         db.joinedload(GalleryPhoto.pet)
     ).filter(
         GalleryPhoto.is_public == True,
-        GalleryPhoto.moderation_status == 'approved',
-        GalleryPhoto.user_id != user.id
+        GalleryPhoto.moderation_status == 'approved'
     ).order_by(GalleryPhoto.created_at.desc()).all()
     
-    # Get featured photos
-    featured_photos = GalleryPhoto.query.options(
-        db.joinedload(GalleryPhoto.uploader),
-        db.joinedload(GalleryPhoto.pet)
-    ).filter_by(featured=True, is_public=True, moderation_status='approved').order_by(GalleryPhoto.created_at.desc()).limit(5).all()
+    # Log public photos
+    current_app.logger.info(f"Public photos found: {len(public_photos)}")
     
-    # Combine photos for the template
-    photos = personal_photos + public_photos
-    # Remove duplicates if a photo is in both lists
-    seen = set()
-    photos = [x for x in photos if x.id not in seen and not seen.add(x.id)]
+    # Select photos based on the filter parameter
+    filter_param = request.args.get('filter', 'personal')
+    if filter_param == 'public':
+        photos = public_photos
+    else:  # Default to personal
+        photos = personal_photos
     
     # Determine active tab
-    filter_param = request.args.get('filter', 'all')
-    active_tab = filter_param if filter_param in ['all', 'my', 'public', 'featured'] else 'all'
+    active_tab = 'my' if filter_param == 'personal' else filter_param
+    if active_tab not in ['my', 'public']:
+        active_tab = 'my'  # Default to 'my' tab
     
     # Get counts
     like_counts = {}
     comment_counts = {}
-    for photo in personal_photos + public_photos + featured_photos:
+    for photo in photos:
         like_counts[photo.id] = PhotoLike.query.filter_by(photo_id=photo.id).count()
         comment_counts[photo.id] = PhotoComment.query.filter_by(photo_id=photo.id).count()
     
@@ -139,7 +148,7 @@ def index():
         is_mobile = False
     
     # Log which template will be used - use an existing template file
-    template = 'mobile_gallery.html' if is_mobile else 'enhanced_gallery.html'
+    template = 'mobile_enhanced_gallery.html' if is_mobile else 'enhanced_gallery.html'
     current_app.logger.info(f"Gallery view - Template: {template}, mobile flag: {is_mobile}")
     
     # Set a response object so we can add a cookie
@@ -149,7 +158,6 @@ def index():
         photos=photos,
         personal_photos=personal_photos,
         public_photos=public_photos,
-        featured_photos=featured_photos,
         like_counts=like_counts,
         comment_counts=comment_counts,
         user_pets=user_pets,
@@ -176,65 +184,122 @@ def upload_photo():
     form.pet_id.choices = [(0, 'None')] + [(pet.id, pet.name) for pet in user_pets]
     
     if form.validate_on_submit():
-        # Get the uploaded file
-        file = form.photo.data
-        if file and file.filename:
-            # Generate secure filename with timestamp to prevent collisions
-            filename = secure_filename(file.filename)
+        try:
+            # Get the uploaded file
+            file = form.photo.data
+            if file and file.filename:
+                # Generate secure filename with timestamp to prevent collisions
+                filename = secure_filename(file.filename)
+                
+                # Validate file type
+                if not check_file_type(filename):
+                    flash('Invalid file type. Allowed types: PNG, JPG, JPEG, GIF.', 'error')
+                    # Check if mobile using the shared function
+                    is_mobile = is_mobile_device(request)
+                    template = 'mobile_upload_gallery_photo.html' if is_mobile else 'upload_gallery_photo.html'
+                    return render_template(template, form=form, user=user, pets=user_pets)
+                
+                # Add timestamp and user ID to filename to prevent collisions
+                timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                filename = f"user_{user.id}_{timestamp}_{filename}"
+                
+                # SIMPLIFIED path construction - direct path relative to app root
+                file_path = os.path.join('static', 'pet_images', 'gallery_photos', filename)
+                absolute_path = os.path.abspath(file_path)
+                
+                # Log the file path for debugging
+                current_app.logger.info(f"UPLOAD DIAGNOSTIC - File path: {file_path}")
+                current_app.logger.info(f"UPLOAD DIAGNOSTIC - Absolute path: {absolute_path}")
+                
+                # Ensure directory exists
+                gallery_dir = os.path.dirname(file_path)
+                if not os.path.exists(gallery_dir):
+                    current_app.logger.info(f"Creating directory: {gallery_dir}")
+                    os.makedirs(gallery_dir, exist_ok=True)
+                
+                current_app.logger.info(f"UPLOAD DIAGNOSTIC - Directory exists: {os.path.exists(gallery_dir)}")
+                
+                # Save the file
+                file.save(file_path)
+                
+                # Verify file was saved successfully - critical check
+                if not os.path.isfile(file_path):
+                    raise Exception(f"File was not saved successfully at {file_path}")
+                
+                # Verify file was saved
+                current_app.logger.info(f"UPLOAD DIAGNOSTIC - File saved successfully: {os.path.isfile(file_path)}")
+                current_app.logger.info(f"UPLOAD DIAGNOSTIC - File size: {os.path.getsize(file_path) if os.path.isfile(file_path) else 'N/A'}")
+                
+                # Check file size after saving
+                if not check_file_size(file_path):
+                    # Remove the file if it's too large
+                    os.remove(file_path)
+                    flash('File size exceeds the 5MB limit.', 'error')
+                    # Check if mobile using the shared function
+                    is_mobile = is_mobile_device(request)
+                    template = 'mobile_upload_gallery_photo.html' if is_mobile else 'upload_gallery_photo.html'
+                    return render_template(template, form=form, user=user, pets=user_pets)
+                
+                # Check content moderation for title and description
+                is_appropriate, reason = moderate_content(form.title.data or '', form.description.data or '')
+                moderation_status = 'approved' if is_appropriate else 'pending'
+                
+                # Create new gallery photo
+                pet_id = form.pet_id.data if form.pet_id.data != 0 else None
+                new_photo = GalleryPhoto(
+                    user_id=user.id,
+                    pet_id=pet_id,
+                    filename=filename,
+                    title=form.title.data,
+                    description=form.description.data,
+                    is_public=form.is_public.data,
+                    moderation_status=moderation_status,
+                    share_uuid=str(uuid.uuid4())  # Ensure share_uuid is set
+                )
+                
+                # Explicitly flush to ensure the record is created with an ID
+                db.session.add(new_photo)
+                db.session.commit()
+                
+                # Force a reload of the user's photos to ensure they appear in the gallery
+                db.session.refresh(new_photo)
+                
+                # Double-check file existence one more time after committing to the database
+                if not os.path.isfile(file_path):
+                    # Critical error - file disappeared after database commit
+                    current_app.logger.error(f"CRITICAL: File disappeared after database commit. Rolling back transaction.")
+                    db.session.delete(new_photo)
+                    db.session.commit()
+                    raise Exception("File was saved but then disappeared. Please try again.")
+                
+                # Add diagnostic logging
+                current_app.logger.info(f"Photo uploaded: id={new_photo.id}, user_id={user.id}, filename={filename}, moderation_status={moderation_status}")
+                
+                # Check if the photo is now in the database
+                verification = GalleryPhoto.query.get(new_photo.id)
+                if verification:
+                    current_app.logger.info(f"Verified photo in DB: id={verification.id}, filename={verification.filename}")
+                else:
+                    current_app.logger.error(f"CRITICAL: Photo not found in DB after upload: id={new_photo.id}")
+                
+                if moderation_status == 'pending':
+                    flash('Your photo has been uploaded and is pending review.', 'warning')
+                else:
+                    flash('Your photo has been uploaded successfully!', 'success')
+                
+                # Redirect with a timestamp to prevent caching
+                timestamp = int(datetime.now().timestamp())
+                return redirect(url_for('gallery.index', t=timestamp))
+                
+        except Exception as e:
+            # Roll back any database changes if there was an error
+            db.session.rollback()
             
-            # Validate file type
-            if not check_file_type(filename):
-                flash('Invalid file type. Allowed types: PNG, JPG, JPEG, GIF.', 'error')
-                # Check if mobile using the shared function
-                is_mobile = is_mobile_device(request)
-                template = 'mobile_upload_gallery_photo.html' if is_mobile else 'upload_gallery_photo.html'
-                return render_template(template, form=form, user=user, pets=user_pets)
+            # Log the error
+            current_app.logger.error(f"Error during photo upload: {str(e)}")
             
-            # Add timestamp to filename to prevent collisions
-            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
-            file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], 'gallery_photos', filename)
-            
-            # Ensure directory exists
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            
-            # Save the file
-            file.save(file_path)
-            
-            # Check file size after saving
-            if not check_file_size(file_path):
-                # Remove the file if it's too large
-                os.remove(file_path)
-                flash('File size exceeds the 5MB limit.', 'error')
-                # Check if mobile using the shared function
-                is_mobile = is_mobile_device(request)
-                template = 'mobile_upload_gallery_photo.html' if is_mobile else 'upload_gallery_photo.html'
-                return render_template(template, form=form, user=user, pets=user_pets)
-            
-            # Check content moderation for title and description
-            is_appropriate, reason = moderate_content(form.title.data or '', form.description.data or '')
-            moderation_status = 'approved' if is_appropriate else 'pending'
-            
-            # Create new gallery photo
-            pet_id = form.pet_id.data if form.pet_id.data != 0 else None
-            new_photo = GalleryPhoto(
-                user_id=user.id,
-                pet_id=pet_id,
-                filename=filename,
-                title=form.title.data,
-                description=form.description.data,
-                is_public=form.is_public.data,
-                moderation_status=moderation_status
-            )
-            
-            db.session.add(new_photo)
-            db.session.commit()
-            
-            if moderation_status == 'pending':
-                flash('Your photo has been uploaded and is pending review.', 'warning')
-            else:
-                flash('Your photo has been uploaded successfully!', 'success')
-            
-            return redirect(url_for('gallery.index'))
+            # Provide a user-friendly error message
+            flash(f'There was an error uploading your photo: {str(e)}', 'error')
     
     # Enhanced mobile detection with logging for debugging
     is_mobile = is_mobile_device(request)
@@ -267,60 +332,114 @@ def mobile_upload_photo():
     form.pet_id.choices = [(0, 'None')] + [(pet.id, pet.name) for pet in user_pets]
     
     if form.validate_on_submit():
-        # Process form submission similar to upload_photo function
-        file = form.photo.data
-        if file and file.filename:
-            # Generate secure filename with timestamp to prevent collisions
-            filename = secure_filename(file.filename)
+        try:
+            # Process form submission similar to upload_photo function
+            file = form.photo.data
+            if file and file.filename:
+                # Generate secure filename with timestamp to prevent collisions
+                filename = secure_filename(file.filename)
+                
+                # Validate file type
+                if not check_file_type(filename):
+                    flash('Invalid file type. Allowed types: PNG, JPG, JPEG, GIF.', 'error')
+                    return render_template('mobile_upload_gallery_photo.html', form=form, user=user, pets=user_pets)
+                
+                # Add timestamp and user ID to filename to prevent collisions
+                timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')
+                filename = f"user_{user.id}_{timestamp}_{filename}"
+                
+                # SIMPLIFIED path construction - direct path relative to app root
+                file_path = os.path.join('static', 'pet_images', 'gallery_photos', filename)
+                absolute_path = os.path.abspath(file_path)
+                
+                # Log file path for debugging
+                current_app.logger.info(f"MOBILE UPLOAD - File path: {file_path}")
+                current_app.logger.info(f"MOBILE UPLOAD - Absolute path: {absolute_path}")
+                
+                # Ensure directory exists
+                gallery_dir = os.path.dirname(file_path)
+                if not os.path.exists(gallery_dir):
+                    current_app.logger.info(f"Creating directory: {gallery_dir}")
+                    os.makedirs(gallery_dir, exist_ok=True)
+                
+                # Save the file
+                file.save(file_path)
+                
+                # Verify file was saved successfully - critical check
+                if not os.path.isfile(file_path):
+                    raise Exception(f"File was not saved successfully at {file_path}")
+                
+                # Log file saving results
+                current_app.logger.info(f"MOBILE UPLOAD - File saved: {os.path.isfile(file_path)}")
+                current_app.logger.info(f"MOBILE UPLOAD - File size: {os.path.getsize(file_path) if os.path.isfile(file_path) else 'N/A'}")
+                
+                # Check file size after saving
+                if not check_file_size(file_path):
+                    # Remove the file if it's too large
+                    os.remove(file_path)
+                    flash('File size exceeds the 5MB limit.', 'error')
+                    return render_template('mobile_upload_gallery_photo.html', form=form, user=user, pets=user_pets)
+                
+                # Use the same moderation and database logic as the regular upload_photo function
+                is_appropriate, reason = moderate_content(form.title.data or '', form.description.data or '')
+                moderation_status = 'approved' if is_appropriate else 'pending'
+                
+                # Create new gallery photo
+                pet_id = form.pet_id.data if form.pet_id.data != 0 else None
+                new_photo = GalleryPhoto(
+                    user_id=user.id,
+                    pet_id=pet_id,
+                    filename=filename,
+                    title=form.title.data,
+                    description=form.description.data,
+                    is_public=form.is_public.data,
+                    moderation_status=moderation_status,
+                    share_uuid=str(uuid.uuid4())  # Ensure share_uuid is set
+                )
+                
+                # Add to database and commit in a single transaction
+                db.session.add(new_photo)
+                db.session.commit()
+                
+                # Force a reload of the user's photos to ensure they appear in the gallery
+                db.session.refresh(new_photo)
+                
+                # Double-check file existence one more time after committing to the database
+                if not os.path.isfile(file_path):
+                    # Critical error - file disappeared after database commit
+                    current_app.logger.error(f"CRITICAL: File disappeared after database commit. Rolling back transaction.")
+                    db.session.delete(new_photo)
+                    db.session.commit()
+                    raise Exception("File was saved but then disappeared. Please try again.")
+                
+                # Add diagnostic logging
+                current_app.logger.info(f"Mobile photo uploaded: id={new_photo.id}, user_id={user.id}, filename={filename}")
+                
+                # Check if the photo is now in the database
+                verification = GalleryPhoto.query.get(new_photo.id)
+                if verification:
+                    current_app.logger.info(f"Verified mobile photo in DB: id={verification.id}, filename={verification.filename}")
+                else:
+                    current_app.logger.error(f"CRITICAL: Mobile photo not found in DB after upload: id={new_photo.id}")
+                
+                if moderation_status == 'pending':
+                    flash('Your photo has been uploaded and is pending review.', 'warning')
+                else:
+                    flash('Your photo has been uploaded successfully!', 'success')
+                
+                # Redirect with a timestamp to prevent caching
+                timestamp = int(datetime.now().timestamp())
+                return redirect(url_for('gallery.index', t=timestamp))
+        
+        except Exception as e:
+            # Roll back any database changes if there was an error
+            db.session.rollback()
             
-            # Validate file type
-            if not check_file_type(filename):
-                flash('Invalid file type. Allowed types: PNG, JPG, JPEG, GIF.', 'error')
-                return render_template('mobile_upload_gallery_photo.html', form=form, user=user, pets=user_pets)
+            # Log the error
+            current_app.logger.error(f"Error during mobile photo upload: {str(e)}")
             
-            # Add timestamp and user ID to filename to prevent collisions
-            timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')
-            filename = f"user_{user.id}_{timestamp}_{filename}"
-            file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], 'gallery_photos', filename)
-            
-            # Ensure directory exists
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            
-            # Save the file
-            file.save(file_path)
-            
-            # Check file size after saving
-            if not check_file_size(file_path):
-                # Remove the file if it's too large
-                os.remove(file_path)
-                flash('File size exceeds the 5MB limit.', 'error')
-                return render_template('mobile_upload_gallery_photo.html', form=form, user=user, pets=user_pets)
-            
-            # Use the same moderation and database logic as the regular upload_photo function
-            is_appropriate, reason = moderate_content(form.title.data or '', form.description.data or '')
-            moderation_status = 'approved' if is_appropriate else 'pending'
-            
-            # Create new gallery photo
-            pet_id = form.pet_id.data if form.pet_id.data != 0 else None
-            new_photo = GalleryPhoto(
-                user_id=user.id,
-                pet_id=pet_id,
-                filename=filename,
-                title=form.title.data,
-                description=form.description.data,
-                is_public=form.is_public.data,
-                moderation_status=moderation_status
-            )
-            
-            db.session.add(new_photo)
-            db.session.commit()
-            
-            if moderation_status == 'pending':
-                flash('Your photo has been uploaded and is pending review.', 'warning')
-            else:
-                flash('Your photo has been uploaded successfully!', 'success')
-            
-            return redirect(url_for('gallery.index'))
+            # Provide a user-friendly error message
+            flash(f'There was an error uploading your photo: {str(e)}', 'error')
     
     # Get user agent for debugging
     user_agent = request.headers.get('User-Agent', '')
@@ -513,7 +632,7 @@ def edit_photo(photo_id):
     is_mobile = any(device in request.headers.get('User-Agent', '').lower() 
                    for device in ['iphone', 'android', 'mobile', 'tablet'])
     
-    template = 'mobile_edit_enhanced_photo.html' if is_mobile else 'edit_enhanced_photo.html'
+    template = 'mobile_edit_gallery_photo.html' if is_mobile else 'edit_gallery_photo.html'
     
     return render_template(
         template,
@@ -536,8 +655,11 @@ def delete_photo(photo_id):
         return redirect(url_for('gallery.index'))
     
     try:
-        # Delete physical file
-        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], 'gallery_photos', photo.filename)
+        # Delete physical file (only in static directory)
+        file_path = os.path.join(os.path.dirname(os.path.dirname(current_app.config['UPLOAD_FOLDER'])), 
+                                'static', 'pet_images', 'gallery_photos', photo.filename)
+        
+        # Attempt to remove the file
         if os.path.exists(file_path):
             os.remove(file_path)
         
@@ -570,13 +692,14 @@ def shared_photo(share_uuid):
     is_mobile = any(device in request.headers.get('User-Agent', '').lower() 
                    for device in ['iphone', 'android', 'mobile', 'tablet'])
     
-    template = 'mobile_shared_photo.html' if is_mobile else 'shared_photo.html'
+    template = 'mobile_view_enhanced_photo.html' if is_mobile else 'view_enhanced_photo.html'
     
     return render_template(
         template,
         photo=photo,
         uploader=uploader,
-        like_count=like_count
+        like_count=like_count,
+        user=None
     )
 
 @bp.route('/gallery/filter', methods=['GET'])
@@ -585,7 +708,7 @@ def filter_gallery():
     """Filter gallery photos"""
     user = get_current_user()
     
-    filter_type = request.args.get('filter', 'all')
+    filter_type = request.args.get('filter', 'personal')
     pet_id = request.args.get('pet_id')
     sort_by = request.args.get('sort_by', 'newest')
     
@@ -601,8 +724,7 @@ def filter_gallery():
         db.joinedload(GalleryPhoto.pet)
     ).filter(
         GalleryPhoto.is_public == True,
-        GalleryPhoto.moderation_status == 'approved', 
-        GalleryPhoto.user_id != user.id
+        GalleryPhoto.moderation_status == 'approved'
     )
     
     # Apply pet filter if specified
@@ -612,15 +734,10 @@ def filter_gallery():
         public_query = public_query.filter_by(pet_id=pet_id)
     
     # Get photos based on filter type
-    if filter_type == 'personal':
-        photos = personal_query.all()
-    elif filter_type == 'public':
+    if filter_type == 'public':
         photos = public_query.all()
-    else:  # 'all'
-        photos = personal_query.all() + public_query.all()
-        # Remove duplicates
-        seen = set()
-        photos = [x for x in photos if x.id not in seen and not seen.add(x.id)]
+    else:  # Default to personal
+        photos = personal_query.all()
     
     # Apply sorting
     if sort_by == 'oldest':

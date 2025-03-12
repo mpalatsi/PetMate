@@ -224,13 +224,14 @@
             {{ form.csrf_token }}
             
             <div class="form-group">
-                <label for="photo-upload" class="upload-area" id="upload-area">
+                <label for="photo-upload" class="form-label">Photo</label>
+                <div class="upload-area" id="upload-area">
                     <div class="upload-icon">
                         <i class="fas fa-cloud-upload-alt"></i>
                     </div>
                     <p class="upload-text">Click to select a photo or drag and drop it here</p>
                     <p class="upload-subtext">Supports: JPG, JPEG, PNG, GIF (max 5MB)</p>
-                </label>
+                </div>
                 {{ form.photo(id="photo-upload", class="form-control", style="display: none;") }}
                 
                 <div id="photo-preview">

@@ -397,20 +397,12 @@
     
     <div class="gallery-navigation">
         <ul class="gallery-tabs">
-            <li class="gallery-tab {% if active_tab == 'all' %}active{% endif %}" data-tab="all">
-                <a href="{{ url_for('gallery.index') }}">All Photos</a>
-            </li>
             <li class="gallery-tab {% if active_tab == 'my' %}active{% endif %}" data-tab="my">
                 <a href="{{ url_for('gallery.index', filter='personal') }}">My Photos</a>
             </li>
             <li class="gallery-tab {% if active_tab == 'public' %}active{% endif %}" data-tab="public">
                 <a href="{{ url_for('gallery.index', filter='public') }}">Public Gallery</a>
             </li>
-            {% if current_user and current_user.is_admin %}
-            <li class="gallery-tab {% if active_tab == 'featured' %}active{% endif %}" data-tab="featured">
-                <a href="{{ url_for('gallery.index', filter='featured') }}">Featured</a>
-            </li>
-            {% endif %}
         </ul>
     </div>
     
@@ -420,7 +412,6 @@
                 <div class="filter-group">
                     <label for="filter-type">Filter By:</label>
                     <select name="filter" id="filter-type" class="form-control">
-                        <option value="all" {% if request.args.get('filter') == 'all' %}selected{% endif %}>All Photos</option>
                         <option value="personal" {% if request.args.get('filter') == 'personal' %}selected{% endif %}>My Photos</option>
                         <option value="public" {% if request.args.get('filter') == 'public' %}selected{% endif %}>Public Photos</option>
                     </select>
@@ -462,7 +453,9 @@
                 <div class="photo-card">
                     <div class="photo-image-container">
                         <a href="{{ url_for('gallery.view_photo', photo_id=photo.id) }}" class="photo-link">
-                            <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" alt="{{ photo.title or 'Pet photo' }}" class="photo-img">
+                            <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}?t={{ photo.created_at.timestamp() }}" 
+                                 alt="{{ photo.title or 'Pet photo' }}" 
+                                 class="photo-img">
                             {% if not photo.is_public %}
                             <div class="private-badge">
                                 <i class="fas fa-lock"></i> Private
@@ -503,7 +496,7 @@
                                     </a>
                                 </div>
                             </div>
-                            {% if photo.user_id == current_user.id or current_user.is_admin %}
+                            {% if photo.user_id == user.id or user.is_admin %}
                             <div class="button-row">
                                 <div class="button-cell">
                                     <a href="{{ url_for('gallery.edit_photo', photo_id=photo.id) }}" class="action-button">
@@ -544,6 +537,15 @@
 {{ super() }}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Force reload if coming from upload page to ensure we see new photos
+        if (document.referrer.includes('upload_photo') || document.referrer.includes('mobile-upload')) {
+            // Add timestamp to URL to force cache refresh
+            const timestamp = new Date().getTime();
+            const separator = window.location.href.includes('?') ? '&' : '?';
+            const newUrl = window.location.href + separator + 'refresh=' + timestamp;
+            window.location.href = newUrl;
+        }
+        
         // Add click event listeners to gallery tabs
         const tabs = document.querySelectorAll('.gallery-tab');
         tabs.forEach(tab => {

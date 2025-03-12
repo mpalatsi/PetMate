@@ -372,23 +372,17 @@ Pet Gallery
 
 {% block content %}
 <div class="gallery-container">
+    <!-- Removed diagnostic information section -->
+    
     <!-- Gallery header has been moved to the base template header_title block -->
     
     <div class="gallery-tabs">
-        <div class="gallery-tab {% if active_tab == 'all' %}active{% endif %}" data-tab="all">
-            <a href="{{ url_for('gallery.index') }}">All</a>
-        </div>
-        <div class="gallery-tab {% if active_tab == 'my' %}active{% endif %}" data-tab="my">
-            <a href="{{ url_for('gallery.index', filter='personal') }}">Mine</a>
-        </div>
-        <div class="gallery-tab {% if active_tab == 'public' %}active{% endif %}" data-tab="public">
-            <a href="{{ url_for('gallery.index', filter='public') }}">Public</a>
-        </div>
-        {% if current_user and current_user.is_admin %}
-        <div class="gallery-tab {% if active_tab == 'featured' %}active{% endif %}" data-tab="featured">
-            <a href="{{ url_for('gallery.index', filter='featured') }}">Featured</a>
-        </div>
-        {% endif %}
+        <a href="{{ url_for('gallery.index', filter='personal') }}" class="gallery-tab-item {% if active_tab == 'my' %}active{% endif %}">
+            Mine
+        </a>
+        <a href="{{ url_for('gallery.index', filter='public') }}" class="gallery-tab-item {% if active_tab == 'public' %}active{% endif %}">
+            Public
+        </a>
     </div>
     
     <div class="filter-toggle-container">
@@ -403,7 +397,6 @@ Pet Gallery
                 <div class="filter-group">
                     <label class="filter-label" for="filter-type">Filter By:</label>
                     <select name="filter" id="filter-type" class="form-control">
-                        <option value="all" {% if request.args.get('filter') == 'all' %}selected{% endif %}>All Photos</option>
                         <option value="personal" {% if request.args.get('filter') == 'personal' %}selected{% endif %}>My Photos</option>
                         <option value="public" {% if request.args.get('filter') == 'public' %}selected{% endif %}>Public Photos</option>
                     </select>

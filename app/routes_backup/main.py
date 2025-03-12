@@ -384,7 +384,7 @@ def view_gallery_photo(photo_id):
     mode = request.args.get('mode', None)  # Check for manual override
     
     # Choose template based on device type
-    template = 'mobile_view_enhanced_photo.html' if is_mobile and mode != 'desktop' else 'view_enhanced_photo.html'
+    template = 'mobile_view_gallery_photo.html' if is_mobile and mode != 'desktop' else 'view_gallery_photo.html'
     
     # Get user's like status
     user_like = PhotoLike.query.filter_by(user_id=user.id, photo_id=photo_id).first()
@@ -392,7 +392,7 @@ def view_gallery_photo(photo_id):
     # Get comments for the photo
     comments = PhotoComment.query.filter_by(photo_id=photo_id).order_by(PhotoComment.created_at.desc()).all()
     
-    return render_template(template, photo=photo, current_user=user, user=user, user_like=user_like, comments=comments)
+    return render_template(template, photo=photo, current_user=user, user_like=user_like, comments=comments)
 
 @bp.route('/gallery/photo/<int:photo_id>/like', methods=['POST'])
 def like_gallery_photo(photo_id):
@@ -520,7 +520,7 @@ def report_gallery_photo(photo_id):
     # Choose template based on device type
     template = 'mobile_report_photo.html' if is_mobile and mode != 'desktop' else 'report_photo.html'
     
-    return render_template(template, photo=photo, current_user=user, user=user)
+    return render_template(template, photo=photo, current_user=user)
 
 @bp.route('/search')
 def search():
