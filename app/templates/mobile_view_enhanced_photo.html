@@ -1,338 +1,232 @@
-{% extends "mobile_base.html" %}
+{% extends "mobile_gallery_base.html" %}
 
 {% block title %}{{ photo.title or 'Photo' }}{% endblock %}
 
+{% block header_title %}View Photo{% endblock %}
+
 {% block extra_head %}
 <style>
-    /* Override base template body padding for photo view pages */
-    body {
-        padding-bottom: 0 !important; /* Remove space for bottom nav */
-    }
-    
-    /* Force hide the bottom navigation */
-    .mobile-bottom-nav {
-        display: none !important;
-    }
-    
-    /* Force hide the dropdown mobile-nav */
-    .mobile-nav {
-        display: none !important;
-    }
-    
-    /* Mobile Menu (slide-in) for photo view */
-    .main-menu-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        z-index: 9998;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease;
-    }
-    
-    .main-menu-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
-    
-    .main-menu {
-        position: fixed;
-        top: 0;
-        right: 0;
-        width: 85%;
-        height: 100%;
-        background-color: white;
-        z-index: 9999;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-    }
-    
-    .main-menu.active {
-        transform: translateX(0);
-    }
-    
-    .main-menu-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .close-main-menu {
-        background: transparent;
-        border: none;
-        font-size: 1.3rem;
-        height: 40px;
-        width: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-    }
-    
-    .main-menu-links {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-    }
-    
-    .main-menu-link {
-        padding: 15px;
-        display: flex;
-        align-items: center;
-        color: #2C4C2C;
-        text-decoration: none;
-        font-weight: 500;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .main-menu-link.active {
-        background-color: #E0E7E0;
-        color: #2C4C2C;
-        font-weight: 700;
-    }
-    
-    .main-menu-link:hover {
-        background-color: #f8f8f8;
-    }
-    
-    .main-menu-link i {
-        margin-right: 10px;
-        width: 20px;
-        text-align: center;
-    }
-
     .photo-container {
-        padding: 15px;
-        margin-bottom: 15px; /* Reduced from 70px since we're hiding bottom navbar */
-    }
-    
-    .photo-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        padding: 15px 0;
         margin-bottom: 15px;
-    }
-    
-    .back-button {
-        color: var(--primary-color);
-        font-size: 1.5rem;
-    }
-    
-    .more-options {
-        font-size: 1.5rem;
-        color: #666;
     }
     
     .photo-image-container {
         position: relative;
         margin-bottom: 15px;
-        border-radius: 8px;
+        border-radius: 10px;
         overflow: hidden;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     
     .photo-image {
         width: 100%;
+        height: auto;
         display: block;
     }
     
     .photo-badge {
         position: absolute;
-        top: 10px;
-        right: 10px;
-        padding: 4px 8px;
-        border-radius: 12px;
+        padding: 5px 8px;
         font-size: 0.7rem;
+        border-radius: 4px;
         font-weight: 600;
-        z-index: 1;
-    }
-    
-    .badge-private {
-        background-color: rgba(0, 0, 0, 0.6);
-        color: white;
+        display: flex;
+        align-items: center;
+        gap: 3px;
     }
     
     .badge-featured {
-        background-color: rgba(255, 193, 7, 0.9);
+        top: 10px;
+        right: 10px;
+        background-color: #FFD700;
         color: #333;
     }
     
-    .photo-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin: 0 0 10px 0;
+    .badge-private {
+        top: 10px;
+        left: 10px;
+        background-color: #333;
+        color: white;
     }
     
     .photo-details {
-        background: #fff;
+        background-color: white;
+        border-radius: 10px;
         padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         margin-bottom: 15px;
+    }
+    
+    .photo-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 0 0 10px;
+        color: #333;
     }
     
     .photo-description {
         margin-bottom: 15px;
-        color: #666;
-        line-height: 1.4;
+        color: #555;
+        line-height: 1.5;
     }
     
     .photo-meta {
-        margin-bottom: 15px;
+        background-color: rgba(107, 142, 107, 0.1);
+        border-radius: 8px;
+        padding: 10px;
     }
     
     .meta-row {
         display: flex;
-        margin-bottom: 8px;
-        font-size: 0.9rem;
+        justify-content: space-between;
+        padding: 5px 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .meta-row:last-child {
+        border-bottom: none;
     }
     
     .meta-label {
-        width: 90px;
-        color: #666;
         font-weight: 500;
+        color: #666;
     }
     
     .meta-value {
-        flex: 1;
         color: #333;
+        font-weight: 500;
     }
     
     .interaction-stats {
         display: flex;
-        justify-content: space-around;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        padding: 15px;
+        justify-content: space-between;
         margin-bottom: 15px;
     }
     
     .stat-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
+        flex: 1;
+        text-align: center;
+        background-color: white;
+        padding: 12px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        margin: 0 5px;
+    }
+    
+    .stat-item:first-child {
+        margin-left: 0;
+    }
+    
+    .stat-item:last-child {
+        margin-right: 0;
     }
     
     .stat-icon {
-        font-size: 1.3rem;
-        color: var(--primary-color);
+        font-size: 1.2rem;
+        color: var(--sage-green);
+        margin-bottom: 5px;
     }
     
     .stat-count {
-        font-weight: 600;
         font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
     }
     
     .stat-label {
-        font-size: 0.8rem;
-        color: #666;
+        font-size: 0.7rem;
+        color: #777;
     }
     
     .action-buttons {
         display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-        justify-content: space-between;
+        margin-bottom: 15px;
     }
     
-    .action-btn {
+    .action-button {
         flex: 1;
+        border: none;
+        background-color: white;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
-        padding: 12px 10px;
-        background: #fff;
+        padding: 12px 5px;
         border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        border: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        margin: 0 5px;
         cursor: pointer;
-        min-width: 90px;
-        height: 80px;
-        transition: all 0.2s ease;
     }
     
-    .action-btn.liked {
-        background-color: #f8e8e8;
+    .action-button:first-child {
+        margin-left: 0;
     }
     
-    .action-btn.liked .action-icon {
+    .action-button:last-child {
+        margin-right: 0;
+    }
+    
+    .action-button.liked {
         color: #e74c3c;
     }
     
     .action-icon {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
         margin-bottom: 5px;
-        color: #666;
     }
     
     .action-label {
-        font-size: 0.9rem;
-        color: #333;
-        text-align: center;
-        white-space: nowrap;
-    }
-    
-    .comments-section {
-        background: #fff;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        margin-bottom: 15px;
+        font-size: 0.7rem;
+        font-weight: 500;
     }
     
     .section-title {
-        font-size: 1.2rem;
-        margin: 0 0 15px 0;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 15px;
         color: #333;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-title i {
+        margin-right: 8px;
+        color: var(--sage-green);
+    }
+    
+    .comments-section {
+        background-color: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        margin-bottom: 15px;
     }
     
     .comment-form {
-        margin-bottom: 20px;
+        display: flex;
+        margin-bottom: 15px;
     }
     
     .comment-input {
-        width: 100%;
-        padding: 12px;
+        flex: 1;
         border: 1px solid #ddd;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        font-family: inherit;
-        font-size: 1rem;
-        resize: vertical;
-        min-height: 80px;
+        border-radius: 20px;
+        padding: 10px 15px;
+        font-size: 0.9rem;
     }
     
     .comment-submit {
-        background-color: var(--primary-color);
+        background-color: var(--sage-green);
         color: white;
         border: none;
-        padding: 10px 15px;
-        border-radius: 8px;
+        border-radius: 20px;
+        padding: 0 15px;
+        margin-left: 10px;
         font-weight: 500;
-        cursor: pointer;
-        float: right;
-        display: flex;
-        align-items: center;
-        gap: 5px;
     }
     
     .comment-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
+        margin-top: 15px;
     }
     
     .comment-item {
@@ -350,189 +244,84 @@
         margin-bottom: 5px;
     }
     
-    .comment-user {
+    .comment-author {
         font-weight: 600;
-        font-size: 0.9rem;
+        color: #333;
     }
     
     .comment-date {
-        font-size: 0.8rem;
-        color: #999;
+        font-size: 0.7rem;
+        color: #777;
     }
     
-    .comment-text {
-        font-size: 0.95rem;
-        line-height: 1.4;
-        color: #666;
-    }
-    
-    .no-comments {
-        text-align: center;
-        color: #999;
-        padding: 15px 0;
-    }
-    
-    /* Action Sheet (Mobile Modal) */
-    .action-sheet {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: #fff;
-        border-radius: 15px 15px 0 0;
-        transform: translateY(100%);
-        transition: transform 0.3s ease;
-        z-index: 1000;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-    }
-    
-    .action-sheet.active {
-        transform: translateY(0);
-    }
-    
-    .action-sheet-header {
-        text-align: center;
-        padding: 15px;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .action-sheet-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 0;
-    }
-    
-    .action-sheet-close {
-        width: 40px;
-        height: 5px;
-        background: #ddd;
-        border-radius: 3px;
-        margin: 0 auto 10px;
-    }
-    
-    .action-sheet-options {
-        padding: 0;
-        margin: 0;
-        list-style: none;
-    }
-    
-    .action-option {
-        padding: 15px;
-        border-bottom: 1px solid #eee;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-    
-    .action-option i {
-        font-size: 1.2rem;
-        width: 20px;
-        text-align: center;
-    }
-    
-    .action-option span {
-        font-size: 1rem;
-    }
-    
-    .action-option.destructive {
-        color: #e74c3c;
-    }
-    
-    .action-sheet-footer {
-        padding: 15px;
-    }
-    
-    .action-sheet-cancel {
-        width: 100%;
-        padding: 12px;
-        background: #f5f5f5;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-    
-    .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s ease;
-        z-index: 999;
-    }
-    
-    .overlay.active {
-        opacity: 1;
-        pointer-events: auto;
-    }
-    
-    /* Share section */
-    .share-section {
-        background: #fff;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        margin-bottom: 15px;
-    }
-    
-    .share-title {
-        font-size: 1.1rem;
-        font-weight: 500;
-        margin: 0 0 15px 0;
-    }
-    
-    .share-link-container {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-    
-    .share-link {
-        flex: 1;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
+    .comment-content {
         font-size: 0.9rem;
-        background: #f9f9f9;
+        color: #555;
+        line-height: 1.4;
+    }
+    
+    .share-section {
+        background-color: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        margin-bottom: 15px;
+    }
+    
+    .share-input-group {
+        display: flex;
+        margin-bottom: 10px;
+    }
+    
+    .share-input {
+        flex: 1;
+        border: 1px solid #ddd;
+        border-radius: 4px 0 0 4px;
+        padding: 10px;
+        font-size: 0.8rem;
+        background-color: #f8f8f8;
     }
     
     .copy-btn {
-        padding: 10px 15px;
-        background: var(--primary-color);
+        background-color: var(--sage-green);
         color: white;
         border: none;
-        border-radius: 6px;
+        border-radius: 0 4px 4px 0;
+        padding: 0 15px;
         font-weight: 500;
     }
     
-    .social-buttons {
+    .share-options {
         display: flex;
         justify-content: space-between;
     }
     
-    .social-btn {
+    .share-option {
+        flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 5px;
-    }
-    
-    .social-icon {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        text-decoration: none;
         color: white;
-        font-size: 1.3rem;
+        padding: 10px;
+        border-radius: 8px;
+        margin: 0 5px;
     }
     
-    .social-label {
+    .share-option:first-child {
+        margin-left: 0;
+    }
+    
+    .share-option:last-child {
+        margin-right: 0;
+    }
+    
+    .share-option i {
+        font-size: 1.3rem;
+        margin-bottom: 5px;
+    }
+    
+    .share-option span {
         font-size: 0.8rem;
         color: #666;
     }
@@ -557,10 +346,6 @@
 
 {% block content %}
 <div class="photo-container">
-    <div class="photo-header">
-        <!-- Back button removed to avoid duplication -->
-    </div>
-    
     <div class="photo-image-container">
         <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" 
              alt="{{ photo.title or 'Pet photo' }}" class="photo-image">
@@ -639,29 +424,29 @@
     </div>
     
     <div class="action-buttons">
-        <button class="action-btn {% if user_like %}liked{% endif %}" id="like-button">
+        <button class="action-button ripple-effect {% if user_like %}liked{% endif %}" id="like-button">
             <div class="action-icon">
-                <i class="fas fa-heart"></i>
+                <i class="{% if user_like %}fas{% else %}far{% endif %} fa-heart"></i>
             </div>
             <div class="action-label">{% if user_like %}Liked{% else %}Like{% endif %}</div>
         </button>
         
-        <button class="action-btn" id="comment-button">
+        <button class="action-button ripple-effect" id="comment-button">
             <div class="action-icon">
-                <i class="fas fa-comment"></i>
+                <i class="far fa-comment"></i>
             </div>
             <div class="action-label">Comment</div>
         </button>
         
-        <button class="action-btn" id="share-button">
+        <button class="action-button ripple-effect" id="share-button">
             <div class="action-icon">
                 <i class="fas fa-share-alt"></i>
             </div>
             <div class="action-label">Share</div>
         </button>
         
-        {% if photo.user_id != user.id %}
-        <button class="action-btn" id="report-button">
+        {% if not photo.is_current_user_photo and current_user.is_authenticated %}
+        <button class="action-button ripple-effect" id="report-button">
             <div class="action-icon">
                 <i class="fas fa-flag"></i>
             </div>
@@ -671,175 +456,77 @@
     </div>
     
     <div class="comments-section" id="comments-section">
-        <h2 class="section-title">Comments ({{ comments|length }})</h2>
+        <h2 class="section-title">
+            <i class="fas fa-comments"></i> Comments
+        </h2>
         
-        <form class="comment-form" method="POST" action="{{ url_for('gallery.add_comment', photo_id=photo.id) }}">
-            <textarea name="comment" placeholder="Add a comment..." class="comment-input" required></textarea>
-            <button type="submit" class="comment-submit">
-                <i class="fas fa-paper-plane"></i> Post
-            </button>
-            <div style="clear:both;"></div>
+        {% if current_user.is_authenticated %}
+        <form class="comment-form" method="post" action="{{ url_for('gallery.add_comment', photo_id=photo.id) }}">
+            <input type="text" name="comment" class="comment-input" placeholder="Add a comment...">
+            <button type="submit" class="comment-submit">Post</button>
         </form>
-        
-        {% if comments %}
-        <ul class="comment-list">
-            {% for comment in comments %}
-            <li class="comment-item">
-                <div class="comment-header">
-                    <div class="comment-user">{{ comment.user.username }}</div>
-                    <div class="comment-date">{{ comment.created_at.strftime('%b %d, %Y') }}</div>
-                </div>
-                <div class="comment-text">
-                    {{ comment.comment }}
-                </div>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <div class="no-comments">
-            <p>No comments yet. Be the first to comment!</p>
-        </div>
         {% endif %}
+        
+        <div class="comment-list">
+            {% if comments %}
+                {% for comment in comments %}
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <div class="comment-author">{{ comment.author.username }}</div>
+                        <div class="comment-date">{{ comment.created_at.strftime('%b %d, %Y') }}</div>
+                    </div>
+                    <div class="comment-content">{{ comment.content }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No comments yet. Be the first to comment!</p>
+            {% endif %}
+        </div>
     </div>
     
     <div class="share-section">
-        <h3 class="share-title">Share this photo</h3>
+        <h2 class="section-title">
+            <i class="fas fa-share-alt"></i> Share This Photo
+        </h2>
         
-        <div class="share-link-container">
-            <input type="text" class="share-link" id="share-link" value="{{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True) }}" readonly>
-            <button class="copy-btn" id="copy-link-btn">Copy</button>
+        <div class="share-input-group">
+            <input type="text" id="share-link" class="share-input" 
+                   value="{{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True) }}" readonly>
+            <button id="copy-link-btn" class="copy-btn">Copy</button>
         </div>
         
-        <div class="social-buttons">
-            <a href="https://www.facebook.com/sharer/sharer.php?u={{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True) | urlencode }}" target="_blank" class="social-btn">
-                <div class="social-icon facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </div>
-                <div class="social-label">Facebook</div>
+        <div class="share-options">
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True)|urlencode }}" 
+               target="_blank" class="share-option facebook">
+                <i class="fab fa-facebook-f"></i>
+                <span>Facebook</span>
             </a>
             
-            <a href="https://twitter.com/intent/tweet?url={{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True) | urlencode }}&text=Check%20out%20this%20amazing%20pet%20photo!" target="_blank" class="social-btn">
-                <div class="social-icon twitter">
-                    <i class="fab fa-twitter"></i>
-                </div>
-                <div class="social-label">Twitter</div>
+            <a href="https://twitter.com/intent/tweet?text=Check%20out%20this%20pet%20photo!&url={{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True)|urlencode }}" 
+               target="_blank" class="share-option twitter">
+                <i class="fab fa-twitter"></i>
+                <span>Twitter</span>
             </a>
             
-            <a href="https://wa.me/?text=Check out this amazing pet photo! {{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True) }}" target="_blank" class="social-btn">
-                <div class="social-icon whatsapp">
-                    <i class="fab fa-whatsapp"></i>
-                </div>
-                <div class="social-label">WhatsApp</div>
+            <a href="whatsapp://send?text=Check%20out%20this%20pet%20photo!%20{{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True)|urlencode }}" 
+               target="_blank" class="share-option whatsapp">
+                <i class="fab fa-whatsapp"></i>
+                <span>WhatsApp</span>
             </a>
             
-            <a href="mailto:?subject=Check out this amazing pet photo!&body=I found this great pet photo on PetMate and wanted to share it with you: {{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True) }}" class="social-btn">
-                <div class="social-icon email">
-                    <i class="fas fa-envelope"></i>
-                </div>
-                <div class="social-label">Email</div>
+            <a href="mailto:?subject=Check%20out%20this%20pet%20photo!&body=I%20thought%20you%20might%20like%20this%20pet%20photo:%20{{ url_for('gallery.shared_photo', share_uuid=photo.share_uuid, _external=True)|urlencode }}" 
+               class="share-option email">
+                <i class="fas fa-envelope"></i>
+                <span>Email</span>
             </a>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<!-- Options Action Sheet (For owner) -->
-<div class="overlay" id="owner-overlay"></div>
-<div class="action-sheet" id="owner-action-sheet">
-    <div class="action-sheet-header">
-        <div class="action-sheet-close"></div>
-        <h3 class="action-sheet-title">Photo Options</h3>
-    </div>
-    <ul class="action-sheet-options">
-        <li class="action-option" id="edit-option">
-            <i class="fas fa-edit"></i>
-            <span>Edit Photo</span>
-        </li>
-        <li class="action-option" id="visibility-option">
-            {% if photo.is_public %}
-            <i class="fas fa-lock"></i>
-            <span>Make Private</span>
-            {% else %}
-            <i class="fas fa-globe"></i>
-            <span>Make Public</span>
-            {% endif %}
-        </li>
-        <li class="action-option" id="share-option">
-            <i class="fas fa-share-alt"></i>
-            <span>Share Photo</span>
-        </li>
-        <li class="action-option destructive" id="delete-option">
-            <i class="fas fa-trash"></i>
-            <span>Delete Photo</span>
-        </li>
-    </ul>
-    <div class="action-sheet-footer">
-        <button class="action-sheet-cancel" id="cancel-action">Cancel</button>
-    </div>
-</div>
-
-<!-- Options Action Sheet (For non-owner) -->
-<div class="overlay" id="non-owner-overlay"></div>
-<div class="action-sheet" id="non-owner-action-sheet">
-    <div class="action-sheet-header">
-        <div class="action-sheet-close"></div>
-        <h3 class="action-sheet-title">Photo Options</h3>
-    </div>
-    <ul class="action-sheet-options">
-        <li class="action-option" id="like-option">
-            <i class="fas fa-heart"></i>
-            <span>{% if user_like %}Unlike{% else %}Like{% endif %} Photo</span>
-        </li>
-        <li class="action-option" id="comment-option">
-            <i class="fas fa-comment"></i>
-            <span>Add Comment</span>
-        </li>
-        <li class="action-option" id="share-option-non-owner">
-            <i class="fas fa-share-alt"></i>
-            <span>Share Photo</span>
-        </li>
-        <li class="action-option destructive" id="report-option">
-            <i class="fas fa-flag"></i>
-            <span>Report Photo</span>
-        </li>
-    </ul>
-    <div class="action-sheet-footer">
-        <button class="action-sheet-cancel" id="cancel-action-non-owner">Cancel</button>
-    </div>
-</div>
-
+{% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Override menu button behavior from parent template
-        // Get the specific photo view menu button
-        const photoViewMenuButton = document.getElementById('photoViewMenuButton');
-        const mainMenu = document.getElementById('main-menu');
-        const mainMenuOverlay = document.getElementById('main-menu-overlay');
-        
-        if (photoViewMenuButton) {
-            // Add our custom click handler for the slide-in menu
-            photoViewMenuButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Open our slide-in menu
-                mainMenu.classList.add('active');
-                mainMenuOverlay.classList.add('active');
-                document.body.style.overflow = 'hidden'; // Prevent scrolling
-            });
-        }
-        
-        // Close menu functionality 
-        const closeMainMenu = document.getElementById('close-main-menu');
-        
-        function closeMenu() {
-            mainMenu.classList.remove('active');
-            mainMenuOverlay.classList.remove('active');
-            document.body.style.overflow = ''; // Allow scrolling
-        }
-        
-        closeMainMenu.addEventListener('click', closeMenu);
-        mainMenuOverlay.addEventListener('click', closeMenu);
-
         // Like functionality
         const likeButton = document.getElementById('like-button');
         const likeCount = document.getElementById('like-count');
@@ -860,9 +547,11 @@
                 if (data.action === 'liked') {
                     likeButton.classList.add('liked');
                     likeButton.querySelector('.action-label').textContent = 'Liked';
+                    likeButton.querySelector('.action-icon i').classList.replace('far', 'fas');
                 } else {
                     likeButton.classList.remove('liked');
                     likeButton.querySelector('.action-label').textContent = 'Like';
+                    likeButton.querySelector('.action-icon i').classList.replace('fas', 'far');
                 }
             });
         }
@@ -875,13 +564,17 @@
         
         function scrollToComments() {
             commentsSection.scrollIntoView({ behavior: 'smooth' });
-            document.querySelector('.comment-input').focus();
+            const commentInput = document.querySelector('.comment-input');
+            if (commentInput) {
+                commentInput.focus();
+            }
         }
         
         commentButton.addEventListener('click', scrollToComments);
         
         // Share functionality
         const shareButton = document.getElementById('share-button');
+        const shareSection = document.querySelector('.share-section');
         
         function share() {
             // Use Web Share API if available
@@ -894,7 +587,7 @@
                 .catch(console.error);
             } else {
                 // Fallback - scroll to share section
-                document.querySelector('.share-section').scrollIntoView({ behavior: 'smooth' });
+                shareSection.scrollIntoView({ behavior: 'smooth' });
             }
         }
         
@@ -903,12 +596,10 @@
         // Report functionality
         const reportButton = document.getElementById('report-button');
         
-        function report() {
-            window.location.href = '{{ url_for("gallery.report_photo", photo_id=photo.id) }}';
-        }
-        
         if (reportButton) {
-            reportButton.addEventListener('click', report);
+            reportButton.addEventListener('click', function() {
+                window.location.href = '{{ url_for("gallery.report_photo", photo_id=photo.id) }}';
+            });
         }
         
         // Copy share link
@@ -925,89 +616,26 @@
                 this.textContent = 'Copy';
             }, 2000);
         });
-    });
-</script>
-
-<!-- Mobile Menu Overlay -->
-<div class="main-menu-overlay" id="main-menu-overlay"></div>
-
-<!-- Mobile Menu -->
-<div class="main-menu" id="main-menu">
-    <div class="main-menu-header">
-        <h3>Menu</h3>
-        <button class="close-main-menu" id="close-main-menu">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="main-menu-links">
-        <a href="{{ url_for('main.mobile_index') }}" class="main-menu-link">
-            <i class="fas fa-home"></i> Home
-        </a>
-        <a href="{{ url_for('main.search') }}" class="main-menu-link">
-            <i class="fas fa-search"></i> Find Playmates
-        </a>
-        <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
-            <i class="fas fa-paw"></i> My Pets
-        </a>
-        <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
-            <i class="fas fa-calendar-plus"></i> Schedule Playdate
-        </a>
-        <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
-            <i class="fas fa-user"></i> My Dashboard
-        </a>
-        <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
-            <i class="fas fa-envelope"></i> Messages
-        </a>
-        <a href="{{ url_for('gallery.mobile_gallery') }}" class="main-menu-link">
-            <i class="fas fa-images"></i> Gallery
-        </a>
-        <a href="{{ url_for('gallery.mobile_upload_photo') }}" class="main-menu-link">
-            <i class="fas fa-upload"></i> Upload Photo
-        </a>
-        {% if user.is_admin %}
-        <a href="{{ url_for('admin.admin_dashboard') }}" class="main-menu-link">
-            <i class="fas fa-shield-alt"></i> Admin Panel
-        </a>
-        {% endif %}
-        <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Mobile menu toggle - for when user accesses from "hamburger" menu 
-        const menuButton = document.getElementById('menuButton');
-        const mainMenu = document.getElementById('main-menu');
-        const mainMenuOverlay = document.getElementById('main-menu-overlay');
-        const closeMainMenu = document.getElementById('close-main-menu');
         
-        if (menuButton) {
-            // Remove any existing click event listeners from the menu button
-            const newMenuButton = menuButton.cloneNode(true);
-            menuButton.parentNode.replaceChild(newMenuButton, menuButton);
-            
-            // Add our custom click handler for the slide-in menu
-            newMenuButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                mainMenu.classList.add('active');
-                mainMenuOverlay.classList.add('active');
-                document.body.style.overflow = 'hidden'; // Prevent scrolling
+        // Add ripple effect to action buttons
+        const buttons = document.querySelectorAll('.ripple-effect');
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                const x = e.clientX - this.getBoundingClientRect().left;
+                const y = e.clientY - this.getBoundingClientRect().top;
+                
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
             });
-        }
-        
-        function closeMenu() {
-            mainMenu.classList.remove('active');
-            mainMenuOverlay.classList.remove('active');
-            document.body.style.overflow = ''; // Allow scrolling
-        }
-        
-        closeMainMenu.addEventListener('click', closeMenu);
-        mainMenuOverlay.addEventListener('click', closeMenu);
-
-        // Rest of the script remains the same
+        });
     });
 </script>
 {% endblock %} 

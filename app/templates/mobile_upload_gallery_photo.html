@@ -1,274 +1,287 @@
-{% extends "mobile_base.html" %}
+{% extends "mobile_gallery_base.html" %}
 
-{% block title %}Upload to Gallery - PetMate (Mobile){% endblock %}
+{% block title %}Upload to Gallery - PetMate{% endblock %}
 
 {% block header_title %}Upload Photo{% endblock %}
 
 {% block extra_head %}
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#B3A369">
-<meta name="format-detection" content="telephone=no">
 <style>
-    /* Mobile-specific styles */
-    body {
-        -webkit-text-size-adjust: 100%;
-        touch-action: manipulation;
-        padding: 0;
-        margin: 0;
-        font-size: 16px;
-        padding-bottom: 0 !important; /* Remove space for bottom nav */
+    .upload-container {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
     }
     
-    /* Mobile Menu (slide-in) */
-    .main-menu-overlay {
-        position: fixed;
+    .upload-heading {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0 0 15px;
+        color: #333;
+    }
+    
+    .upload-form {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #555;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+    
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .custom-file-upload {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        position: relative;
+        background-color: #f9f9f9;
+        transition: all 0.2s ease;
+    }
+    
+    .custom-file-upload.has-image {
+        border-color: #6B8E6B;
+        background-color: rgba(107, 142, 107, 0.05);
+    }
+    
+    .upload-icon {
+        font-size: 2.5rem;
+        color: #aaa;
+        margin-bottom: 10px;
+    }
+    
+    .upload-text {
+        text-align: center;
+        color: #666;
+        margin-bottom: 10px;
+    }
+    
+    .upload-hint {
+        font-size: 0.8rem;
+        color: #999;
+        text-align: center;
+    }
+    
+    #photo {
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        z-index: 9998;
         opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease;
-    }
-    
-    .main-menu-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
-    
-    .main-menu {
-        position: fixed;
-        top: 0;
-        right: 0;
-        width: 85%;
-        height: 100%;
-        background-color: white;
-        z-index: 9999;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-    }
-    
-    .main-menu.active {
-        transform: translateX(0);
-    }
-    
-    .main-menu-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .close-main-menu {
-        background: transparent;
-        border: none;
-        font-size: 1.3rem;
-        height: 40px;
-        width: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         cursor: pointer;
     }
     
-    .main-menu-links {
-        display: flex;
-        flex-direction: column;
+    .preview-container {
         width: 100%;
+        margin: 15px 0;
+        border-radius: 8px;
+        overflow: hidden;
+        display: none;
     }
     
-    .main-menu-link {
-        padding: 15px;
+    .preview-container img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .form-check {
         display: flex;
         align-items: center;
-        color: #2C4C2C;
-        text-decoration: none;
-        font-weight: 500;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .main-menu-link.active {
-        background-color: #E0E7E0;
-        color: #2C4C2C;
-        font-weight: 700;
-    }
-    
-    .main-menu-link:hover {
-        background-color: #f8f8f8;
-    }
-    
-    .main-menu-link i {
-        margin-right: 10px;
-        width: 20px;
-        text-align: center;
-    }
-    
-    input[type="file"] {
-        font-size: 14px;
-    }
-    
-    /* Make sure form elements are styled properly for mobile */
-    .file-upload-wrapper {
-        margin: 1rem auto;
-        max-width: 100%;
-        padding: 15px;
-        border-radius: 10px;
-        background-color: #f9f9f9;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    
-    .photo-preview {
-        width: 100%;
-        margin: 10px 0;
-        max-height: 250px;
-        object-fit: contain;
-    }
-    
-    /* Override some base styles for better mobile experience */
-    #content {
-        padding: 10px !important;
-    }
-    
-    .form-group {
-        margin-bottom: 1rem;
-    }
-    
-    .form-control {
-        font-size: 16px; /* Prevent iOS zoom on focus */
-        padding: 10px;
-    }
-    
-    .btn {
-        padding: 12px 20px;
-        font-size: 16px;
-        width: 100%;
-        margin-top: 10px;
-    }
-    
-    /* Desktop warning banner */
-    .desktop-warning {
-        display: none;
-        background-color: #ff9800;
-        color: white;
-        text-align: center;
-        padding: 10px;
         margin-bottom: 15px;
     }
     
-    @media (min-width: 769px) {
-        .desktop-warning {
-            display: block;
+    .form-check-input {
+        margin-right: 10px;
+        width: 20px;
+        height: 20px;
+    }
+    
+    .form-check-label {
+        font-size: 0.9rem;
+        color: #555;
+    }
+    
+    .pet-select-container {
+        display: none;
+    }
+    
+    .pet-select-container.visible {
+        display: block;
+    }
+    
+    .submit-btn {
+        background-color: #6B8E6B;
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        width: 100%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .submit-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+    
+    .error-message {
+        color: #e74c3c;
+        font-size: 0.9rem;
+        margin-top: 5px;
+        display: none;
+    }
+    
+    .upload-tips {
+        background-color: rgba(107, 142, 107, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+    
+    .tips-heading {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 10px;
+        color: #333;
+    }
+    
+    .tips-list {
+        margin: 0;
+        padding-left: 20px;
+    }
+    
+    .tips-list li {
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        color: #555;
+    }
+    
+    .spinner {
+        border: 3px solid rgba(107, 142, 107, 0.2);
+        border-top-color: #6B8E6B;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        display: none;
+    }
+    
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
         }
+    }
+    
+    .submit-btn.loading .spinner {
+        display: inline-block;
+    }
+    
+    .submit-btn.loading .btn-text {
+        display: none;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="upload-container">
-    <h1 class="upload-title">Upload to Gallery</h1>
+    <h1 class="upload-heading">Upload a Photo to Gallery</h1>
     
     <form class="upload-form" method="POST" action="{{ url_for('gallery.mobile_upload_photo') }}" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
         
-        <div class="form-group">
-            <label for="photo" class="form-label">Select Photo</label>
-            <div class="file-upload-wrapper">
-                {{ form.photo(class="file-upload") }}
-                {% if form.photo.errors %}
-                <span class="error">{{ form.photo.errors[0] }}</span>
-                {% endif %}
+        <div class="custom-file-upload" id="dropArea">
+            <div class="upload-icon">
+                <i class="fas fa-cloud-upload-alt"></i>
             </div>
+            <div class="upload-text">Click to select a photo</div>
+            <div class="upload-hint">JPG, PNG or GIF up to 10MB</div>
+            <input type="file" name="photo" id="photo" accept="image/*" required>
+        </div>
+        
+        <div class="preview-container" id="previewContainer">
+            <img id="photoPreview" src="#" alt="Photo preview">
         </div>
         
         <div class="form-group">
-            <label for="title" class="form-label">Title (Optional)</label>
-            {{ form.title(class="form-control", placeholder="Add a title for your photo") }}
-            {% if form.title.errors %}
-            <span class="error">{{ form.title.errors[0] }}</span>
-            {% endif %}
+            <label for="title" class="form-label">Title</label>
+            <input type="text" name="title" id="title" class="form-control" placeholder="Give your photo a title" required>
         </div>
         
         <div class="form-group">
-            <label for="description" class="form-label">Description (Optional)</label>
-            {{ form.description(class="form-control", placeholder="Add a description", rows=3) }}
-            {% if form.description.errors %}
-            <span class="error">{{ form.description.errors[0] }}</span>
-            {% endif %}
+            <label for="description" class="form-label">Description (optional)</label>
+            <textarea name="description" id="description" class="form-control" placeholder="Add a description of your photo"></textarea>
         </div>
         
-        <div class="form-group">
-            <label for="pet_id" class="form-label">Tag a Pet (Optional)</label>
-            {{ form.pet_id(class="form-control") }}
+        <div class="form-check">
+            <input type="checkbox" name="tag_pet" id="tag_pet" class="form-check-input">
+            <label for="tag_pet" class="form-check-label">Tag a pet in this photo</label>
         </div>
         
-        <div class="form-group">
-            <div class="form-check">
-                {{ form.is_public(class="form-check-input") }}
-                <label class="form-check-label" for="is_public">Make Public</label>
-            </div>
-            <div class="privacy-info">
-                Public photos are visible to all users. Private photos are only visible to you.
-            </div>
+        <div class="form-group pet-select-container" id="petSelectContainer">
+            <label for="pet_id" class="form-label">Select Pet</label>
+            <select name="pet_id" id="pet_id" class="form-control">
+                <option value="">-- Select a pet --</option>
+                {% for pet in pets %}
+                <option value="{{ pet.id }}">{{ pet.name }}</option>
+                {% endfor %}
+            </select>
         </div>
         
-        <div class="action-buttons">
-            <button type="submit" class="btn btn-primary">Upload Photo</button>
+        <div class="form-check">
+            <input type="checkbox" name="is_public" id="is_public" class="form-check-input" checked>
+            <label for="is_public" class="form-check-label">Make this photo public</label>
         </div>
-    </form>
-</div>
-
-<!-- Mobile Menu Overlay -->
-<div class="main-menu-overlay" id="main-menu-overlay"></div>
-
-<!-- Mobile Menu -->
-<div class="main-menu" id="main-menu">
-    <div class="main-menu-header">
-        <h3>Menu</h3>
-        <button class="close-main-menu" id="close-main-menu">
-            <i class="fas fa-times"></i>
+        
+        <button type="submit" class="submit-btn ripple-effect" id="submitBtn">
+            <span class="spinner"></span>
+            <span class="btn-text">Upload Photo</span>
         </button>
-    </div>
-    <div class="main-menu-links">
-        <a href="{{ url_for('main.mobile_index') }}" class="main-menu-link">
-            <i class="fas fa-home"></i> Home
-        </a>
-        <a href="{{ url_for('main.search') }}" class="main-menu-link">
-            <i class="fas fa-search"></i> Find Playmates
-        </a>
-        <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
-            <i class="fas fa-paw"></i> My Pets
-        </a>
-        <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
-            <i class="fas fa-calendar-plus"></i> Schedule Playdate
-        </a>
-        <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
-            <i class="fas fa-user"></i> My Dashboard
-        </a>
-        <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
-            <i class="fas fa-envelope"></i> Messages
-        </a>
-        <a href="{{ url_for('gallery.mobile_gallery') }}" class="main-menu-link">
-            <i class="fas fa-images"></i> Gallery
-        </a>
-        <a href="{{ url_for('gallery.mobile_upload_photo') }}" class="main-menu-link active">
-            <i class="fas fa-upload"></i> Upload Photo
-        </a>
-        {% if user.is_admin %}
-        <a href="{{ url_for('admin.admin_dashboard') }}" class="main-menu-link">
-            <i class="fas fa-shield-alt"></i> Admin Panel
-        </a>
-        {% endif %}
-        <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
+        
+        <div class="error-message" id="errorMessage"></div>
+    </form>
+    
+    <div class="upload-tips">
+        <h3 class="tips-heading">Tips for Great Pet Photos</h3>
+        <ul class="tips-list">
+            <li>Use natural lighting whenever possible</li>
+            <li>Get down to your pet's eye level</li>
+            <li>Focus on your pet's eyes for a more engaging photo</li>
+            <li>Capture your pet's unique personality</li>
+            <li>Make sure the background isn't too distracting</li>
+        </ul>
     </div>
 </div>
 {% endblock %}
@@ -276,36 +289,76 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Mobile menu toggle
-        const menuButton = document.getElementById('menuButton');
-        const mainMenu = document.getElementById('main-menu');
-        const mainMenuOverlay = document.getElementById('main-menu-overlay');
-        const closeMainMenu = document.getElementById('close-main-menu');
+        const photoInput = document.getElementById('photo');
+        const dropArea = document.getElementById('dropArea');
+        const previewContainer = document.getElementById('previewContainer');
+        const photoPreview = document.getElementById('photoPreview');
+        const tagPetCheckbox = document.getElementById('tag_pet');
+        const petSelectContainer = document.getElementById('petSelectContainer');
+        const submitBtn = document.getElementById('submitBtn');
+        const uploadForm = document.querySelector('.upload-form');
+        const errorMessage = document.getElementById('errorMessage');
         
-        menuButton.addEventListener('click', function() {
-            mainMenu.classList.add('active');
-            mainMenuOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
-        });
-        
-        function closeMenu() {
-            mainMenu.classList.remove('active');
-            mainMenuOverlay.classList.remove('active');
-            document.body.style.overflow = ''; // Allow scrolling
-        }
-        
-        closeMainMenu.addEventListener('click', closeMenu);
-        mainMenuOverlay.addEventListener('click', closeMenu);
-        
-        // Preview file upload
-        const fileInput = document.querySelector('input[type="file"]');
-        fileInput.addEventListener('change', function() {
-            // Update the file input to show the file name
-            if (this.files && this.files[0]) {
-                const fileName = this.files[0].name;
-                this.nextElementSibling.textContent = fileName;
+        // Show/hide pet select based on checkbox
+        tagPetCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                petSelectContainer.classList.add('visible');
+            } else {
+                petSelectContainer.classList.remove('visible');
             }
         });
+        
+        // Handle file selection
+        photoInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                
+                // Validate file type and size
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                
+                if (!validTypes.includes(file.type)) {
+                    showError('Please select a valid image file (JPG, PNG, or GIF)');
+                    resetFileInput();
+                    return;
+                }
+                
+                if (file.size > maxSize) {
+                    showError('Image size exceeds 10MB limit');
+                    resetFileInput();
+                    return;
+                }
+                
+                // Preview the image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    photoPreview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    dropArea.classList.add('has-image');
+                    errorMessage.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Form submission
+        uploadForm.addEventListener('submit', function(e) {
+            // Validate form here if needed
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        });
+        
+        // Helper functions
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+        
+        function resetFileInput() {
+            photoInput.value = '';
+            previewContainer.style.display = 'none';
+            dropArea.classList.remove('has-image');
+        }
     });
 </script>
 {% endblock %} 

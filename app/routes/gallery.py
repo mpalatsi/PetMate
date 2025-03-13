@@ -136,14 +136,14 @@ def index():
     # Get user's pets for filtering
     user_pets = Pet.query.filter_by(owner_id=user.id).all()
     
-    # Check if mobile mode - ONLY if explicitly requested via query parameter
+    # Check if mobile mode - Use the is_mobile_device helper
     is_mobile = False
     
-    # Use mobile version if mobile=true is in the query parameter
-    if request.args.get('mobile') == 'true':
+    # Use mobile version if mobile=true is in the query parameter or if detected as mobile device
+    if request.args.get('mobile') == 'true' or is_mobile_device(request):
         is_mobile = True
-    else:
-        # Desktop is default
+    elif request.args.get('mobile') == 'false':
+        # Explicit desktop request
         is_mobile = False
     
     # Log which template will be used - use an existing template file
@@ -160,7 +160,8 @@ def index():
         like_counts=like_counts,
         comment_counts=comment_counts,
         user_pets=user_pets,
-        active_tab=active_tab
+        active_tab=active_tab,
+        filter_type=filter_param  # Make sure we pass filter_type here
     ))
     
     # Update cookie to remember the preference

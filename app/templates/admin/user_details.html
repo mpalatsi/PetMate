@@ -570,6 +570,11 @@ Unknown User - PetMate Admin
                         <i class="fas fa-user-secret"></i> Impersonate User
                     </button>
                 </form>
+                <!-- Admin toggle button -->
+                <button onclick="showActionModal('toggle_admin')" class="btn {% if user_data.is_admin %}btn-secondary{% else %}btn-success{% endif %}">
+                    <i class="fas {% if user_data.is_admin %}fa-user-minus{% else %}fa-user-shield{% endif %}"></i> 
+                    {% if user_data.is_admin %}Remove Admin Access{% else %}Make Admin{% endif %}
+                </button>
                 {% elif user_data.account_status == 'suspended' %}
                 <form action="{{ url_for('admin.update_user_status', user_id=user_id) }}" method="POST">
                     <input type="hidden" name="action" value="activate">
@@ -588,6 +593,11 @@ Unknown User - PetMate Admin
                         <i class="fas fa-user-secret"></i> Impersonate User
                     </button>
                 </form>
+                <!-- Admin toggle button -->
+                <button onclick="showActionModal('toggle_admin')" class="btn {% if user_data.is_admin %}btn-secondary{% else %}btn-success{% endif %}">
+                    <i class="fas {% if user_data.is_admin %}fa-user-minus{% else %}fa-user-shield{% endif %}"></i> 
+                    {% if user_data.is_admin %}Remove Admin Access{% else %}Make Admin{% endif %}
+                </button>
                 {% elif user_data.account_status == 'banned' %}
                 <form action="{{ url_for('admin.update_user_status', user_id=user_id) }}" method="POST">
                     <input type="hidden" name="action" value="activate">
@@ -598,11 +608,11 @@ Unknown User - PetMate Admin
                 <button onclick="showActionModal('reset_password')" class="btn btn-primary">
                     <i class="fas fa-key"></i> Reset Password
                 </button>
-                <form action="{{ url_for('admin.impersonate_user', user_id=user_id) }}" method="POST" style="display: inline;">
-                    <button type="submit" class="btn btn-info">
-                        <i class="fas fa-user-secret"></i> Impersonate User
-                    </button>
-                </form>
+                <!-- Admin toggle button -->
+                <button onclick="showActionModal('toggle_admin')" class="btn {% if user_data.is_admin %}btn-secondary{% else %}btn-success{% endif %}">
+                    <i class="fas {% if user_data.is_admin %}fa-user-minus{% else %}fa-user-shield{% endif %}"></i> 
+                    {% if user_data.is_admin %}Remove Admin Access{% else %}Make Admin{% endif %}
+                </button>
                 {% endif %}
             {% endif %}
             
@@ -741,6 +751,10 @@ function showActionModal(action) {
         case 'note':
             title.textContent = 'Add Admin Note';
             submitBtn.className = 'btn btn-secondary';
+            break;
+        case 'toggle_admin':
+            title.textContent = '{% if user_data.is_admin %}Remove Admin Privileges{% else %}Grant Admin Privileges{% endif %}';
+            submitBtn.className = 'btn {% if user_data.is_admin %}btn-secondary{% else %}btn-success{% endif %}';
             break;
     }
     

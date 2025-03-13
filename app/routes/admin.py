@@ -214,7 +214,8 @@ def user_details(user_id):
             'location': user.location,
             'pets_count': len(pets),
             'reviews_count': reviews_count,
-            'pets': pets
+            'pets': pets,
+            'is_admin': user.is_admin
         }
         
         # Pass user directly to template but also provide a structured user_data object
@@ -249,6 +250,15 @@ def update_user_status(user_id):
     elif action == 'add_note':
         user.add_admin_note(reason)
         flash('Admin note added successfully.', 'success')
+    elif action == 'toggle_admin':
+        # Toggle admin status
+        user.is_admin = not user.is_admin
+        note = f"Admin privileges {'granted' if user.is_admin else 'revoked'}"
+        if reason:
+            note += f" - Reason: {reason}"
+        user.add_admin_note(note)
+        db.session.commit()
+        flash(f"Admin status for {user.username} has been {'granted' if user.is_admin else 'revoked'}.", 'success')
     
     return redirect(url_for('admin.user_details', user_id=user_id))
 

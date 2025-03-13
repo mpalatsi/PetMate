@@ -61,7 +61,7 @@
         <i class="fas fa-arrow-left"></i>
     </a>
     <h1>Admin Dashboard</h1>
-    <button id="menuButton" class="menu-button">
+    <button id="adminMenuButton" class="menu-button">
         <i class="fas fa-bars"></i>
     </button>
 </div>
@@ -237,17 +237,27 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Menu functionality
-        const menuButton = document.getElementById('menuButton');
+        // Override the menu button from base template
+        const baseMenuButton = document.getElementById('menuButton');
+        if (baseMenuButton) {
+            // Remove default event listener by cloning and replacing the element
+            const newMenuButton = baseMenuButton.cloneNode(true);
+            baseMenuButton.parentNode.replaceChild(newMenuButton, baseMenuButton);
+        }
+        
+        // Custom admin menu functionality
+        const adminMenuButton = document.getElementById('adminMenuButton');
         const closeMenuButton = document.getElementById('closeMenu');
         const menuOverlay = document.getElementById('menuOverlay');
         const mainMenu = document.getElementById('mainMenu');
         
-        menuButton.addEventListener('click', function() {
-            menuOverlay.style.display = 'block';
-            mainMenu.style.right = '0';
-            document.body.style.overflow = 'hidden';
-        });
+        if (adminMenuButton) {
+            adminMenuButton.addEventListener('click', function() {
+                menuOverlay.style.display = 'block';
+                mainMenu.style.right = '0';
+                document.body.style.overflow = 'hidden';
+            });
+        }
         
         function closeMenu() {
             menuOverlay.style.display = 'none';
@@ -255,8 +265,13 @@
             document.body.style.overflow = '';
         }
         
-        closeMenuButton.addEventListener('click', closeMenu);
-        menuOverlay.addEventListener('click', closeMenu);
+        if (closeMenuButton) {
+            closeMenuButton.addEventListener('click', closeMenu);
+        }
+        
+        if (menuOverlay) {
+            menuOverlay.addEventListener('click', closeMenu);
+        }
         
         // Stat card hover effects
         const statCards = document.querySelectorAll('.stats-grid a > div');

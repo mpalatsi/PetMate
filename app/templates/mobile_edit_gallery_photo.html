@@ -194,11 +194,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="mobile-page-header">
-    <h2>Edit Photo</h2>
-    <p>Update details about your photo</p>
-</div>
-
 <div class="container">
     <div class="edit-form-container">
         <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" 

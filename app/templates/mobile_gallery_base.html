@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light only">
+    <meta name="theme-color" content="#6B8E6B">
+    <title>{% block title %}Gallery - PetMate{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-homepage.css') }}?v=1.0.3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-logo.css') }}?v=1.0.1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pet-avatars.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Allow child templates to add extra head content -->
+    {% block extra_head %}{% endblock %}
+    
+    <style>
+        body {
+            background-color: #f4f4f4;
+            padding-bottom: 0; /* Remove space for bottom nav */
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .main-content {
+            margin-top: 75px; /* Space for fixed header */
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        /* Force hide the bottom navigation */
+        .mobile-bottom-nav {
+            display: none !important;
+        }
+        
+        /* General utility classes */
+        .text-center {
+            text-align: center;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .mt-3 {
+            margin-top: 1rem;
+        }
+        
+        /* Add ripple effect styles */
+        .action-button {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <button class="back-button" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1>{% block header_title %}Gallery{% endblock %}</h1>
+        <button class="menu-button" id="main-menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+    
+    <!-- Mobile Menu -->
+    <div class="main-menu-overlay" id="main-menu-overlay"></div>
+    <div class="main-menu" id="main-menu">
+        <div class="main-menu-header">
+            <h3>Menu</h3>
+            <button class="close-main-menu" id="close-main-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="main-menu-links">
+            <a href="{{ url_for('main.mobile_index') }}" class="main-menu-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="{{ url_for('main.search') }}" class="main-menu-link">
+                <i class="fas fa-search"></i> Find Playmates
+            </a>
+            <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
+                <i class="fas fa-paw"></i> My Pets
+            </a>
+            <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
+                <i class="fas fa-calendar-plus"></i> Schedule Playdate
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
+                <i class="fas fa-user"></i> My Dashboard
+            </a>
+            <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
+                <i class="fas fa-envelope"></i> Messages
+            </a>
+            <a href="{{ url_for('gallery.mobile_gallery') }}" class="main-menu-link active">
+                <i class="fas fa-images"></i> Gallery
+            </a>
+            <a href="{{ url_for('gallery.mobile_upload_photo') }}" class="main-menu-link">
+                <i class="fas fa-upload"></i> Upload Photo
+            </a>
+            {% if user.is_admin %}
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="main-menu-link">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </a>
+            {% endif %}
+            <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuButton = document.getElementById('main-menu-toggle');
+            const mainMenu = document.getElementById('main-menu');
+            const mainMenuOverlay = document.getElementById('main-menu-overlay');
+            const closeMainMenu = document.getElementById('close-main-menu');
+            
+            function openMenu() {
+                mainMenu.classList.add('active');
+                mainMenuOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            }
+            
+            function closeMenu() {
+                mainMenu.classList.remove('active');
+                mainMenuOverlay.classList.remove('active');
+                document.body.style.overflow = ''; // Allow scrolling
+            }
+            
+            menuButton.addEventListener('click', openMenu);
+            closeMainMenu.addEventListener('click', closeMenu);
+            mainMenuOverlay.addEventListener('click', closeMenu);
+            
+            // Handle ripple effect for buttons
+            const buttons = document.querySelectorAll('.action-button');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const x = e.clientX - this.getBoundingClientRect().left;
+                    const y = e.clientY - this.getBoundingClientRect().top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+            
+            // Handle alert dismissal
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.opacity = '0';
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            });
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html> 

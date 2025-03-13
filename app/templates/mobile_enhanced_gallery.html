@@ -1,639 +1,334 @@
-{% extends "mobile_base.html" %}
+{% extends "mobile_gallery_base.html" %}
 
 {% block title %}Pet Gallery - PetMate{% endblock %}
 
 {% block header_title %}
-Pet Gallery
-<a href="{{ url_for('gallery.mobile_upload_photo') }}" class="upload-button">
-    <i class="fas fa-upload"></i>
-</a>
+Pet Gallery <a href="{{ url_for('gallery.mobile_upload_photo') }}" class="upload-button"><i class="fas fa-upload"></i></a>
 {% endblock %}
 
 {% block extra_head %}
 <style>
-    /* Override base template body padding for gallery pages */
-    body {
-        padding-bottom: 0 !important; /* Remove space for bottom nav */
-    }
-
     :root {
         --primary-green: #6B8E6B;
-        --deep-forest: #2C4C2C;
-        --light-sage: #E0E7E0;
-        --warm-brown: #8B6C55;
-        --blush-pink: #E8B4B8;
-        --deep-red: #CD5C5C;
+        --dark-green: #2C4C2C;
+        --light-green: #E0E7E0;
+        --cream: #F8F4E3;
+        --brown: #8B5A2B;
     }
     
-    /* Mobile Gallery Core Styles */
-    .gallery-container {
-        padding: 10px 15px;
-    }
-    
-    /* Header upload button */
+    /* Upload button in header */
     .upload-button {
-        position: absolute;
-        right: 55px;
-        top: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
         background-color: rgba(255, 255, 255, 0.2);
         color: white;
-        border: none;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .upload-button:active {
-        background-color: rgba(255, 255, 255, 0.3);
-        transform: scale(0.95);
-    }
-    
-    /* Mobile Menu (slide-in) for gallery */
-    .main-menu-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        z-index: 9998;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease;
-    }
-    
-    .main-menu-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
-    
-    .main-menu {
-        position: fixed;
-        top: 0;
-        right: 0;
-        width: 85%;
-        height: 100%;
-        background-color: white;
-        z-index: 9999;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-    }
-    
-    .main-menu.active {
-        transform: translateX(0);
-    }
-    
-    .main-menu-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .close-main-menu {
-        background: transparent;
-        border: none;
-        font-size: 1.3rem;
-        height: 40px;
-        width: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-    }
-    
-    .main-menu-links {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-    }
-    
-    .main-menu-link {
-        padding: 15px;
-        display: flex;
-        align-items: center;
-        color: var(--deep-forest);
-        text-decoration: none;
-        font-weight: 500;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .main-menu-link.active {
-        background-color: var(--light-sage);
-        color: var(--deep-forest);
-        font-weight: 700;
-    }
-    
-    .main-menu-link:hover {
-        background-color: #f8f8f8;
-    }
-    
-    .main-menu-link i {
-        margin-right: 10px;
-        width: 20px;
-        text-align: center;
-    }
-    
-    /* Tab Navigation */
-    .gallery-tabs {
-        display: flex;
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        margin: 15px 0;
-        border: 1px solid var(--light-sage);
-    }
-    
-    .gallery-tab {
-        flex: 1;
-        text-align: center;
-        padding: 16px 5px;
-        font-weight: 600;
-        color: #555;
-        text-decoration: none;
-        font-size: 0.95rem;
+        margin-left: 10px;
         transition: all 0.2s ease;
+    }
+    
+    .upload-button:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    /* Gallery styles */
+    .filter-tabs {
+        display: flex;
+        overflow-x: auto;
+        padding: 5px 0;
+        margin-bottom: 15px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .filter-tab {
+        padding: 10px 15px;
+        white-space: nowrap;
+        color: #666;
+        font-weight: 500;
         position: relative;
+        transition: all 0.2s ease;
     }
     
-    .gallery-tab.active {
-        color: white;
-        background-color: var(--deep-forest);
-    }
-    
-    .gallery-tab:active {
-        background-color: rgba(107, 142, 107, 0.1);
-    }
-    
-    /* Filter Section */
-    .filter-section {
-        margin-bottom: 16px;
-    }
-    
-    .filter-header {
-        background: white;
-        padding: 14px 16px;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .filter-tab.active {
+        color: var(--primary-green);
         font-weight: 600;
-        color: #444;
-        margin-bottom: 2px;
     }
     
-    .filter-header i.toggle-icon {
-        transition: transform 0.3s ease;
-    }
-    
-    .filter-header.active i.toggle-icon {
-        transform: rotate(180deg);
-    }
-    
-    .filter-content {
-        background: white;
-        padding: 16px;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        margin-top: 6px;
-        display: none;
-    }
-    
-    .filter-content.active {
-        display: block;
-    }
-    
-    .filter-group {
-        margin-bottom: 16px;
-    }
-    
-    .filter-group:last-child {
-        margin-bottom: 0;
-    }
-    
-    .filter-label {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #555;
-    }
-    
-    .filter-select {
-        width: 100%;
-        padding: 14px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        font-size: 0.95rem;
-        -webkit-appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 14px center;
-        background-size: 12px;
-        background-color: white;
-    }
-    
-    .apply-filters-btn {
-        width: 100%;
-        background-color: var(--deep-forest);
-        color: white;
-        border: none;
-        padding: 14px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 0.95rem;
-        margin-top: 16px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-    
-    .apply-filters-btn:active {
+    .filter-tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 30px;
+        height: 3px;
         background-color: var(--primary-green);
-        transform: scale(0.98);
+        border-radius: 3px;
     }
     
-    /* Photo Grid */
+    /* Photo grid */
     .photo-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
+        gap: 10px;
+        margin-bottom: 20px;
     }
     
-    .photo-card {
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    .photo-item {
         position: relative;
-        border: 1px solid #eaeaea;
-        height: 100%;
-    }
-    
-    .photo-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-        height: 100%;
-    }
-    
-    .photo-image-wrapper {
-        position: relative;
-        padding-top: 100%; /* 1:1 Aspect Ratio */
+        border-radius: 8px;
         overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        aspect-ratio: 1 / 1;
     }
     
-    .photo-image {
-        position: absolute;
-        top: 0;
-        left: 0;
+    .photo-item img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: transform 0.3s ease;
     }
     
-    .photo-badge {
+    .photo-overlay {
         position: absolute;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.65rem;
-        font-weight: 600;
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    
-    .private-badge {
-        top: 8px;
-        right: 8px;
-        background-color: rgba(0, 0, 0, 0.6);
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 10px;
+        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
         color: white;
     }
     
-    .featured-badge {
-        top: 8px;
-        left: 8px;
-        background-color: rgba(255, 193, 7, 0.9);
-        color: #333;
-    }
-    
-    .photo-details {
-        padding: 12px;
-    }
-    
     .photo-title {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 600;
-        margin: 0 0 8px 0;
-        white-space: nowrap;
+        margin: 0 0 3px;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
         overflow: hidden;
         text-overflow: ellipsis;
+        white-space: nowrap;
     }
     
     .photo-meta {
         display: flex;
-        font-size: 0.75rem;
-        color: #777;
+        font-size: 0.7rem;
         align-items: center;
-        gap: 8px;
     }
     
-    .photo-pet {
+    .photo-meta > div {
         display: flex;
         align-items: center;
-        gap: 5px;
+        margin-right: 8px;
     }
     
-    .photo-pet img {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        object-fit: cover;
+    .photo-meta i {
+        margin-right: 3px;
     }
     
-    .photo-stats {
+    .photo-badge {
+        position: absolute;
+        top: 10px;
+        padding: 5px 8px;
+        font-size: 0.7rem;
+        border-radius: 4px;
+        font-weight: 600;
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-top: 8px;
-        font-size: 0.75rem;
-        color: #666;
+        gap: 3px;
     }
     
-    .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 4px;
+    .badge-featured {
+        right: 10px;
+        background-color: #FFD700;
+        color: #333;
     }
     
-    /* Empty state */
-    .empty-state {
-        text-align: center;
-        padding: 40px 20px;
-        background: white;
+    .badge-private {
+        left: 10px;
+        background-color: #333;
+        color: white;
+    }
+    
+    .upload-cta {
+        background-color: white;
         border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-    
-    .empty-state-icon {
-        font-size: 3rem;
-        color: var(--light-sage);
-        margin-bottom: 15px;
-    }
-    
-    .empty-state-text {
-        font-size: 1.1rem;
-        color: #666;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         margin-bottom: 20px;
     }
     
-    .empty-state-action {
-        background-color: var(--deep-forest);
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        display: inline-block;
+    .upload-icon {
+        font-size: 3rem;
+        color: var(--primary-green);
+        margin-bottom: 15px;
     }
     
-    .loading-indicator {
-        text-align: center;
-        padding: 20px;
+    .upload-cta h2 {
+        margin: 0 0 10px;
+        color: #333;
+    }
+    
+    .upload-cta p {
+        margin: 0 0 15px;
+        color: #666;
+    }
+    
+    .upload-btn {
+        display: inline-block;
+        padding: 12px 20px;
+        background-color: var(--primary-green);
+        color: white;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    /* Loading state */
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        padding: 30px 0;
     }
     
     .spinner {
-        border: 4px solid rgba(0, 0, 0, 0.1);
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(107, 142, 107, 0.2);
+        border-top-color: var(--primary-green);
         border-radius: 50%;
-        border-left-color: var(--primary-green);
         animation: spin 1s linear infinite;
-        margin: 0 auto;
     }
     
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    /* No photos message */
+    .no-photos {
+        text-align: center;
+        padding: 30px 20px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .no-photos i {
+        font-size: 3rem;
+        color: #ccc;
+        margin-bottom: 15px;
+    }
+    
+    .no-photos h3 {
+        margin: 0 0 10px;
+        color: #333;
+    }
+    
+    .no-photos p {
+        margin: 0 0 15px;
+        color: #666;
+        font-size: 0.9rem;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="gallery-container">
-    <!-- Tab Navigation - Removed Featured tab -->
-    <div class="gallery-tabs">
-        <a href="{{ url_for('gallery.filter_gallery', filter='personal') }}" class="gallery-tab {% if active_tab == 'my' %}active{% endif %}">
-            My Photos
-        </a>
-        <a href="{{ url_for('gallery.filter_gallery', filter='public') }}" class="gallery-tab {% if active_tab == 'public' %}active{% endif %}">
-            Public Gallery
-        </a>
-    </div>
+<!-- Filter Tabs -->
+<div class="filter-tabs">
+    <a href="{{ url_for('gallery.filter_gallery', filter='public') }}" class="filter-tab {% if filter_type == 'public' or filter_type == 'all' %}active{% endif %}">Public Gallery</a>
+    <a href="{{ url_for('gallery.filter_gallery', filter='personal') }}" class="filter-tab {% if filter_type == 'personal' %}active{% endif %}">Private Gallery</a>
+</div>
 
-    <!-- Filter Options -->
-    <div class="filter-section">
-        <div class="filter-header" id="filterToggle">
-            <span>Filter & Sort</span>
-            <i class="fas fa-chevron-down toggle-icon"></i>
+{% if photos %}
+<!-- Photo Grid -->
+<div class="photo-grid">
+    {% for photo in photos %}
+    <a href="{{ url_for('gallery.view_photo', photo_id=photo.id) }}" class="photo-item">
+        <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}?t={{ photo.created_at.timestamp() }}" alt="{{ photo.title or 'Pet photo' }}">
+        <div class="photo-overlay">
+            <h3 class="photo-title">{{ photo.title or 'Untitled' }}</h3>
+            <div class="photo-meta">
+                <div><i class="fas fa-heart"></i> {{ photo.likes|length }}</div>
+                <div><i class="fas fa-comment"></i> {{ photo.comments|length }}</div>
+            </div>
         </div>
-        <div class="filter-content" id="filterContent">
-            <form id="filterForm" action="{{ url_for('gallery.mobile_gallery') }}" method="GET">
-                <input type="hidden" name="filter" value="{{ active_tab }}">
-                
-                {% if active_tab == 'my' and user_pets %}
-                <div class="filter-group">
-                    <label class="filter-label" for="pet_id">Filter by Pet</label>
-                    <select name="pet_id" id="pet_id" class="filter-select">
-                        <option value="0">All Pets</option>
-                        {% for pet in user_pets %}
-                        <option value="{{ pet.id }}" {% if (pet_id|default(0))|int == pet.id %}selected{% endif %}>{{ pet.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                {% endif %}
-                
-                <div class="filter-group">
-                    <label class="filter-label" for="sort_by">Sort by</label>
-                    <select name="sort_by" id="sort_by" class="filter-select">
-                        <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
-                        <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
-                        <option value="most_liked" {% if sort_by == 'most_liked' %}selected{% endif %}>Most Liked</option>
-                        <option value="most_viewed" {% if sort_by == 'most_viewed' %}selected{% endif %}>Most Viewed</option>
-                    </select>
-                </div>
-                
-                <button type="submit" class="apply-filters-btn">
-                    <i class="fas fa-filter"></i> Apply Filters
-                </button>
-            </form>
+        
+        {% if photo.featured %}
+        <div class="photo-badge badge-featured">
+            <i class="fas fa-star"></i> Featured
         </div>
-    </div>
-
-    <!-- Photo Grid -->
-    {% if photos %}
-    <div class="photo-grid" id="photoGrid">
-        {% for photo in photos %}
-        <div class="photo-card">
-            <a href="{{ url_for('gallery.view_photo', photo_id=photo.id) }}" class="photo-link">
-                <div class="photo-image-wrapper">
-                    <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}?t={{ photo.created_at.timestamp() }}" alt="{{ photo.title }}" class="photo-image">
-                    
-                    {% if not photo.is_public %}
-                    <div class="photo-badge private-badge">
-                        <i class="fas fa-lock"></i> Private
-                    </div>
-                    {% endif %}
-                    
-                    {% if photo.featured %}
-                    <div class="photo-badge featured-badge">
-                        <i class="fas fa-star"></i> Featured
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="photo-details">
-                    <h3 class="photo-title">{{ photo.title }}</h3>
-                    <div class="photo-meta">
-                        {% if photo.pet %}
-                        <div class="photo-pet">
-                            {% if photo.pet.avatar_filename %}
-                            <img src="{{ url_for('main.serve_pet_avatar', filename=photo.pet.avatar_filename) }}" alt="{{ photo.pet.name }}">
-                            {% else %}
-                            <i class="fas fa-paw"></i>
-                            {% endif %}
-                            <span>{{ photo.pet.name }}</span>
-                        </div>
-                        {% endif %}
-                        <div>{{ photo.created_at.strftime('%b %d, %Y') }}</div>
-                    </div>
-                    <div class="photo-stats">
-                        <div class="stat-item">
-                            <i class="fas fa-heart"></i> {{ like_counts.get(photo.id, 0) }}
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-comment"></i> {{ comment_counts.get(photo.id, 0) }}
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-eye"></i> {{ photo.view_count }}
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty-state">
-        <div class="empty-state-icon">
-            <i class="fas fa-camera"></i>
-        </div>
-        <p class="empty-state-text">
-            {% if active_tab == 'my' %}
-            You haven't uploaded any photos yet.
-            {% elif active_tab == 'public' %}
-            No public photos are available.
-            {% elif active_tab == 'featured' %}
-            No featured photos are available.
-            {% endif %}
-        </p>
-        {% if active_tab == 'my' %}
-        <a href="{{ url_for('gallery.mobile_upload_photo') }}" class="empty-state-action">
-            <i class="fas fa-upload"></i> Upload a Photo
-        </a>
         {% endif %}
-    </div>
+        
+        {% if not photo.is_public %}
+        <div class="photo-badge badge-private">
+            <i class="fas fa-lock"></i> Private
+        </div>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<!-- No Photos -->
+<div class="no-photos">
+    <i class="fas fa-images"></i>
+    {% if filter_type == 'personal' %}
+    <h3>You haven't uploaded any photos yet</h3>
+    <p>Share photos of your pets with the community!</p>
+    <a href="{{ url_for('gallery.mobile_upload_photo') }}" class="upload-btn">Upload a Photo</a>
+    {% else %}
+    <h3>No photos found</h3>
+    <p>No photos match this filter criteria. Try a different filter or upload your own!</p>
+    <a href="{{ url_for('gallery.mobile_upload_photo') }}" class="upload-btn">Upload a Photo</a>
     {% endif %}
 </div>
+{% endif %}
 
-<!-- Mobile Menu Overlay -->
-<div class="main-menu-overlay" id="main-menu-overlay"></div>
-
-<!-- Mobile Menu -->
-<div class="main-menu" id="main-menu">
-    <div class="main-menu-header">
-        <h3>Menu</h3>
-        <button class="close-main-menu" id="close-main-menu">
-            <i class="fas fa-times"></i>
-        </button>
+<!-- Upload CTA -->
+{% if filter_type != 'personal' or not photos %}
+<div class="upload-cta">
+    <div class="upload-icon">
+        <i class="fas fa-upload"></i>
     </div>
-    <div class="main-menu-links">
-        <a href="{{ url_for('main.mobile_index') }}" class="main-menu-link">
-            <i class="fas fa-home"></i> Home
-        </a>
-        <a href="{{ url_for('main.search') }}" class="main-menu-link">
-            <i class="fas fa-search"></i> Find Playmates
-        </a>
-        <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
-            <i class="fas fa-paw"></i> My Pets
-        </a>
-        <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
-            <i class="fas fa-calendar-plus"></i> Schedule Playdate
-        </a>
-        <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
-            <i class="fas fa-user"></i> My Dashboard
-        </a>
-        <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
-            <i class="fas fa-envelope"></i> Messages
-        </a>
-        <a href="{{ url_for('gallery.mobile_gallery') }}" class="main-menu-link active">
-            <i class="fas fa-images"></i> Gallery
-        </a>
-        {% if user.is_admin %}
-        <a href="{{ url_for('admin.admin_dashboard') }}" class="main-menu-link">
-            <i class="fas fa-shield-alt"></i> Admin Panel
-        </a>
-        {% endif %}
-        <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </div>
+    <h2>Got cute pet photos?</h2>
+    <p>Share them with the PetMate community!</p>
+    <a href="{{ url_for('gallery.mobile_upload_photo') }}" class="upload-btn">Upload Now</a>
 </div>
+{% endif %}
+{% endblock %}
 
+{% block scripts %}
 <script>
-    // Filter toggle
     document.addEventListener('DOMContentLoaded', function() {
-        const filterToggle = document.getElementById('filterToggle');
-        const filterContent = document.getElementById('filterContent');
-        
-        filterToggle.addEventListener('click', function() {
-            filterContent.classList.toggle('active');
-            filterToggle.classList.toggle('active');
+        // Add ripple effect to filter tabs
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                // Only create ripple for non-active tabs
+                if (!this.classList.contains('active')) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                }
+            });
         });
-        
-        // Mobile menu toggle
-        const menuButton = document.getElementById('menuButton');
-        const mainMenu = document.getElementById('main-menu');
-        const mainMenuOverlay = document.getElementById('main-menu-overlay');
-        const closeMainMenu = document.getElementById('close-main-menu');
-        
-        menuButton.addEventListener('click', function() {
-            mainMenu.classList.add('active');
-            mainMenuOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
-        });
-        
-        function closeMenu() {
-            mainMenu.classList.remove('active');
-            mainMenuOverlay.classList.remove('active');
-            document.body.style.overflow = ''; // Allow scrolling
-        }
-        
-        closeMainMenu.addEventListener('click', closeMenu);
-        mainMenuOverlay.addEventListener('click', closeMenu);
     });
 </script>
 {% endblock %} 
