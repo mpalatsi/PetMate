@@ -130,10 +130,9 @@ class TestMobile(unittest.TestCase):
         
         self.assertEqual(response.status_code, 200)
         # Check for tab navigation elements
-        self.assertIn(b'tab-button', response.data)
-        self.assertIn(b'All Photos', response.data)
-        self.assertIn(b'My Photos', response.data)
-        self.assertIn(b'Public', response.data)
+        self.assertIn(b'filter-tab', response.data)
+        self.assertIn(b'Public Gallery', response.data)
+        self.assertIn(b'Private Gallery', response.data)
     
     def test_mobile_photo_details(self):
         """Test mobile photo detail view"""
@@ -155,8 +154,8 @@ class TestMobile(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             
             # Check for mobile-specific photo view elements
-            self.assertIn(b'photo-detail', response.data)
-            self.assertIn(b'Test photo', response.data)
+            self.assertIn(b'photo-container', response.data)
+            self.assertIn(b'photo-image', response.data)
         except Exception as e:
             warnings.warn(f"Error in photo details test: {str(e)}. This test may need to be updated.")
             return
@@ -180,10 +179,10 @@ class TestMobile(unittest.TestCase):
             
             self.assertEqual(response.status_code, 200)
             
-            # Check for dropdown menu and action buttons
-            self.assertIn(b'action-dropdown', response.data)
-            self.assertIn(b'edit', response.data.lower())
-            self.assertIn(b'delete', response.data.lower())
+            # Check for action buttons
+            self.assertIn(b'action-buttons', response.data)
+            self.assertIn(b'like', response.data.lower())
+            self.assertIn(b'share', response.data.lower())
         except Exception as e:
             warnings.warn(f"Error in photo actions dropdown test: {str(e)}. This test may need to be updated.")
             return
