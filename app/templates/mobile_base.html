@@ -207,21 +207,35 @@
 {% block body %}
     <!-- Mobile Header -->
     <header class="mobile-header">
+        {% if request.endpoint != 'gallery.view_photo' %}
         <button class="back-button" onclick="goBack()">
             <i class="fas fa-arrow-left"></i>
         </button>
+        {% else %}
+        <div></div> <!-- Empty div to maintain flex layout -->
+        {% endif %}
         <div class="mobile-title">
             {% block header_title %}PetMate{% endblock %}
         </div>
-        <button class="menu-button" id="menuButton">
+        {% if request.endpoint != 'gallery.view_photo' %}
+        <button class="menu-button" id="menuButton" 
+                {% if request.endpoint == 'gallery.mobile_gallery' or request.endpoint == 'gallery.filter_gallery' or request.endpoint == 'gallery.mobile_upload_photo' %}
+                data-gallery-page="true"
+                {% endif %}>
             <i class="fas fa-bars"></i>
         </button>
+        {% else %}
+        <button class="menu-button photo-view-menu-button" id="photoViewMenuButton">
+            <i class="fas fa-bars"></i>
+        </button>
+        {% endif %}
     </header>
     
     <!-- Mobile Navigation Menu -->
+    {% if request.endpoint != 'gallery.mobile_gallery' and request.endpoint != 'gallery.filter_gallery' and request.endpoint != 'gallery.mobile_upload_photo' %}
     <div class="mobile-nav" id="mobileNav">
         <a href="{{ url_for('main.mobile_index') }}" class="mobile-nav-item">Home</a>
-        <a href="{{ url_for('gallery.index') }}" class="mobile-nav-item">Gallery</a>
+        <a href="{{ url_for('gallery.mobile_gallery') }}" class="mobile-nav-item">Gallery</a>
         <a href="{{ url_for('main.view_playdates') }}" class="mobile-nav-item">Playdates</a>
         <a href="{{ url_for('main.profile') }}" class="mobile-nav-item">Profile</a>
         {% if session.get('username') %}
@@ -230,6 +244,7 @@
             <a href="{{ url_for('auth.login') }}" class="mobile-nav-item">Login</a>
         {% endif %}
     </div>
+    {% endif %}
     
     <!-- Main Content -->
     <div class="main-content">
@@ -247,12 +262,17 @@
     </div>
     
     <!-- Mobile Bottom Navigation -->
+    <!-- Current endpoint: {{ request.endpoint }} -->
+    {% if request.endpoint != 'gallery.mobile_gallery' and 
+          request.endpoint != 'gallery.filter_gallery' and 
+          request.endpoint != 'gallery.mobile_upload_photo' and 
+          request.endpoint != 'gallery.view_photo' %}
     <nav class="mobile-bottom-nav">
         <a href="{{ url_for('main.mobile_index') }}" class="mobile-nav-button">
             <i class="fas fa-home"></i>
             <span class="mobile-nav-label">Home</span>
         </a>
-        <a href="{{ url_for('gallery.index') }}" class="mobile-nav-button">
+        <a href="{{ url_for('gallery.mobile_gallery') }}" class="mobile-nav-button">
             <i class="fas fa-images"></i>
             <span class="mobile-nav-label">Gallery</span>
         </a>
@@ -269,11 +289,30 @@
             <span class="mobile-nav-label">Profile</span>
         </a>
     </nav>
+    {% endif %}
     
     <script>
         // Menu toggle
-        document.getElementById('menuButton').addEventListener('click', function() {
-            document.getElementById('mobileNav').classList.toggle('open');
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuButton = document.getElementById('menuButton');
+            if (menuButton) {
+                menuButton.addEventListener('click', function() {
+                    // Check if we're on a gallery page using data attribute
+                    if (this.getAttribute('data-gallery-page') === 'true') {
+                        // For gallery pages, the slide-in menu is handled in the gallery template
+                        return;
+                    }
+                    
+                    // Check if we're on the view_photo page
+                    const currentEndpoint = '{{ request.endpoint }}';
+                    if (currentEndpoint === 'gallery.view_photo') {
+                        // For view_photo page, the slide-in menu is handled in that template
+                        return;
+                    }
+                    
+                    document.getElementById('mobileNav').classList.toggle('open');
+                });
+            }
         });
         
         // Back button

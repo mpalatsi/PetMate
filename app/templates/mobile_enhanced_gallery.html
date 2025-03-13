@@ -1,198 +1,305 @@
 {% extends "mobile_base.html" %}
 
-{% block title %}Photo Gallery{% endblock %}
+{% block title %}Pet Gallery - PetMate{% endblock %}
 
 {% block header_title %}
-Pet Gallery 
-<a href="{{ url_for('gallery.upload_photo') }}" class="btn-upload" style="position: absolute; right: 55px; top: 12px;">
+Pet Gallery
+<a href="{{ url_for('gallery.mobile_upload_photo') }}" class="upload-button">
     <i class="fas fa-upload"></i>
 </a>
 {% endblock %}
 
-{% block styles %}
+{% block extra_head %}
 <style>
-    /* Mobile Gallery Styles */
+    /* Override base template body padding for gallery pages */
+    body {
+        padding-bottom: 0 !important; /* Remove space for bottom nav */
+    }
+
     :root {
-        --gallery-highlight: #6B8E6B;
-        --gallery-accent: #CD5C5C;
+        --primary-green: #6B8E6B;
+        --deep-forest: #2C4C2C;
+        --light-sage: #E0E7E0;
+        --warm-brown: #8B6C55;
+        --blush-pink: #E8B4B8;
+        --deep-red: #CD5C5C;
     }
     
+    /* Mobile Gallery Core Styles */
     .gallery-container {
-        padding: 0 15px;
-        margin-bottom: 80px; /* Account for mobile navbar */
+        padding: 10px 15px;
     }
     
-    /* Upload button in header */
-    .btn-upload {
-        background-color: var(--deep-forest);
+    /* Header upload button */
+    .upload-button {
+        position: absolute;
+        right: 55px;
+        top: 10px;
+        background-color: rgba(255, 255, 255, 0.2);
         color: white;
         border: none;
-        padding: 10px;
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.9rem;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        transition: all 0.2s ease;
+        text-decoration: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
-    .btn-upload i {
-        font-size: 1.1rem;
-        margin: 0;
+    .upload-button:active {
+        background-color: rgba(255, 255, 255, 0.3);
+        transform: scale(0.95);
     }
     
-    .btn-upload:hover, .btn-upload:active {
-        background-color: var(--sage-green);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    /* Mobile Menu (slide-in) for gallery */
+    .main-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 9998;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
     }
     
-    /* Improved Tabs */
+    .main-menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .main-menu {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 85%;
+        height: 100%;
+        background-color: white;
+        z-index: 9999;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    
+    .main-menu.active {
+        transform: translateX(0);
+    }
+    
+    .main-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .close-main-menu {
+        background: transparent;
+        border: none;
+        font-size: 1.3rem;
+        height: 40px;
+        width: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    
+    .main-menu-links {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .main-menu-link {
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        color: var(--deep-forest);
+        text-decoration: none;
+        font-weight: 500;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .main-menu-link.active {
+        background-color: var(--light-sage);
+        color: var(--deep-forest);
+        font-weight: 700;
+    }
+    
+    .main-menu-link:hover {
+        background-color: #f8f8f8;
+    }
+    
+    .main-menu-link i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    
+    /* Tab Navigation */
     .gallery-tabs {
         display: flex;
         background: white;
-        border-radius: 12px;
+        border-radius: 10px;
         overflow: hidden;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-        margin-bottom: 15px;
-        margin-top: 15px; /* Add top margin now that we removed the header */
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        margin: 15px 0;
         border: 1px solid var(--light-sage);
-        padding: 4px;
     }
     
     .gallery-tab {
         flex: 1;
+        text-align: center;
+        padding: 16px 5px;
+        font-weight: 600;
+        color: #555;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
         position: relative;
     }
     
-    .gallery-tab a {
-        display: block;
-        text-align: center;
-        padding: 12px 5px;
-        font-weight: 600;
-        color: #666;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-    }
-    
-    .gallery-tab.active a {
+    .gallery-tab.active {
         color: white;
         background-color: var(--deep-forest);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
     
-    .filter-toggle-container {
-        margin-bottom: 12px;
+    .gallery-tab:active {
+        background-color: rgba(107, 142, 107, 0.1);
     }
     
-    .toggle-filters-btn {
-        width: 100%;
+    /* Filter Section */
+    .filter-section {
+        margin-bottom: 16px;
+    }
+    
+    .filter-header {
+        background: white;
+        padding: 14px 16px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px 15px;
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        font-weight: 500;
-        color: #555;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        font-weight: 600;
+        color: #444;
+        margin-bottom: 2px;
     }
     
-    /* Filters */
-    .gallery-filters {
-        background: white;
-        padding: 15px;
-        border-radius: 12px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-        border: 1px solid #e0e0e0;
+    .filter-header i.toggle-icon {
+        transition: transform 0.3s ease;
     }
     
-    .filter-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        margin-bottom: 10px;
+    .filter-header.active i.toggle-icon {
+        transform: rotate(180deg);
+    }
+    
+    .filter-content {
+        background: white;
+        padding: 16px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        margin-top: 6px;
+        display: none;
+    }
+    
+    .filter-content.active {
+        display: block;
     }
     
     .filter-group {
-        flex: 1;
+        margin-bottom: 16px;
     }
     
-    .filter-group label {
+    .filter-group:last-child {
+        margin-bottom: 0;
+    }
+    
+    .filter-label {
         display: block;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
         font-size: 0.85rem;
         font-weight: 600;
         color: #555;
     }
     
-    .filter-group select {
+    .filter-select {
         width: 100%;
-        padding: 8px 10px;
-        border-radius: 6px;
+        padding: 14px;
+        border-radius: 8px;
         border: 1px solid #ddd;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         -webkit-appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
-        background-position: right 10px center;
+        background-position: right 14px center;
         background-size: 12px;
         background-color: white;
     }
     
-    .filter-actions {
-        display: flex;
-        justify-content: flex-end;
-    }
-    
-    .btn-filter {
+    .apply-filters-btn {
+        width: 100%;
         background-color: var(--deep-forest);
         color: white;
         border: none;
-        padding: 8px 15px;
-        border-radius: 6px;
-        font-weight: 500;
-        font-size: 0.9rem;
+        padding: 14px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-top: 16px;
         cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .apply-filters-btn:active {
+        background-color: var(--primary-green);
+        transform: scale(0.98);
     }
     
     /* Photo Grid */
     .photo-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
     }
     
-    .photo-card-link {
+    .photo-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        position: relative;
+        border: 1px solid #eaeaea;
+        height: 100%;
+    }
+    
+    .photo-link {
         text-decoration: none;
         color: inherit;
         display: block;
         height: 100%;
     }
     
-    .photo-card {
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    .photo-image-wrapper {
         position: relative;
-        aspect-ratio: 1 / 1;
-        border: 1px solid #eaeaea;
+        padding-top: 100%; /* 1:1 Aspect Ratio */
+        overflow: hidden;
     }
     
     .photo-image {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -202,9 +309,9 @@ Pet Gallery
         position: absolute;
         padding: 4px 8px;
         border-radius: 12px;
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 600;
-        z-index: 1;
+        z-index: 2;
         display: flex;
         align-items: center;
         gap: 4px;
@@ -224,272 +331,309 @@ Pet Gallery
         color: #333;
     }
     
-    .photo-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(transparent, rgba(0,0,0,0.7));
-        padding: 8px;
-        color: white;
+    .photo-details {
+        padding: 12px;
     }
     
     .photo-title {
-        font-size: 0.85rem;
+        font-size: 0.95rem;
         font-weight: 600;
-        margin: 0;
+        margin: 0 0 8px 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     
-    .photo-stats {
+    .photo-meta {
         display: flex;
-        justify-content: space-between;
-        margin-top: 5px;
         font-size: 0.75rem;
-    }
-    
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 30px 15px;
-        background: #fff;
-        border-radius: 8px;
-        margin: 15px 0;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    
-    .empty-state i {
-        font-size: 2.5rem;
-        color: #ccc;
-        margin-bottom: 10px;
-    }
-    
-    .empty-state h3 {
-        font-size: 1.2rem;
-        margin: 0 0 8px 0;
-        color: #666;
-    }
-    
-    .empty-state p {
-        color: #888;
-        margin-bottom: 15px;
-        font-size: 0.9rem;
-    }
-    
-    .full-width {
-        width: 100%;
-        justify-content: center;
-        padding: 12px !important; /* Override the padding for full-width buttons */
-        height: auto !important; /* Allow height to adjust naturally */
-        display: flex !important;
+        color: #777;
         align-items: center;
         gap: 8px;
     }
     
-    .full-width i {
-        margin-right: 6px !important; /* Restore margin for icon in full-width button */
+    .photo-pet {
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
     
-    /* Action buttons for photo cards */
-    .photo-actions {
-        padding: 10px;
+    .photo-pet img {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        object-fit: cover;
     }
     
-    /* Table-like fixed layout */
-    .button-table {
-        display: table;
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0 8px;
+    .photo-stats {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+        font-size: 0.75rem;
+        color: #666;
     }
     
-    .button-row {
-        display: table-row;
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
     }
     
-    .button-cell {
-        display: table-cell;
-        width: 50%;
-        padding: 0 4px;
-    }
-    
-    /* Reset all button styling */
-    .action-button {
-        display: block;
-        width: 100%;
-        height: 38px;
-        line-height: 38px;
+    /* Empty state */
+    .empty-state {
         text-align: center;
-        background: #f5f7f5;
-        color: #555;
-        font-size: 0.85rem;
-        font-weight: 500;
-        border: none;
-        border-radius: 6px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        padding: 40px 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    
+    .empty-state-icon {
+        font-size: 3rem;
+        color: var(--light-sage);
+        margin-bottom: 15px;
+    }
+    
+    .empty-state-text {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state-action {
+        background-color: var(--deep-forest);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
         text-decoration: none;
-        padding: 0;
-        margin: 0;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        position: relative;
+        font-weight: 600;
+        display: inline-block;
     }
     
-    .action-button i {
-        margin-right: 4px;
-        font-size: 0.9rem;
-        vertical-align: middle;
+    .loading-indicator {
+        text-align: center;
+        padding: 20px;
     }
     
-    .action-button:active {
-        background: #e9ece9;
+    .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border-left-color: var(--primary-green);
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
     }
     
-    .action-button.liked {
-        background-color: #fce8e6;
-        color: #e74c3c;
-    }
-    
-    .action-button.danger {
-        background-color: #fce8e6;
-        color: #e74c3c;
-    }
-    
-    /* Reset form styling */
-    .inline-form {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="gallery-container">
-    <!-- Removed diagnostic information section -->
-    
-    <!-- Gallery header has been moved to the base template header_title block -->
-    
+    <!-- Tab Navigation - Removed Featured tab -->
     <div class="gallery-tabs">
-        <a href="{{ url_for('gallery.index', filter='personal') }}" class="gallery-tab-item {% if active_tab == 'my' %}active{% endif %}">
-            Mine
+        <a href="{{ url_for('gallery.filter_gallery', filter='personal') }}" class="gallery-tab {% if active_tab == 'my' %}active{% endif %}">
+            My Photos
         </a>
-        <a href="{{ url_for('gallery.index', filter='public') }}" class="gallery-tab-item {% if active_tab == 'public' %}active{% endif %}">
-            Public
+        <a href="{{ url_for('gallery.filter_gallery', filter='public') }}" class="gallery-tab {% if active_tab == 'public' %}active{% endif %}">
+            Public Gallery
         </a>
     </div>
-    
-    <div class="filter-toggle-container">
-        <button id="toggle-filters" class="toggle-filters-btn">
-            <i class="fas fa-filter"></i> Filters <i class="fas fa-chevron-down"></i>
-        </button>
-    </div>
-    
-    <div class="gallery-filters" id="filters-panel" style="display: none;">
-        <form id="filter-form" method="GET" action="{{ url_for('gallery.filter_gallery') }}">
-            <div class="filter-row">
+
+    <!-- Filter Options -->
+    <div class="filter-section">
+        <div class="filter-header" id="filterToggle">
+            <span>Filter & Sort</span>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="filter-content" id="filterContent">
+            <form id="filterForm" action="{{ url_for('gallery.mobile_gallery') }}" method="GET">
+                <input type="hidden" name="filter" value="{{ active_tab }}">
+                
+                {% if active_tab == 'my' and user_pets %}
                 <div class="filter-group">
-                    <label class="filter-label" for="filter-type">Filter By:</label>
-                    <select name="filter" id="filter-type" class="form-control">
-                        <option value="personal" {% if request.args.get('filter') == 'personal' %}selected{% endif %}>My Photos</option>
-                        <option value="public" {% if request.args.get('filter') == 'public' %}selected{% endif %}>Public Photos</option>
+                    <label class="filter-label" for="pet_id">Filter by Pet</label>
+                    <select name="pet_id" id="pet_id" class="filter-select">
+                        <option value="0">All Pets</option>
+                        {% for pet in user_pets %}
+                        <option value="{{ pet.id }}" {% if (pet_id|default(0))|int == pet.id %}selected{% endif %}>{{ pet.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
-            </div>
-            
-            <div class="filter-row">
+                {% endif %}
+                
                 <div class="filter-group">
-                    <label class="filter-label" for="sort-by">Sort By:</label>
-                    <select name="sort_by" id="sort-by" class="form-control">
-                        <option value="newest" {% if request.args.get('sort_by') == 'newest' or not request.args.get('sort_by') %}selected{% endif %}>Newest First</option>
-                        <option value="oldest" {% if request.args.get('sort_by') == 'oldest' %}selected{% endif %}>Oldest First</option>
-                        <option value="most_liked" {% if request.args.get('sort_by') == 'most_liked' %}selected{% endif %}>Most Liked</option>
-                        <option value="most_viewed" {% if request.args.get('sort_by') == 'most_viewed' %}selected{% endif %}>Most Viewed</option>
+                    <label class="filter-label" for="sort_by">Sort by</label>
+                    <select name="sort_by" id="sort_by" class="filter-select">
+                        <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
+                        <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
+                        <option value="most_liked" {% if sort_by == 'most_liked' %}selected{% endif %}>Most Liked</option>
+                        <option value="most_viewed" {% if sort_by == 'most_viewed' %}selected{% endif %}>Most Viewed</option>
                     </select>
                 </div>
-            </div>
-            
-            <div class="filter-actions">
-                <button type="submit" class="btn-filter">
+                
+                <button type="submit" class="apply-filters-btn">
                     <i class="fas fa-filter"></i> Apply Filters
                 </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-    
+
+    <!-- Photo Grid -->
     {% if photos %}
-        <div class="photo-grid">
-            {% for photo in photos %}
-            <a href="{{ url_for('gallery.view_photo', photo_id=photo.id) }}" class="photo-card-link">
-                <div class="photo-card">
-                    <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}" alt="{{ photo.title or 'Pet photo' }}" class="photo-image">
+    <div class="photo-grid" id="photoGrid">
+        {% for photo in photos %}
+        <div class="photo-card">
+            <a href="{{ url_for('gallery.view_photo', photo_id=photo.id) }}" class="photo-link">
+                <div class="photo-image-wrapper">
+                    <img src="{{ url_for('static', filename='pet_images/gallery_photos/' + photo.filename) }}?t={{ photo.created_at.timestamp() }}" alt="{{ photo.title }}" class="photo-image">
                     
                     {% if not photo.is_public %}
                     <div class="photo-badge private-badge">
-                        <i class="fas fa-lock"></i>
+                        <i class="fas fa-lock"></i> Private
                     </div>
                     {% endif %}
                     
                     {% if photo.featured %}
                     <div class="photo-badge featured-badge">
-                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i> Featured
                     </div>
                     {% endif %}
-                    
-                    <div class="photo-overlay">
-                        <h3 class="photo-title">{{ photo.title or 'Untitled' }}</h3>
-                        <div class="photo-stats">
-                            <span><i class="fas fa-heart"></i> {{ like_counts.get(photo.id, 0) }}</span>
-                            <span><i class="fas fa-comment"></i> {{ comment_counts.get(photo.id, 0) }}</span>
-                            <span><i class="fas fa-eye"></i> {{ photo.view_count or 0 }}</span>
+                </div>
+                <div class="photo-details">
+                    <h3 class="photo-title">{{ photo.title }}</h3>
+                    <div class="photo-meta">
+                        {% if photo.pet %}
+                        <div class="photo-pet">
+                            {% if photo.pet.avatar_filename %}
+                            <img src="{{ url_for('main.serve_pet_avatar', filename=photo.pet.avatar_filename) }}" alt="{{ photo.pet.name }}">
+                            {% else %}
+                            <i class="fas fa-paw"></i>
+                            {% endif %}
+                            <span>{{ photo.pet.name }}</span>
+                        </div>
+                        {% endif %}
+                        <div>{{ photo.created_at.strftime('%b %d, %Y') }}</div>
+                    </div>
+                    <div class="photo-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-heart"></i> {{ like_counts.get(photo.id, 0) }}
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-comment"></i> {{ comment_counts.get(photo.id, 0) }}
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-eye"></i> {{ photo.view_count }}
                         </div>
                     </div>
                 </div>
             </a>
-            {% endfor %}
         </div>
+        {% endfor %}
+    </div>
     {% else %}
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="fas fa-images"></i>
-            </div>
-            <h2>No photos found</h2>
-            <p>Be the first to share a photo!</p>
-            <a href="{{ url_for('gallery.upload_photo') }}" class="btn-upload full-width">
-                <i class="fas fa-upload"></i> Upload Photo
-            </a>
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="fas fa-camera"></i>
         </div>
+        <p class="empty-state-text">
+            {% if active_tab == 'my' %}
+            You haven't uploaded any photos yet.
+            {% elif active_tab == 'public' %}
+            No public photos are available.
+            {% elif active_tab == 'featured' %}
+            No featured photos are available.
+            {% endif %}
+        </p>
+        {% if active_tab == 'my' %}
+        <a href="{{ url_for('gallery.mobile_upload_photo') }}" class="empty-state-action">
+            <i class="fas fa-upload"></i> Upload a Photo
+        </a>
+        {% endif %}
+    </div>
     {% endif %}
 </div>
-{% endblock %}
 
-{% block scripts %}
-{{ super() }}
+<!-- Mobile Menu Overlay -->
+<div class="main-menu-overlay" id="main-menu-overlay"></div>
+
+<!-- Mobile Menu -->
+<div class="main-menu" id="main-menu">
+    <div class="main-menu-header">
+        <h3>Menu</h3>
+        <button class="close-main-menu" id="close-main-menu">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="main-menu-links">
+        <a href="{{ url_for('main.mobile_index') }}" class="main-menu-link">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('main.search') }}" class="main-menu-link">
+            <i class="fas fa-search"></i> Find Playmates
+        </a>
+        <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
+            <i class="fas fa-paw"></i> My Pets
+        </a>
+        <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
+            <i class="fas fa-calendar-plus"></i> Schedule Playdate
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
+            <i class="fas fa-user"></i> My Dashboard
+        </a>
+        <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
+            <i class="fas fa-envelope"></i> Messages
+        </a>
+        <a href="{{ url_for('gallery.mobile_gallery') }}" class="main-menu-link active">
+            <i class="fas fa-images"></i> Gallery
+        </a>
+        {% if user.is_admin %}
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="main-menu-link">
+            <i class="fas fa-shield-alt"></i> Admin Panel
+        </a>
+        {% endif %}
+        <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</div>
+
 <script>
+    // Filter toggle
     document.addEventListener('DOMContentLoaded', function() {
-        // Toggle filters panel
-        const toggleFiltersBtn = document.getElementById('toggle-filters');
-        const filtersPanel = document.getElementById('filters-panel');
+        const filterToggle = document.getElementById('filterToggle');
+        const filterContent = document.getElementById('filterContent');
         
-        if (toggleFiltersBtn && filtersPanel) {
-            toggleFiltersBtn.addEventListener('click', function() {
-                const isHidden = filtersPanel.style.display === 'none';
-                filtersPanel.style.display = isHidden ? 'block' : 'none';
-                
-                // Change the icon
-                const icon = this.querySelector('.fa-chevron-down, .fa-chevron-up');
-                if (icon) {
-                    icon.classList.toggle('fa-chevron-down');
-                    icon.classList.toggle('fa-chevron-up');
-                }
-            });
+        filterToggle.addEventListener('click', function() {
+            filterContent.classList.toggle('active');
+            filterToggle.classList.toggle('active');
+        });
+        
+        // Mobile menu toggle
+        const menuButton = document.getElementById('menuButton');
+        const mainMenu = document.getElementById('main-menu');
+        const mainMenuOverlay = document.getElementById('main-menu-overlay');
+        const closeMainMenu = document.getElementById('close-main-menu');
+        
+        menuButton.addEventListener('click', function() {
+            mainMenu.classList.add('active');
+            mainMenuOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        });
+        
+        function closeMenu() {
+            mainMenu.classList.remove('active');
+            mainMenuOverlay.classList.remove('active');
+            document.body.style.overflow = ''; // Allow scrolling
         }
+        
+        closeMainMenu.addEventListener('click', closeMenu);
+        mainMenuOverlay.addEventListener('click', closeMenu);
     });
 </script>
 {% endblock %} 

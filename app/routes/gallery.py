@@ -136,15 +136,14 @@ def index():
     # Get user's pets for filtering
     user_pets = Pet.query.filter_by(owner_id=user.id).all()
     
-    # Check if mobile mode - ONLY if explicitly requested
+    # Check if mobile mode - ONLY if explicitly requested via query parameter
     is_mobile = False
     
-    # ONLY use mobile version if explicitly requested with ?mobile=true
-    # Default is ALWAYS desktop version
+    # Use mobile version if mobile=true is in the query parameter
     if request.args.get('mobile') == 'true':
         is_mobile = True
     else:
-        # Desktop is default, mobile device detection is ignored
+        # Desktop is default
         is_mobile = False
     
     # Log which template will be used - use an existing template file
@@ -170,6 +169,99 @@ def index():
     elif request.args.get('mobile') == 'false':
         response.set_cookie('preferMobileVersion', 'false', max_age=30*24*60*60)  # 30 days
         
+    return response
+
+@bp.route('/mobile-gallery')
+def mobile_gallery():
+    """Mobile-optimized gallery view with full functionality"""
+    user = get_current_user()
+    
+    if not user:
+        flash('Please log in to view the gallery', 'error')
+        return redirect(url_for('auth.login'))
+    
+    # Force a completely fresh session to ensure we get the latest data
+    db.session.close()
+    db.session.expire_all()
+    
+    # Add diagnostic logging
+    current_app.logger.info(f"Mobile Gallery: User={user.username}, ID={user.id}")
+    
+    # Fetch all photos visible to this user - with eager loading of relationships
+    personal_photos = GalleryPhoto.query.options(
+        db.joinedload(GalleryPhoto.uploader),
+        db.joinedload(GalleryPhoto.pet)
+    ).filter_by(user_id=user.id).order_by(GalleryPhoto.created_at.desc()).all()
+    
+    # Fetch public photos - these should be visible to all users
+    public_photos = GalleryPhoto.query.options(
+        db.joinedload(GalleryPhoto.uploader),
+        db.joinedload(GalleryPhoto.pet)
+    ).filter(
+        GalleryPhoto.is_public == True,
+        GalleryPhoto.moderation_status == 'approved'
+    ).order_by(GalleryPhoto.created_at.desc()).all()
+    
+    # Fetch featured photos for admins
+    featured_photos = []
+    if user.is_admin:
+        featured_photos = GalleryPhoto.query.options(
+            db.joinedload(GalleryPhoto.uploader),
+            db.joinedload(GalleryPhoto.pet)
+        ).filter(
+            GalleryPhoto.is_public == True,
+            GalleryPhoto.moderation_status == 'approved',
+            GalleryPhoto.featured == True
+        ).order_by(GalleryPhoto.created_at.desc()).all()
+    
+    # Select photos based on the filter parameter
+    filter_param = request.args.get('filter', 'personal')
+    if filter_param == 'public':
+        photos = public_photos
+    elif filter_param == 'featured' and user.is_admin:
+        photos = featured_photos
+    else:  # Default to personal
+        photos = personal_photos
+    
+    # Determine active tab
+    active_tab = 'my' if filter_param == 'personal' else filter_param
+    if active_tab not in ['my', 'public', 'featured']:
+        active_tab = 'my'  # Default to 'my' tab
+    
+    # Get counts
+    like_counts = {}
+    comment_counts = {}
+    for photo in photos:
+        like_counts[photo.id] = PhotoLike.query.filter_by(photo_id=photo.id).count()
+        comment_counts[photo.id] = PhotoComment.query.filter_by(photo_id=photo.id).count()
+    
+    # Get user's pets for filtering
+    user_pets = Pet.query.filter_by(owner_id=user.id).all()
+    
+    # Get pet_id filter if it exists
+    pet_id = request.args.get('pet_id', '0')
+    
+    # Get sort_by parameter
+    sort_by = request.args.get('sort_by', 'newest')
+    
+    current_app.logger.info(f"Mobile Gallery view - Template: mobile_enhanced_gallery.html")
+    
+    # Set a response object
+    response = make_response(render_template(
+        'mobile_enhanced_gallery.html',
+        user=user,
+        photos=photos,
+        personal_photos=personal_photos,
+        public_photos=public_photos,
+        featured_photos=featured_photos if user.is_admin else [],
+        like_counts=like_counts,
+        comment_counts=comment_counts,
+        user_pets=user_pets,
+        active_tab=active_tab,
+        pet_id=pet_id,
+        sort_by=sort_by
+    ))
+    
     return response
 
 @bp.route('/gallery/upload', methods=['GET', 'POST'])
@@ -429,7 +521,7 @@ def mobile_upload_photo():
                 
                 # Redirect with a timestamp to prevent caching
                 timestamp = int(datetime.now().timestamp())
-                return redirect(url_for('gallery.index', t=timestamp))
+                return redirect(url_for('gallery.mobile_gallery', t=timestamp))
         
         except Exception as e:
             # Roll back any database changes if there was an error
@@ -727,15 +819,31 @@ def filter_gallery():
         GalleryPhoto.moderation_status == 'approved'
     )
     
+    # Base query for featured photos with eager loading (for admins)
+    featured_query = None
+    if user.is_admin:
+        featured_query = GalleryPhoto.query.options(
+            db.joinedload(GalleryPhoto.uploader),
+            db.joinedload(GalleryPhoto.pet)
+        ).filter(
+            GalleryPhoto.is_public == True,
+            GalleryPhoto.moderation_status == 'approved',
+            GalleryPhoto.featured == True
+        )
+    
     # Apply pet filter if specified
     if pet_id and pet_id.isdigit() and int(pet_id) > 0:
         pet_id = int(pet_id)
         personal_query = personal_query.filter_by(pet_id=pet_id)
         public_query = public_query.filter_by(pet_id=pet_id)
+        if featured_query:
+            featured_query = featured_query.filter_by(pet_id=pet_id)
     
     # Get photos based on filter type
     if filter_type == 'public':
         photos = public_query.all()
+    elif filter_type == 'featured' and user.is_admin and featured_query:
+        photos = featured_query.all()
     else:  # Default to personal
         photos = personal_query.all()
     
@@ -756,6 +864,9 @@ def filter_gallery():
     like_counts = {photo.id: PhotoLike.query.filter_by(photo_id=photo.id).count() for photo in photos}
     comment_counts = {photo.id: PhotoComment.query.filter_by(photo_id=photo.id).count() for photo in photos}
     
+    # Get user's pets for filtering
+    user_pets = Pet.query.filter_by(owner_id=user.id).all()
+    
     # Check if this is an AJAX request
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         # Return HTML fragment for the photos
@@ -768,20 +879,38 @@ def filter_gallery():
         )
         return jsonify({'html': html})
     
-    # Full page render
-    # Check if mobile
-    is_mobile = any(device in request.headers.get('User-Agent', '').lower() 
-                   for device in ['iphone', 'android', 'mobile', 'tablet'])
+    # Determine if mobile view was explicitly requested
+    is_mobile = request.args.get('mobile') == 'true'
     
+    # If not explicit, check user agent for mobile device
+    if not is_mobile:
+        is_mobile = any(device in request.headers.get('User-Agent', '').lower() 
+                      for device in ['iphone', 'android', 'mobile', 'tablet'])
+    
+    # Log template selection
     template = 'mobile_enhanced_gallery.html' if is_mobile else 'enhanced_gallery.html'
+    current_app.logger.info(f"Filter Gallery - Template: {template}, mobile flag: {is_mobile}")
+    
+    # Get all photo collections for the template
+    personal_photos = personal_query.all()
+    public_photos = public_query.all()
+    featured_photos = featured_query.all() if featured_query else []
+    
+    # Determine active tab
+    active_tab = 'my' if filter_type == 'personal' else filter_type
     
     return render_template(
         template,
         user=user,
         photos=photos,
+        personal_photos=personal_photos,
+        public_photos=public_photos,
+        featured_photos=featured_photos,
         like_counts=like_counts,
         comment_counts=comment_counts,
         filter_type=filter_type,
         pet_id=pet_id,
-        sort_by=sort_by
+        sort_by=sort_by,
+        user_pets=user_pets,
+        active_tab=active_tab
     ) 

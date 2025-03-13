@@ -4,9 +4,114 @@
 
 {% block extra_head %}
 <style>
+    /* Override base template body padding for photo view pages */
+    body {
+        padding-bottom: 0 !important; /* Remove space for bottom nav */
+    }
+    
+    /* Force hide the bottom navigation */
+    .mobile-bottom-nav {
+        display: none !important;
+    }
+    
+    /* Force hide the dropdown mobile-nav */
+    .mobile-nav {
+        display: none !important;
+    }
+    
+    /* Mobile Menu (slide-in) for photo view */
+    .main-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 9998;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+    }
+    
+    .main-menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .main-menu {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 85%;
+        height: 100%;
+        background-color: white;
+        z-index: 9999;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    
+    .main-menu.active {
+        transform: translateX(0);
+    }
+    
+    .main-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .close-main-menu {
+        background: transparent;
+        border: none;
+        font-size: 1.3rem;
+        height: 40px;
+        width: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    
+    .main-menu-links {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .main-menu-link {
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        color: #2C4C2C;
+        text-decoration: none;
+        font-weight: 500;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .main-menu-link.active {
+        background-color: #E0E7E0;
+        color: #2C4C2C;
+        font-weight: 700;
+    }
+    
+    .main-menu-link:hover {
+        background-color: #f8f8f8;
+    }
+    
+    .main-menu-link i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+
     .photo-container {
         padding: 15px;
-        margin-bottom: 70px; /* Account for mobile navbar */
+        margin-bottom: 15px; /* Reduced from 70px since we're hiding bottom navbar */
     }
     
     .photo-header {
@@ -453,12 +558,7 @@
 {% block content %}
 <div class="photo-container">
     <div class="photo-header">
-        <a href="{{ url_for('gallery.index') }}" class="back-button">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <div class="more-options" id="options-button">
-            <i class="fas fa-ellipsis-h"></i>
-        </div>
+        <!-- Back button removed to avoid duplication -->
     </div>
     
     <div class="photo-image-container">
@@ -709,65 +809,39 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Action sheet setup
-        const ownerOverlay = document.getElementById('owner-overlay');
-        const ownerActionSheet = document.getElementById('owner-action-sheet');
-        const nonOwnerOverlay = document.getElementById('non-owner-overlay');
-        const nonOwnerActionSheet = document.getElementById('non-owner-action-sheet');
-        const optionsButton = document.getElementById('options-button');
+        // Override menu button behavior from parent template
+        // Get the specific photo view menu button
+        const photoViewMenuButton = document.getElementById('photoViewMenuButton');
+        const mainMenu = document.getElementById('main-menu');
+        const mainMenuOverlay = document.getElementById('main-menu-overlay');
         
-        // Show appropriate action sheet based on ownership
-        optionsButton.addEventListener('click', function() {
-            const isOwner = {% if photo.user_id == user.id %}true{% else %}false{% endif %};
-            
-            if (isOwner) {
-                ownerOverlay.classList.add('active');
-            } else {
-                nonOwnerActionSheet.classList.add('active');
-            }
-        });
-        
-        // Close owner action sheet
-        document.getElementById('cancel-action').addEventListener('click', function() {
-            ownerOverlay.classList.remove('active');
-        });
-
-        // Visibility toggle functionality
-        const visibilityOption = document.getElementById('visibility-option');
-        if (visibilityOption) {
-            visibilityOption.addEventListener('click', function() {
-                const isPublic = {% if photo.is_public %}true{% else %}false{% endif %};
+        if (photoViewMenuButton) {
+            // Add our custom click handler for the slide-in menu
+            photoViewMenuButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                fetch('{{ url_for("gallery.edit_photo", photo_id=photo.id) }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: `is_public=${!isPublic}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update UI
-                        const visibilityBadge = document.querySelector('.visibility-badge');
-                        if (visibilityBadge) {
-                            visibilityBadge.textContent = !isPublic ? 'Public' : 'Private';
-                        }
-                        
-                        // Show toast
-                        showToast(`Photo is now ${!isPublic ? 'public' : 'private'}`);
-                        
-                        // Close action sheet
-                        ownerOverlay.classList.remove('active');
-                    }
-                });
+                // Open our slide-in menu
+                mainMenu.classList.add('active');
+                mainMenuOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
             });
         }
         
+        // Close menu functionality 
+        const closeMainMenu = document.getElementById('close-main-menu');
+        
+        function closeMenu() {
+            mainMenu.classList.remove('active');
+            mainMenuOverlay.classList.remove('active');
+            document.body.style.overflow = ''; // Allow scrolling
+        }
+        
+        closeMainMenu.addEventListener('click', closeMenu);
+        mainMenuOverlay.addEventListener('click', closeMenu);
+
         // Like functionality
         const likeButton = document.getElementById('like-button');
-        const likeOption = document.getElementById('like-option');
         const likeCount = document.getElementById('like-count');
         
         function like() {
@@ -786,53 +860,28 @@
                 if (data.action === 'liked') {
                     likeButton.classList.add('liked');
                     likeButton.querySelector('.action-label').textContent = 'Liked';
-                    if (likeOption) {
-                        likeOption.querySelector('span').textContent = 'Unlike Photo';
-                    }
                 } else {
                     likeButton.classList.remove('liked');
                     likeButton.querySelector('.action-label').textContent = 'Like';
-                    if (likeOption) {
-                        likeOption.querySelector('span').textContent = 'Like Photo';
-                    }
                 }
-                
-                // Close action sheet if open
-                nonOwnerOverlay.classList.remove('active');
-                nonOwnerActionSheet.classList.remove('active');
             });
         }
         
         likeButton.addEventListener('click', like);
         
-        if (likeOption) {
-            likeOption.addEventListener('click', like);
-        }
-        
         // Comment functionality
         const commentButton = document.getElementById('comment-button');
-        const commentOption = document.getElementById('comment-option');
         const commentsSection = document.getElementById('comments-section');
         
         function scrollToComments() {
             commentsSection.scrollIntoView({ behavior: 'smooth' });
             document.querySelector('.comment-input').focus();
-            
-            // Close action sheet if open
-            nonOwnerOverlay.classList.remove('active');
-            nonOwnerActionSheet.classList.remove('active');
         }
         
         commentButton.addEventListener('click', scrollToComments);
         
-        if (commentOption) {
-            commentOption.addEventListener('click', scrollToComments);
-        }
-        
         // Share functionality
         const shareButton = document.getElementById('share-button');
-        const shareOption = document.getElementById('share-option');
-        const shareOptionNonOwner = document.getElementById('share-option-non-owner');
         
         function share() {
             // Use Web Share API if available
@@ -842,39 +891,17 @@
                     text: 'I found this amazing pet photo on PetMate that I wanted to share with you.',
                     url: '{{ url_for("gallery.shared_photo", share_uuid=photo.share_uuid, _external=True) }}'
                 })
-                .then(() => {
-                    // Close action sheet if open
-                    ownerOverlay.classList.remove('active');
-                    ownerActionSheet.classList.remove('active');
-                    nonOwnerOverlay.classList.remove('active');
-                    nonOwnerActionSheet.classList.remove('active');
-                })
                 .catch(console.error);
             } else {
                 // Fallback - scroll to share section
                 document.querySelector('.share-section').scrollIntoView({ behavior: 'smooth' });
-                
-                // Close action sheet if open
-                ownerOverlay.classList.remove('active');
-                ownerActionSheet.classList.remove('active');
-                nonOwnerOverlay.classList.remove('active');
-                nonOwnerActionSheet.classList.remove('active');
             }
         }
         
         shareButton.addEventListener('click', share);
         
-        if (shareOption) {
-            shareOption.addEventListener('click', share);
-        }
-        
-        if (shareOptionNonOwner) {
-            shareOptionNonOwner.addEventListener('click', share);
-        }
-        
         // Report functionality
         const reportButton = document.getElementById('report-button');
-        const reportOption = document.getElementById('report-option');
         
         function report() {
             window.location.href = '{{ url_for("gallery.report_photo", photo_id=photo.id) }}';
@@ -882,37 +909,6 @@
         
         if (reportButton) {
             reportButton.addEventListener('click', report);
-        }
-        
-        if (reportOption) {
-            reportOption.addEventListener('click', report);
-        }
-        
-        // Edit functionality
-        const editOption = document.getElementById('edit-option');
-        
-        if (editOption) {
-            editOption.addEventListener('click', function() {
-                window.location.href = '{{ url_for("gallery.edit_photo", photo_id=photo.id) }}';
-            });
-        }
-        
-        // Delete functionality
-        const deleteOption = document.getElementById('delete-option');
-        
-        if (deleteOption) {
-            deleteOption.addEventListener('click', function() {
-                if (confirm('Are you sure you want to delete this photo? This action cannot be undone.')) {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '{{ url_for("gallery.delete_photo", photo_id=photo.id) }}';
-                    document.body.appendChild(form);
-                    form.submit();
-                } else {
-                    ownerOverlay.classList.remove('active');
-                    ownerActionSheet.classList.remove('active');
-                }
-            });
         }
         
         // Copy share link
@@ -929,6 +925,89 @@
                 this.textContent = 'Copy';
             }, 2000);
         });
+    });
+</script>
+
+<!-- Mobile Menu Overlay -->
+<div class="main-menu-overlay" id="main-menu-overlay"></div>
+
+<!-- Mobile Menu -->
+<div class="main-menu" id="main-menu">
+    <div class="main-menu-header">
+        <h3>Menu</h3>
+        <button class="close-main-menu" id="close-main-menu">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="main-menu-links">
+        <a href="{{ url_for('main.mobile_index') }}" class="main-menu-link">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('main.search') }}" class="main-menu-link">
+            <i class="fas fa-search"></i> Find Playmates
+        </a>
+        <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
+            <i class="fas fa-paw"></i> My Pets
+        </a>
+        <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
+            <i class="fas fa-calendar-plus"></i> Schedule Playdate
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
+            <i class="fas fa-user"></i> My Dashboard
+        </a>
+        <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
+            <i class="fas fa-envelope"></i> Messages
+        </a>
+        <a href="{{ url_for('gallery.mobile_gallery') }}" class="main-menu-link">
+            <i class="fas fa-images"></i> Gallery
+        </a>
+        <a href="{{ url_for('gallery.mobile_upload_photo') }}" class="main-menu-link">
+            <i class="fas fa-upload"></i> Upload Photo
+        </a>
+        {% if user.is_admin %}
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="main-menu-link">
+            <i class="fas fa-shield-alt"></i> Admin Panel
+        </a>
+        {% endif %}
+        <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile menu toggle - for when user accesses from "hamburger" menu 
+        const menuButton = document.getElementById('menuButton');
+        const mainMenu = document.getElementById('main-menu');
+        const mainMenuOverlay = document.getElementById('main-menu-overlay');
+        const closeMainMenu = document.getElementById('close-main-menu');
+        
+        if (menuButton) {
+            // Remove any existing click event listeners from the menu button
+            const newMenuButton = menuButton.cloneNode(true);
+            menuButton.parentNode.replaceChild(newMenuButton, menuButton);
+            
+            // Add our custom click handler for the slide-in menu
+            newMenuButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                mainMenu.classList.add('active');
+                mainMenuOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            });
+        }
+        
+        function closeMenu() {
+            mainMenu.classList.remove('active');
+            mainMenuOverlay.classList.remove('active');
+            document.body.style.overflow = ''; // Allow scrolling
+        }
+        
+        closeMainMenu.addEventListener('click', closeMenu);
+        mainMenuOverlay.addEventListener('click', closeMenu);
+
+        // Rest of the script remains the same
     });
 </script>
 {% endblock %} 

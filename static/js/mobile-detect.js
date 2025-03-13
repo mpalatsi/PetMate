@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
                        window.location.pathname === '/index' || 
                        window.location.pathname.endsWith('/index.html');
     
+    // Check if we're on the gallery page
+    const isGallery = window.location.pathname === '/gallery' ||
+                      window.location.pathname.startsWith('/gallery');
+    
     // Only redirect if we're on the homepage and not already on the mobile version
     if (isHomepage && !window.location.pathname.includes('mobile')) {
         // Simple mobile detection - can be enhanced if needed
@@ -35,7 +39,14 @@ document.addEventListener('DOMContentLoaded', function() {
         viewDesktopButton.addEventListener('click', function(e) {
             e.preventDefault();
             localStorage.setItem('preferMobileVersion', 'false');
-            window.location.href = '/';
+            
+            // If on mobile gallery, redirect to desktop gallery
+            if (window.location.pathname === '/mobile-gallery' || 
+                window.location.pathname.includes('/gallery') && window.location.search.includes('mobile=true')) {
+                window.location.href = '/gallery';
+            } else {
+                window.location.href = '/';
+            }
         });
     }
     
@@ -43,7 +54,13 @@ document.addEventListener('DOMContentLoaded', function() {
         viewMobileButton.addEventListener('click', function(e) {
             e.preventDefault();
             localStorage.setItem('preferMobileVersion', 'true');
-            window.location.href = '/mobile';
+            
+            // If on gallery page, redirect to mobile gallery
+            if (isGallery) {
+                window.location.href = '/mobile-gallery';
+            } else {
+                window.location.href = '/mobile';
+            }
         });
     }
 });
@@ -52,9 +69,22 @@ document.addEventListener('DOMContentLoaded', function() {
 function switchToView(viewType) {
     if (viewType === 'mobile') {
         localStorage.setItem('preferMobileVersion', 'true');
-        window.location.href = '/mobile';
+        
+        // If on gallery page, redirect to mobile gallery
+        if (window.location.pathname === '/gallery' || 
+            window.location.pathname.startsWith('/gallery')) {
+            window.location.href = '/mobile-gallery';
+        } else {
+            window.location.href = '/mobile';
+        }
     } else {
         localStorage.setItem('preferMobileVersion', 'false');
-        window.location.href = '/';
+        
+        // If on mobile gallery, redirect to desktop gallery
+        if (window.location.pathname === '/mobile-gallery') {
+            window.location.href = '/gallery';
+        } else {
+            window.location.href = '/';
+        }
     }
 } 

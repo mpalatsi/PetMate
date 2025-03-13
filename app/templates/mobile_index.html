@@ -68,7 +68,7 @@
                     <span class="badge">{{ unread_messages }}</span>
                     {% endif %}
                 </a>
-                <a href="{{ url_for('gallery.index') }}" class="main-menu-link">
+                <a href="{{ url_for('gallery.mobile_gallery') }}" class="main-menu-link">
                     <i class="fas fa-images"></i> Gallery
                 </a>
                 {% if current_user.is_authenticated and current_user.is_admin %}
@@ -93,7 +93,7 @@
     <!-- Content with appropriate spacing -->
     <div class="content-with-header">
         <!-- Mobile-optimized Hero Section -->
-        <div class="mobile-hero" style="background-image: url('{{ url_for('static', filename='playing_dogs.jpg') }}');">
+        <div class="mobile-hero" style="background-image: url({{ url_for('static', filename='playing_dogs.jpg') }});">
             <div class="mobile-hero-content">
                 <h1>Find Playmates for Your Furry Friends</h1>
                 <p>Connect with local pet parents and schedule fun playdates for your pets!</p>
@@ -150,7 +150,7 @@
                     <p>Help your pets make friends and develop social skills.</p>
                 </a>
                 
-                <a href="{{ url_for('gallery.index') }}" class="mobile-feature-card">
+                <a href="{{ url_for('gallery.mobile_gallery') }}" class="mobile-feature-card">
                     <i class="fas fa-users"></i>
                     <h3>Community</h3>
                     <p>Connect with other pet parents who share your interests.</p>

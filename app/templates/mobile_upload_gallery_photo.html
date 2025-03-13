@@ -18,6 +18,97 @@
         padding: 0;
         margin: 0;
         font-size: 16px;
+        padding-bottom: 0 !important; /* Remove space for bottom nav */
+    }
+    
+    /* Mobile Menu (slide-in) */
+    .main-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 9998;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+    }
+    
+    .main-menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .main-menu {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 85%;
+        height: 100%;
+        background-color: white;
+        z-index: 9999;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    
+    .main-menu.active {
+        transform: translateX(0);
+    }
+    
+    .main-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .close-main-menu {
+        background: transparent;
+        border: none;
+        font-size: 1.3rem;
+        height: 40px;
+        width: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    
+    .main-menu-links {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .main-menu-link {
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        color: #2C4C2C;
+        text-decoration: none;
+        font-weight: 500;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .main-menu-link.active {
+        background-color: #E0E7E0;
+        color: #2C4C2C;
+        font-weight: 700;
+    }
+    
+    .main-menu-link:hover {
+        background-color: #f8f8f8;
+    }
+    
+    .main-menu-link i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
     }
     
     input[type="file"] {
@@ -39,20 +130,6 @@
         margin: 10px 0;
         max-height: 250px;
         object-fit: contain;
-    }
-    
-    /* Mobile version indicator */
-    .mobile-indicator {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background-color: #B3A369;
-        color: white;
-        text-align: center;
-        padding: 5px;
-        font-size: 12px;
-        z-index: 1000;
     }
     
     /* Override some base styles for better mobile experience */
@@ -95,100 +172,139 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Desktop warning banner -->
-    <div class="desktop-warning">
-        You are viewing the mobile version on a desktop device. 
-        <a href="{{ url_for('gallery.upload_photo', force_mobile='false') }}" style="color: white; text-decoration: underline;">
-            Switch to desktop version
-        </a>
-    </div>
-
-    <h1 class="text-center mb-4">Upload Photo</h1>
+<div class="upload-container">
+    <h1 class="upload-title">Upload to Gallery</h1>
     
-    <div class="file-upload-wrapper">
-        <form method="post" enctype="multipart/form-data">
-            {{ form.hidden_tag() }}
-            
-            <div class="form-group">
-                <label for="photo">Select Photo:</label>
-                {{ form.photo(class="form-control-file", id="photo") }}
-                <div class="preview-container mt-3" style="display: none;">
-                    <h5>Preview:</h5>
-                    <img id="photoPreview" class="photo-preview" src="#" alt="Photo Preview">
-                </div>
+    <form class="upload-form" method="POST" action="{{ url_for('gallery.mobile_upload_photo') }}" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group">
+            <label for="photo" class="form-label">Select Photo</label>
+            <div class="file-upload-wrapper">
+                {{ form.photo(class="file-upload") }}
+                {% if form.photo.errors %}
+                <span class="error">{{ form.photo.errors[0] }}</span>
+                {% endif %}
             </div>
-            
-            <div class="form-group">
-                <label for="title">Title:</label>
-                {{ form.title(class="form-control", id="title", placeholder="Give your photo a title") }}
+        </div>
+        
+        <div class="form-group">
+            <label for="title" class="form-label">Title (Optional)</label>
+            {{ form.title(class="form-control", placeholder="Add a title for your photo") }}
+            {% if form.title.errors %}
+            <span class="error">{{ form.title.errors[0] }}</span>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="description" class="form-label">Description (Optional)</label>
+            {{ form.description(class="form-control", placeholder="Add a description", rows=3) }}
+            {% if form.description.errors %}
+            <span class="error">{{ form.description.errors[0] }}</span>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="pet_id" class="form-label">Tag a Pet (Optional)</label>
+            {{ form.pet_id(class="form-control") }}
+        </div>
+        
+        <div class="form-group">
+            <div class="form-check">
+                {{ form.is_public(class="form-check-input") }}
+                <label class="form-check-label" for="is_public">Make Public</label>
             </div>
-            
-            <div class="form-group">
-                <label for="description">Description:</label>
-                {{ form.description(class="form-control", id="description", rows="3", placeholder="Add a description (optional)") }}
+            <div class="privacy-info">
+                Public photos are visible to all users. Private photos are only visible to you.
             </div>
-            
-            <div class="form-group">
-                <label for="pet_id">Select Pet (optional):</label>
-                {{ form.pet_id(class="form-control", id="pet_id") }}
-            </div>
-            
-            <div class="form-check mb-3">
-                {{ form.is_public(class="form-check-input", id="is_public") }}
-                <label class="form-check-label" for="is_public">Make photo public</label>
-            </div>
-            
+        </div>
+        
+        <div class="action-buttons">
             <button type="submit" class="btn btn-primary">Upload Photo</button>
-        </form>
-    </div>
-    
-    <!-- Mobile indicator at the bottom -->
-    <div class="mobile-indicator">
-        Mobile Version
-    </div>
+        </div>
+    </form>
 </div>
 
+<!-- Mobile Menu Overlay -->
+<div class="main-menu-overlay" id="main-menu-overlay"></div>
+
+<!-- Mobile Menu -->
+<div class="main-menu" id="main-menu">
+    <div class="main-menu-header">
+        <h3>Menu</h3>
+        <button class="close-main-menu" id="close-main-menu">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="main-menu-links">
+        <a href="{{ url_for('main.mobile_index') }}" class="main-menu-link">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('main.search') }}" class="main-menu-link">
+            <i class="fas fa-search"></i> Find Playmates
+        </a>
+        <a href="{{ url_for('pets.my_pets') }}" class="main-menu-link">
+            <i class="fas fa-paw"></i> My Pets
+        </a>
+        <a href="{{ url_for('playdates.create_playdate') }}" class="main-menu-link">
+            <i class="fas fa-calendar-plus"></i> Schedule Playdate
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" class="main-menu-link">
+            <i class="fas fa-user"></i> My Dashboard
+        </a>
+        <a href="{{ url_for('messages.inbox') }}" class="main-menu-link">
+            <i class="fas fa-envelope"></i> Messages
+        </a>
+        <a href="{{ url_for('gallery.mobile_gallery') }}" class="main-menu-link">
+            <i class="fas fa-images"></i> Gallery
+        </a>
+        <a href="{{ url_for('gallery.mobile_upload_photo') }}" class="main-menu-link active">
+            <i class="fas fa-upload"></i> Upload Photo
+        </a>
+        {% if user.is_admin %}
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="main-menu-link">
+            <i class="fas fa-shield-alt"></i> Admin Panel
+        </a>
+        {% endif %}
+        <a href="{{ url_for('auth.logout') }}" class="main-menu-link">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const photoInput = document.getElementById('photo');
-        const previewContainer = document.querySelector('.preview-container');
-        const photoPreview = document.getElementById('photoPreview');
+        // Mobile menu toggle
+        const menuButton = document.getElementById('menuButton');
+        const mainMenu = document.getElementById('main-menu');
+        const mainMenuOverlay = document.getElementById('main-menu-overlay');
+        const closeMainMenu = document.getElementById('close-main-menu');
         
-        photoInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    photoPreview.src = e.target.result;
-                    previewContainer.style.display = 'block';
-                }
-                
-                reader.readAsDataURL(this.files[0]);
-            }
+        menuButton.addEventListener('click', function() {
+            mainMenu.classList.add('active');
+            mainMenuOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
         });
         
-        // Create a debug element to show detailed information
-        const debugDiv = document.createElement('div');
-        debugDiv.style.cssText = 'padding: 10px; margin-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; background: #f7f7f7; display: none;';
+        function closeMenu() {
+            mainMenu.classList.remove('active');
+            mainMenuOverlay.classList.remove('active');
+            document.body.style.overflow = ''; // Allow scrolling
+        }
         
-        let debugContent = '<div style="font-weight: bold;">Debug Info (double-tap to toggle):</div>' +
-                          '<div>User Agent: ' + navigator.userAgent + '</div>' +
-                          '<div>Screen Width: ' + window.innerWidth + 'px</div>' +
-                          '<div>Mobile Template: Yes</div>' +
-                          '<div>URL: ' + window.location.href + '</div>';
+        closeMainMenu.addEventListener('click', closeMenu);
+        mainMenuOverlay.addEventListener('click', closeMenu);
         
-        // Add server-provided information if available
-        debugContent += '<div>Server Detection: Mobile Template</div>';
-        
-        debugDiv.innerHTML = debugContent;
-        document.body.appendChild(debugDiv);
-        
-        // Toggle debug info visibility on double-tap/click
-        let debugVisible = false;
-        document.addEventListener('dblclick', function() {
-            debugVisible = !debugVisible;
-            debugDiv.style.display = debugVisible ? 'block' : 'none';
+        // Preview file upload
+        const fileInput = document.querySelector('input[type="file"]');
+        fileInput.addEventListener('change', function() {
+            // Update the file input to show the file name
+            if (this.files && this.files[0]) {
+                const fileName = this.files[0].name;
+                this.nextElementSibling.textContent = fileName;
+            }
         });
     });
 </script>
