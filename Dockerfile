@@ -40,8 +40,12 @@ RUN pip install --no-cache-dir Flask-WTF==1.2.1 WTForms==3.1.1
 # Copy the application
 COPY . .
 
+# Ensure static directory exists and has proper permissions
+RUN mkdir -p static && chmod -R 755 static
+
 # Create necessary directories
-RUN mkdir -p uploads/profile_pictures uploads/pet_images uploads/playdate_photos uploads/gallery
+RUN mkdir -p uploads/profile_pictures uploads/pet_images uploads/playdate_photos uploads/gallery && \
+    chmod -R 755 uploads
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
