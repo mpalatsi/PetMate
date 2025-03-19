@@ -35,6 +35,7 @@ RUN pip install --no-cache-dir psycopg2-binary==2.9.9
 RUN pip install --no-cache-dir Flask-SocketIO==5.3.4 python-socketio==5.8.0 python-engineio==4.4.1
 RUN pip install --no-cache-dir gevent==23.9.1 gevent-websocket==0.10.1 eventlet==0.33.3
 RUN pip install --no-cache-dir requests==2.31.0 phonenumbers==8.13.31 bcrypt==4.1.2 beautifulsoup4==4.12.2
+RUN pip install --no-cache-dir Flask-WTF==1.2.1 WTForms==3.1.1
 
 # Copy the application
 COPY . .
