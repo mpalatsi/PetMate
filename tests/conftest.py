@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import pytest
 from app import create_app, db
 from app.models.user import User
@@ -11,6 +12,16 @@ from config import TestingConfig
 
 # Add the project root directory to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Import Selenium components if available
+try:
+    from selenium import webdriver
+    from selenium.webdriver.chrome.service import Service
+    from selenium.webdriver.chrome.options import Options
+    from webdriver_manager.chrome import ChromeDriverManager
+    SELENIUM_AVAILABLE = True
+except ImportError:
+    SELENIUM_AVAILABLE = False
 
 @pytest.fixture(scope='module')
 def test_app():
@@ -134,3 +145,95 @@ def mobile_headers():
     return {
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'
     } 
+
+# Selenium Fixtures
+if SELENIUM_AVAILABLE:
+    @pytest.fixture(scope="session")
+    def selenium_app():
+        """Create and configure a Flask app for Selenium testing"""
+        app = create_app(TestingConfig)
+        app.config.update({
+            "TESTING": True,
+            "SERVER_NAME": "localhost:5000",
+            "PREFERRED_URL_SCHEME": "http"
+        })
+        
+        # Create an application context for the test
+        with app.app_context():
+            db.create_all()
+            
+            # Create test user
+            test_user = User.query.filter_by(username='selenium_test').first()
+            if not test_user:
+                test_user = User(username='selenium_test', email='selenium_test@example.com')
+                test_user.set_password('test123')
+                db.session.add(test_user)
+                db.session.commit()
+                
+            # Create test admin
+            admin_user = User.query.filter_by(username='selenium_admin').first()
+            if not admin_user:
+                admin_user = User(username='selenium_admin', email='selenium_admin@example.com', is_admin=True)
+                admin_user.set_password('admin123')
+                db.session.add(admin_user)
+                db.session.commit()
+                
+            yield app
+            
+    @pytest.fixture(scope="session")
+    def flask_server(selenium_app):
+        """Start a Flask server for Selenium tests"""
+        from threading import Thread
+        server = Thread(target=selenium_app.run, kwargs={
+            'debug': False,
+            'use_reloader': False
+        })
+        server.daemon = True
+        server.start()
+        
+        # Wait for server to start
+        time.sleep(1)
+        
+        yield server
+
+    @pytest.fixture(scope="function")
+    def chrome_driver(flask_server):
+        """Set up Chrome WebDriver for tests"""
+        chrome_options = Options()
+        # chrome_options.add_argument("--headless")  # Uncomment to run headless
+        chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--no-sandbox")
+        
+        try:
+            # Use Selenium's built-in driver management
+            driver = webdriver.Chrome(options=chrome_options)
+            driver.implicitly_wait(10)  # seconds
+            
+            yield driver
+            
+            # Cleanup
+            driver.quit()
+        except Exception as e:
+            print(f"Error setting up Chrome driver: {e}")
+            print("Trying alternative approach...")
+            
+            try:
+                # Alternative approach using direct WebDriverManager
+                driver_path = ChromeDriverManager().install()
+                service = Service(executable_path=driver_path)
+                driver = webdriver.Chrome(service=service, options=chrome_options)
+                driver.implicitly_wait(10)
+                
+                yield driver
+                
+                # Cleanup
+                driver.quit()
+            except Exception as e:
+                print(f"Failed to initialize Chrome driver: {e}")
+                pytest.skip("Chrome driver initialization failed")
+
+    @pytest.fixture(scope="session")
+    def base_url():
+        """Return the base URL for the Flask app"""
+        return "http://localhost:5000" 

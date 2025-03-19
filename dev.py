@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Development script for PetMate application.
 This script will:
@@ -13,7 +13,61 @@ Usage:
 
 import os
 import sys
+import argparse
+import socket
+from subprocess import Popen
 from app import create_app, db, socketio
+
+def is_port_in_use(port):
+    """Check if the specified port is in use."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('localhost', port)) == 0
+
+def start_dev_server(debug=True, reload=True, port=5001):
+    """
+    Start the Flask development server with optional debugging.
+    
+    Args:
+        debug (bool): Enable debug mode
+        reload (bool): Enable auto-reload on code changes
+        port (int): Port to run the server on
+    """
+    if is_port_in_use(port):
+        print(f"ERROR: Port {port} is already in use! Choose a different port.")
+        return False
+    
+    print(f"Starting development server on port {port}")
+    
+    # Set environment variables
+    env = os.environ.copy()
+    env['FLASK_APP'] = 'app.py'
+    
+    if debug:
+        env['FLASK_DEBUG'] = '1'
+        print("Debug mode: ENABLED")
+    else:
+        env['FLASK_DEBUG'] = '0'
+        print("Debug mode: DISABLED")
+    
+    # Construct command
+    cmd = [sys.executable, 'app.py']
+    
+    # Start the process
+    try:
+        process = Popen(cmd, env=env)
+        print(f"Server running at http://localhost:{port}")
+        print("Press Ctrl+C to stop the server")
+        
+        # Wait for the process to complete
+        process.wait()
+        return True
+    except KeyboardInterrupt:
+        print("\nShutting down server...")
+        process.terminate()
+        return True
+    except Exception as e:
+        print(f"Error starting server: {e}")
+        return False
 
 def setup_development_environment():
     """Set up the development environment."""
@@ -67,18 +121,25 @@ def run_application(app):
     )
 
 def main():
-    """Main function to run the development server."""
-    # Set up development environment
-    setup_development_environment()
+    """Command-line entry point."""
+    parser = argparse.ArgumentParser(description="PetMate Development Server")
     
-    # Create Flask app
-    app = create_app()
+    parser.add_argument('--no-debug', action='store_true', 
+                       help='Disable debug mode')
+    parser.add_argument('--no-reload', action='store_true',
+                       help='Disable auto-reload on code changes')
+    parser.add_argument('--port', type=int, default=5001,
+                       help='Port to run the server on (default: 5001)')
     
-    # Initialize database
-    initialize_database(app)
+    args = parser.parse_args()
     
-    # Run application
-    run_application(app)
+    success = start_dev_server(
+        debug=not args.no_debug,
+        reload=not args.no_reload,
+        port=args.port
+    )
+    
+    return 0 if success else 1
 
 if __name__ == '__main__':
-    main() 
+    sys.exit(main()) 
